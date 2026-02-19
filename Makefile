@@ -4,6 +4,7 @@ all: setup
 
 test: setup
 	. .venv/bin/activate && pytest -s
+	python3 -m unittest contrib/redactr_poc.py
 
 setup: venv
 

@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 from ipaddress import IPv4Address, IPv6Address, ip_address, ip_interface
-from os import environ
+from os import environ, path
 from unittest import TestCase, expectedFailure, main as unittest_main
 from typing import List, Tuple
 import hashlib
@@ -9,28 +9,31 @@ import re
 import secrets
 import sys
 
-# from faker import Faker
-# fake = Faker()
+
+STRINGREPLACER_JSON = path.join(
+    path.dirname(__file__), 'redactr_poc.stringreplacer.json')
 
 
-class Replacement:
-    pass
+class FuToken:
+    "Future token"
+    def resolve(self):
+        raise NotImplementedError
 
 
-class StringReplacement(Replacement):
-    """
-    Placeholder for a replacement. To be stringified at the second pass.
-    """
+class FuStr(FuToken):
+    "Future string; call resolve() when all data has been gathered"
     def __init__(self, replacer, get_args):
         self.replacer = replacer
         self.get_args = get_args
 
-    def __str__(self):
-        self.replacer.done_feeding()  # we can calculate replacements now
+    def resolve(self):
         replacement = self.replacer.get(self.get_args)
         assert isinstance(replacement, str), (
             self.replacer, self.get_args, '=', replacement)
         return replacement
+
+    def __str__(self):
+        raise RuntimeError('do not call str(); use resolve()')
 
 
 class ReplacerBase:
@@ -43,11 +46,11 @@ class ReplacerBase:
         self.salt: bytes = (
             salt if salt is not None else secrets.token_bytes(16))
 
-    def __call__(self, text: str) -> StringReplacement | None:
+    def __call__(self, text: str) -> FuStr | None:
         """
-        Return a StringReplacement or None if this is not something we handle.
+        Return a FuStr or None if this is not something we handle.
 
-        The StringReplacement is not processed until the first stringification
+        The FuStr is not processed until the first stringification
         happens. At first stringification, done_feeding() is called so the
         replacements can be calculated with all info.
         """
@@ -165,7 +168,7 @@ class IpReplacer(ReplacerBase):
 
     # ---------- public API ----------
 
-    def make_replacement(self, text: str) -> StringReplacement | None:
+    def make_replacement(self, text: str) -> FuStr | None:
         """
         Feed a token. This is a pre-replacement step.
 
@@ -184,17 +187,19 @@ class IpReplacer(ReplacerBase):
 
         self._unprocessed.add((text, bin_ip))
 
-        return StringReplacement(self, text)
+        return FuStr(self, text)
 
-    def done_feeding(self):
+    def get(self, get_args):
+        if self._unprocessed:
+            self._done_feeding()
+        return self._text_mapping.get(get_args)
+
+    def _done_feeding(self):
         # Process all items at once.
         if self._unprocessed:
             for text_ip, bin_ip in self._unprocessed:
                 self._set(text_ip, bin_ip)
             self._unprocessed.clear()
-
-    def get(self, get_args):
-        return self._text_mapping.get(get_args)
 
     def _set(self, text_ip, bin_ip):
         # If we're feeding data after stringify we might have cached
@@ -294,17 +299,18 @@ class MacReplacer(ReplacerBase):
         # Add to list of unprocessed items.
         self._unprocessed.add((text, bin_mac, is_upper))
 
-        return StringReplacement(self, text)
-
-    def done_feeding(self):
-        # Process all items at once.
-        if self._unprocessed:
-            for text_mac, bin_mac, is_upper in self._unprocessed:
-                self._set(text_mac, bin_mac, is_upper)
-            self._unprocessed.clear()
+        return FuStr(self, text)
 
     def get(self, get_args):
+        if self._unprocessed:
+            self._done_feeding()
         return self._text_mapping.get(get_args)
+
+    def _done_feeding(self):
+        # Process all items at once.
+        for text_mac, bin_mac, is_upper in self._unprocessed:
+            self._set(text_mac, bin_mac, is_upper)
+        self._unprocessed.clear()
 
     def _set(self, text_mac, bin_mac, is_upper):
         # If we're feeding data after stringify we might have cached
@@ -356,36 +362,22 @@ class MacReplacer(ReplacerBase):
         return text_mac
 
 
-# class NameReplacer(ReplacerBase):
-#     def __init__(self):
-#         self.cache = {}
-#
-#     def replace(self, text: str) -> str:
-#         # crude heuristic: replace if it looks like a name (letters+spaces)
-#         if not re.match(r'^[A-Za-z][A-Za-z\s\-]+$', text):
-#             return text
-#         if text in self.cache:
-#             return self.cache[text]
-#
-#         # XXX fake_name = fake.name()
-#         fake_name = self.cache[text] = 'FIXME'  # fake_name
-#         return fake_name
-
-
-def is_datetime(text):
-    return is_datetime._re.match(text)
-is_datetime._re = re.compile(  # noqa
-    r'^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}([.]\d+)?Z?$')
-
-
 class StringReplacer(ReplacerBase):
+    IS_DATETIME_RE = re.compile(
+        r'^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}([.]\d+)?Z?$')
+
+    @classmethod
+    def is_datetime(cls, text):
+        return cls.IS_DATETIME_RE.match(text)
+
     def __init__(self):
         self._replacements = {}
         self._unprocessed = set()
         self._processed = {}
 
+        # Hackery.
         try:
-            with open('redactr_poc.stringreplacer.json', 'r') as fp:
+            with open(STRINGREPLACER_JSON, 'r') as fp:
                 for line in fp:
                     enabled, from_, to = json.loads(line)
                     if enabled and from_ != to:
@@ -393,18 +385,23 @@ class StringReplacer(ReplacerBase):
         except FileNotFoundError:
             pass
 
-    def make_replacement(self, text: str) -> StringReplacement | None:
+    def make_replacement(self, text: str) -> FuStr | None:
         if text == '':
             return None
-        if is_datetime(text):
+        if self.is_datetime(text):
             return None
 
         if text not in self._unprocessed:
             self._unprocessed.add(text)
 
-        return StringReplacement(self, text)
+        return FuStr(self, text)
 
-    def done_feeding(self):
+    def get(self, get_args):
+        if self._unprocessed:
+            self._done_feeding()
+        return self._processed.get(get_args)
+
+    def _done_feeding(self):
         # Process all items at once.
         for text in sorted(self._unprocessed):
             if text not in self._processed:
@@ -412,16 +409,15 @@ class StringReplacer(ReplacerBase):
                 self._processed[text] = replaced
         self._unprocessed.clear()
 
-        with open('redactr_poc.stringreplacer.json', 'w') as fp:
+        # Hackery.
+        with open(STRINGREPLACER_JSON, 'w') as fp:
             for from_, to in sorted(self._replacements.items()):
                 assert from_ != to, (from_, to)
                 fp.write(json.dumps([1, from_, to]) + '\n')
             for from_, to in sorted(self._processed.items()):
                 if from_ == to:
                     fp.write(json.dumps([0, from_, to]) + '\n')
-
-    def get(self, get_args):
-        return self._processed.get(get_args)
+            print(f'(updated {STRINGREPLACER_JSON})', file=sys.stderr)
 
 
 class RedactrEngine:
@@ -461,16 +457,22 @@ class RedactrEngine:
             for fn in processors:
                 if (new := fn(obj)) and new is not None:
                     return new
-            return obj          # just return orig
-        elif isinstance(obj, StringReplacement):
+            # If there was no replacement, return the string as-is.
+            return obj
+        elif isinstance(obj, FuStr):
             assert processors == [], processors
-            return str(obj)     # only seen the second pass
+            return obj.resolve()    # only seen the second pass
         else:
             assert isinstance(obj, (type(None), bool, float, int)), obj
             return obj
 
 
-class IpReplacerTestCase(TestCase):
+class RedactrTestCase(TestCase):
+    def assertReplaced(self, replacer, expected):
+        return self.assertEqual(replacer.resolve(), expected)
+
+
+class IpReplacerTestCase(RedactrTestCase):
     def test_process(self):
         inputs = (
             ('10.123.13.22/24', '10.255.129.207/24'),
@@ -523,73 +525,73 @@ class IpReplacerTestCase(TestCase):
             # print('-', from_, repr(replacement))
         for (from_, to), replacement in zip(inputs, replacements):
             # print(f'        ({from_!r}, {str(replacement)!r}),')
-            self.assertEqual(str(replacement), to)
+            self.assertReplaced(replacement, to)
 
     def test_ipv4(self):
         r = IpReplacer(salt=b'abcd')
-        self.assertEqual(str(r('1.2.3.4')), '100.84.255.5')
-        self.assertEqual(str(r('88.88.144.65/31')), '100.116.188.159/31')
+        self.assertReplaced(r('1.2.3.4'), '100.84.255.5')
+        self.assertReplaced(r('88.88.144.65/31'), '100.116.188.159/31')
 
     @expectedFailure  # NotImplemented
     def test_ipv4_network_stays_valid(self):
         r = IpReplacer(salt=b'abcd')
-        self.assertEqual(str(r('1.2.3.4/31')), '100.84.255.4/31')
-        self.assertEqual(str(r('10.20.30.129/25')), '10.151.230.203/25')
-        self.assertEqual(str(r('10.20.30.128/25')), '10.64.140.128/25')
+        self.assertReplaced(r('1.2.3.4/31'), '100.84.255.4/31')
+        self.assertReplaced(r('10.20.30.129/25'), '10.151.230.203/25')
+        self.assertReplaced(r('10.20.30.128/25'), '10.64.140.128/25')
 
     @expectedFailure  # NotImplemented
     def test_ipv4_special_stays_special(self):
         # Very special case
         r = IpReplacer()
-        self.assertEqual(str(r('0.0.0.0')), '0.0.0.0')
-        self.assertEqual(str(r('255.255.255.255')), '255.255.255.255')
+        self.assertReplaced(r('0.0.0.0'), '0.0.0.0')
+        self.assertReplaced(r('255.255.255.255'), '255.255.255.255')
 
         # Regular special case: keep 0 and 255
         r = IpReplacer(salt=b'abcd')
-        self.assertEqual(str(r('1.2.3.0')), '100.113.34.0')
-        self.assertEqual(str(r('1.2.3.255')), '100.113.34.255')
+        self.assertReplaced(r('1.2.3.0'), '100.113.34.0')
+        self.assertReplaced(r('1.2.3.255'), '100.113.34.255')
 
     def test_ipv6(self):
         r = IpReplacer(salt=b'abcd')
-        self.assertEqual(
-            str(r('2001:db8::200e/31')),
+        self.assertReplaced(
+            r('2001:db8::200e/31'),
             'fde8:5897:ad77:c63f:d64b:6910:2d6f:e124/31')
 
     @expectedFailure  # NotImplemented
     def test_ipv6_ip4(self):
         r = IpReplacer(salt=b'abcd')
-        self.assertEqual(r.replace('::ffff:1.2.3.4/31'), '::ffff:?.?.?.?/31')
+        self.assertReplaced(r('::ffff:1.2.3.4/31'), '::ffff:?.?.?.?/31')
 
 
-class MacReplacerTestCase(TestCase):
+class MacReplacerTestCase(RedactrTestCase):
     def test_case(self):
         r = MacReplacer(salt=b'abcd')
         # mixed case
-        self.assertEqual(
-            str(r('00:30:ab:AB:CD:EF')), '00:30:ab:0c:98:36')
+        self.assertReplaced(
+            r('00:30:ab:AB:CD:EF'), '00:30:ab:0c:98:36')
         # lowercase
-        self.assertEqual(
-            str(r('00:30:ab:ab:cd:ef')), '00:30:ab:0c:98:36')
+        self.assertReplaced(
+            r('00:30:ab:ab:cd:ef'), '00:30:ab:0c:98:36')
         # uppercase
-        self.assertEqual(
-            str(r('00:30:AB:AB:CD:EF')), '00:30:AB:0C:98:36')
+        self.assertReplaced(
+            r('00:30:AB:AB:CD:EF'), '00:30:AB:0C:98:36')
 
     def test_extremes(self):
         r = MacReplacer()
-        self.assertEqual(
-            str(r('00:00:00:00:00:00')), '00:00:00:00:00:00')
-        self.assertEqual(
-            str(r('ff:ff:ff:ff:ff:ff')), 'ff:ff:ff:ff:ff:ff')
-        self.assertEqual(
-            str(r('FF:FF:FF:FF:FF:FF')), 'FF:FF:FF:FF:FF:FF')
+        self.assertReplaced(
+            r('00:00:00:00:00:00'), '00:00:00:00:00:00')
+        self.assertReplaced(
+            r('ff:ff:ff:ff:ff:ff'), 'ff:ff:ff:ff:ff:ff')
+        self.assertReplaced(
+            r('FF:FF:FF:FF:FF:FF'), 'FF:FF:FF:FF:FF:FF')
 
     def test_match_no_match(self):
         r = MacReplacer()
 
         self.assertIsNone(r('aap-noot-mies'))
 
-        self.assertIsInstance(r('00:11:22:33:44:55'), StringReplacement)
-        self.assertEqual(len(str(r('00:11:22:33:44:55'))), 17)
+        self.assertIsInstance(r('00:11:22:33:44:55'), FuStr)
+        self.assertEqual(len(r('00:11:22:33:44:55').resolve()), 17)
 
         self.assertIsNone(r(':11:22:33:44:55'))
         self.assertIsNone(r('00:11:22:33:44:5'))
@@ -597,21 +599,21 @@ class MacReplacerTestCase(TestCase):
     def test_salt(self):
         # salt
         r = MacReplacer(salt=b'abcd')
-        self.assertEqual(str(r('00:11:22:33:44:55')), '00:11:22:df:44:8f')
-        self.assertEqual(str(r('00:11:22:33:44:54')), '00:11:22:1a:a4:d8')
+        self.assertReplaced(r('00:11:22:33:44:55'), '00:11:22:df:44:8f')
+        self.assertReplaced(r('00:11:22:33:44:54'), '00:11:22:1a:a4:d8')
 
         # replace again, still yields same
-        self.assertEqual(str(r('00:11:22:33:44:55')), '00:11:22:df:44:8f')
+        self.assertReplaced(r('00:11:22:33:44:55'), '00:11:22:df:44:8f')
 
         # diff salt
         r = MacReplacer(salt=b'1234')
-        self.assertEqual(str(r('00:11:22:33:44:55')), '00:11:22:29:56:a1')
-        self.assertEqual(str(r('00:11:22:33:44:54')), '00:11:22:20:42:4a')
+        self.assertReplaced(r('00:11:22:33:44:55'), '00:11:22:29:56:a1')
+        self.assertReplaced(r('00:11:22:33:44:54'), '00:11:22:20:42:4a')
 
         # same salt as earlier again
         r = MacReplacer(salt=b'abcd')
-        self.assertEqual(str(r('00:11:22:33:44:54')), '00:11:22:1a:a4:d8')
-        self.assertEqual(str(r('00:11:22:33:44:55')), '00:11:22:df:44:8f')
+        self.assertReplaced(r('00:11:22:33:44:54'), '00:11:22:1a:a4:d8')
+        self.assertReplaced(r('00:11:22:33:44:55'), '00:11:22:df:44:8f')
 
 
 def main(salt=None):
