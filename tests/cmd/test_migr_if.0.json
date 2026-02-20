@@ -1,0 +1,4767 @@
+[
+  {
+    "method": "GET",
+    "path": "/api/dcim/devices/",
+    "params": {
+      "name": "switch2.dostno.systems",
+      "limit": 0
+    },
+    "data": null,
+    "status": 200,
+    "response": {
+      "count": 1,
+      "next": null,
+      "previous": null,
+      "results": [
+        {
+          "id": 82,
+          "url": "https://netbox.example.com/api/dcim/devices/82/",
+          "display_url": "https://netbox.example.com/dcim/devices/82/",
+          "display": "switch2.dostno.systems",
+          "name": "switch2.dostno.systems",
+          "device_type": {
+            "id": 18,
+            "url": "https://netbox.example.com/api/dcim/device-types/18/",
+            "display": "DELTA AG5648V1 Back-to-Front",
+            "manufacturer": {
+              "id": 7,
+              "url": "https://netbox.example.com/api/dcim/manufacturers/7/",
+              "display": "Delta",
+              "name": "Delta",
+              "slug": "delta",
+              "description": ""
+            },
+            "model": "DELTA AG5648V1 Back-to-Front",
+            "slug": "delta-ag5648v1-back-to-front",
+            "description": ""
+          },
+          "role": {
+            "id": 5,
+            "url": "https://netbox.example.com/api/dcim/device-roles/5/",
+            "display": "closso-network",
+            "name": "closso-network",
+            "slug": "closso-network",
+            "description": "",
+            "device_count": 0,
+            "virtualmachine_count": 0,
+            "_depth": 0
+          },
+          "tenant": {
+            "id": 109,
+            "url": "https://netbox.example.com/api/tenancy/tenants/109/",
+            "display": "Dostno Closso cat4",
+            "name": "Dostno Closso cat4",
+            "slug": "dostno-closso-cat4",
+            "description": ""
+          },
+          "platform": {
+            "id": 1,
+            "url": "https://netbox.example.com/api/dcim/platforms/1/",
+            "display": "Cumulus Linux 3.x",
+            "name": "Cumulus Linux 3.x",
+            "slug": "cumulus-linux-3-x",
+            "description": ""
+          },
+          "serial": "",
+          "asset_tag": null,
+          "site": {
+            "id": 1,
+            "url": "https://netbox.example.com/api/dcim/sites/1/",
+            "display": "DR",
+            "name": "DR",
+            "slug": "dr",
+            "description": ""
+          },
+          "location": null,
+          "rack": {
+            "id": 1,
+            "url": "https://netbox.example.com/api/dcim/racks/1/",
+            "display": "D02",
+            "name": "D02",
+            "description": ""
+          },
+          "position": 41.0,
+          "face": {
+            "value": "rear",
+            "label": "Rear"
+          },
+          "latitude": null,
+          "longitude": null,
+          "parent_device": null,
+          "status": {
+            "value": "active",
+            "label": "Active"
+          },
+          "airflow": null,
+          "primary_ip": {
+            "id": 147,
+            "url": "https://netbox.example.com/api/ipam/ip-addresses/147/",
+            "display": "10.123.1.220/24",
+            "family": {
+              "value": 4,
+              "label": "IPv4"
+            },
+            "address": "10.123.1.220/24",
+            "description": ""
+          },
+          "primary_ip4": {
+            "id": 147,
+            "url": "https://netbox.example.com/api/ipam/ip-addresses/147/",
+            "display": "10.123.1.220/24",
+            "family": {
+              "value": 4,
+              "label": "IPv4"
+            },
+            "address": "10.123.1.220/24",
+            "description": ""
+          },
+          "primary_ip6": null,
+          "oob_ip": null,
+          "cluster": null,
+          "virtual_chassis": null,
+          "vc_position": null,
+          "vc_priority": null,
+          "description": "",
+          "comments": "",
+          "config_template": {
+            "id": 1,
+            "url": "https://netbox.example.com/api/extras/config-templates/1/",
+            "display": "closso",
+            "name": "closso",
+            "description": "Generic closso configuration that includes all significant settings."
+          },
+          "config_context": {
+            "osso_isms": {
+              "data_class": {
+                "level": 4,
+                "description": "Category 4"
+              }
+            },
+            "grafana": {
+              "alloy": {
+                "enabled": true
+              }
+            },
+            "closso_ipv6": true,
+            "community": "54321:10004",
+            "ssh": {
+              "allow_from": "10.123.1.1",
+              "oxidized_allow_from": "10.123.1.2"
+            },
+            "pci_dss": {
+              "separate_users": true
+            },
+            "zabbix_proxy_ip": "10.123.1.1",
+            "cumulus": {
+              "ports.conf": {
+                "45": "10G",
+                "46": "10G",
+                "47": "10G",
+                "48": "10G",
+                "53": "4x25G",
+                "54": "4x10G"
+              }
+            },
+            "juniper_corelink_ip": "12.34.8.134/31",
+            "juniper_corelink_ipv6": "1234:8080::12:34:8:134/127"
+          },
+          "local_context_data": {
+            "cumulus": {
+              "ports.conf": {
+                "45": "10G",
+                "46": "10G",
+                "47": "10G",
+                "48": "10G",
+                "53": "4x25G",
+                "54": "4x10G"
+              }
+            },
+            "closso_ipv6": true,
+            "juniper_corelink_ip": "12.34.8.134/31",
+            "juniper_corelink_ipv6": "1234:8080::12:34:8:134/127"
+          },
+          "tags": [],
+          "custom_fields": {
+            "asn": 65210,
+            "cumulus_version": "3.7.12",
+            "gocollect_id": "9c900880-926e-4050-8aa6-d3f1a9041efd",
+            "machine_id": "5b8aeac47ab740d38b52347f027f45e8",
+            "service_code_device": "netbox-device"
+          },
+          "created": "2020-11-07T00:00:00Z",
+          "last_updated": "2025-10-28T08:56:33.062051Z",
+          "console_port_count": 0,
+          "console_server_port_count": 0,
+          "power_port_count": 0,
+          "power_outlet_count": 0,
+          "interface_count": 74,
+          "front_port_count": 0,
+          "rear_port_count": 0,
+          "device_bay_count": 0,
+          "module_bay_count": 0,
+          "inventory_item_count": 0
+        }
+      ]
+    }
+  },
+  {
+    "method": "GET",
+    "path": "/api/dcim/interfaces/",
+    "params": {
+      "device_id": 82,
+      "name": "swp53s0",
+      "limit": 0
+    },
+    "data": null,
+    "status": 200,
+    "response": {
+      "count": 1,
+      "next": null,
+      "previous": null,
+      "results": [
+        {
+          "id": 518,
+          "url": "https://netbox.example.com/api/dcim/interfaces/518/",
+          "display_url": "https://netbox.example.com/dcim/interfaces/518/",
+          "display": "swp53s0",
+          "device": {
+            "id": 82,
+            "url": "https://netbox.example.com/api/dcim/devices/82/",
+            "display": "switch2.dostno.systems",
+            "name": "switch2.dostno.systems",
+            "description": ""
+          },
+          "vdcs": [],
+          "module": null,
+          "name": "swp53s0",
+          "label": "",
+          "type": {
+            "value": "25gbase-x-sfp28",
+            "label": "SFP28 (25GE)"
+          },
+          "enabled": true,
+          "parent": null,
+          "bridge": null,
+          "lag": null,
+          "mtu": null,
+          "mac_address": null,
+          "primary_mac_address": null,
+          "mac_addresses": [],
+          "speed": null,
+          "duplex": null,
+          "wwn": null,
+          "mgmt_only": false,
+          "description": "",
+          "mode": null,
+          "rf_role": null,
+          "rf_channel": null,
+          "poe_mode": null,
+          "poe_type": null,
+          "rf_channel_frequency": null,
+          "rf_channel_width": null,
+          "tx_power": null,
+          "untagged_vlan": null,
+          "tagged_vlans": [],
+          "qinq_svlan": null,
+          "vlan_translation_policy": null,
+          "mark_connected": false,
+          "cable": {
+            "id": 137,
+            "url": "https://netbox.example.com/api/dcim/cables/137/",
+            "display": "#137",
+            "label": "",
+            "description": ""
+          },
+          "cable_end": "A",
+          "wireless_link": null,
+          "link_peers": [
+            {
+              "id": 5581,
+              "url": "https://netbox.example.com/api/dcim/interfaces/5581/",
+              "display": "enmlx0",
+              "device": {
+                "id": 6,
+                "url": "https://netbox.example.com/api/dcim/devices/6/",
+                "display": "pve1.dostno.systems",
+                "name": "pve1.dostno.systems",
+                "description": ""
+              },
+              "name": "enmlx0",
+              "description": "",
+              "cable": {
+                "id": 137,
+                "url": "https://netbox.example.com/api/dcim/cables/137/",
+                "display": "#137",
+                "label": "",
+                "description": ""
+              },
+              "_occupied": true
+            }
+          ],
+          "link_peers_type": "dcim.interface",
+          "wireless_lans": [],
+          "vrf": null,
+          "l2vpn_termination": null,
+          "connected_endpoints": [
+            {
+              "id": 5581,
+              "url": "https://netbox.example.com/api/dcim/interfaces/5581/",
+              "display": "enmlx0",
+              "device": {
+                "id": 6,
+                "url": "https://netbox.example.com/api/dcim/devices/6/",
+                "display": "pve1.dostno.systems",
+                "name": "pve1.dostno.systems",
+                "description": ""
+              },
+              "name": "enmlx0",
+              "description": "",
+              "cable": {
+                "id": 137,
+                "url": "https://netbox.example.com/api/dcim/cables/137/",
+                "display": "#137",
+                "label": "",
+                "description": ""
+              },
+              "_occupied": true
+            }
+          ],
+          "connected_endpoints_type": "dcim.interface",
+          "connected_endpoints_reachable": true,
+          "tags": [],
+          "custom_fields": {},
+          "created": "2021-05-04T00:00:00Z",
+          "last_updated": "2022-12-20T20:35:25.138150Z",
+          "count_ipaddresses": 0,
+          "count_fhrp_groups": 0,
+          "_occupied": true
+        }
+      ]
+    }
+  },
+  {
+    "method": "GET",
+    "path": "/api/dcim/interfaces/",
+    "params": {
+      "device_id": 82,
+      "parent_id": 518,
+      "limit": 0
+    },
+    "data": null,
+    "status": 200,
+    "response": {
+      "count": 6,
+      "next": null,
+      "previous": null,
+      "results": [
+        {
+          "id": 660,
+          "url": "https://netbox.example.com/api/dcim/interfaces/660/",
+          "display_url": "https://netbox.example.com/dcim/interfaces/660/",
+          "display": "swp53s0.50",
+          "device": {
+            "id": 82,
+            "url": "https://netbox.example.com/api/dcim/devices/82/",
+            "display": "switch2.dostno.systems",
+            "name": "switch2.dostno.systems",
+            "description": ""
+          },
+          "vdcs": [],
+          "module": null,
+          "name": "swp53s0.50",
+          "label": "",
+          "type": {
+            "value": "virtual",
+            "label": "Virtual"
+          },
+          "enabled": true,
+          "parent": {
+            "id": 518,
+            "url": "https://netbox.example.com/api/dcim/interfaces/518/",
+            "display_url": "https://netbox.example.com/dcim/interfaces/518/",
+            "display": "swp53s0",
+            "device": {
+              "id": 82,
+              "url": "https://netbox.example.com/api/dcim/devices/82/",
+              "display_url": "https://netbox.example.com/dcim/devices/82/",
+              "display": "switch2.dostno.systems",
+              "name": "switch2.dostno.systems"
+            },
+            "name": "swp53s0",
+            "cable": 137,
+            "_occupied": true
+          },
+          "bridge": null,
+          "lag": null,
+          "mtu": null,
+          "mac_address": "00:30:AB:7D:79:BE",
+          "primary_mac_address": {
+            "id": 201,
+            "url": "https://netbox.example.com/api/dcim/mac-addresses/201/",
+            "display": "00:30:AB:7D:79:BE",
+            "mac_address": "00:30:AB:7D:79:BE",
+            "description": ""
+          },
+          "mac_addresses": [
+            {
+              "id": 201,
+              "url": "https://netbox.example.com/api/dcim/mac-addresses/201/",
+              "display": "00:30:AB:7D:79:BE",
+              "mac_address": "00:30:AB:7D:79:BE",
+              "description": ""
+            }
+          ],
+          "speed": null,
+          "duplex": null,
+          "wwn": null,
+          "mgmt_only": false,
+          "description": "",
+          "mode": null,
+          "rf_role": null,
+          "rf_channel": null,
+          "poe_mode": null,
+          "poe_type": null,
+          "rf_channel_frequency": null,
+          "rf_channel_width": null,
+          "tx_power": null,
+          "untagged_vlan": null,
+          "tagged_vlans": [],
+          "qinq_svlan": null,
+          "vlan_translation_policy": null,
+          "mark_connected": false,
+          "cable": null,
+          "cable_end": null,
+          "wireless_link": null,
+          "link_peers": [],
+          "link_peers_type": null,
+          "wireless_lans": [],
+          "vrf": {
+            "id": 5,
+            "url": "https://netbox.example.com/api/ipam/vrfs/5/",
+            "display": "DOSTNO_PUBLIC (0050-DOSTNO_PUBLIC)",
+            "name": "DOSTNO_PUBLIC",
+            "rd": "0050-DOSTNO_PUBLIC",
+            "description": "DOSTNO_PUBLIC equivalent"
+          },
+          "l2vpn_termination": null,
+          "connected_endpoints": null,
+          "connected_endpoints_type": null,
+          "connected_endpoints_reachable": null,
+          "tags": [],
+          "custom_fields": {},
+          "created": "2021-06-16T00:00:00Z",
+          "last_updated": "2025-10-27T08:30:25.373608Z",
+          "count_ipaddresses": 1,
+          "count_fhrp_groups": 0,
+          "_occupied": false
+        },
+        {
+          "id": 4989,
+          "url": "https://netbox.example.com/api/dcim/interfaces/4989/",
+          "display_url": "https://netbox.example.com/dcim/interfaces/4989/",
+          "display": "swp53s0.55",
+          "device": {
+            "id": 82,
+            "url": "https://netbox.example.com/api/dcim/devices/82/",
+            "display": "switch2.dostno.systems",
+            "name": "switch2.dostno.systems",
+            "description": ""
+          },
+          "vdcs": [],
+          "module": null,
+          "name": "swp53s0.55",
+          "label": "",
+          "type": {
+            "value": "virtual",
+            "label": "Virtual"
+          },
+          "enabled": true,
+          "parent": {
+            "id": 518,
+            "url": "https://netbox.example.com/api/dcim/interfaces/518/",
+            "display_url": "https://netbox.example.com/dcim/interfaces/518/",
+            "display": "swp53s0",
+            "device": {
+              "id": 82,
+              "url": "https://netbox.example.com/api/dcim/devices/82/",
+              "display_url": "https://netbox.example.com/dcim/devices/82/",
+              "display": "switch2.dostno.systems",
+              "name": "switch2.dostno.systems"
+            },
+            "name": "swp53s0",
+            "cable": 137,
+            "_occupied": true
+          },
+          "bridge": null,
+          "lag": null,
+          "mtu": null,
+          "mac_address": "00:30:AB:7D:79:BE",
+          "primary_mac_address": {
+            "id": 202,
+            "url": "https://netbox.example.com/api/dcim/mac-addresses/202/",
+            "display": "00:30:AB:7D:79:BE",
+            "mac_address": "00:30:AB:7D:79:BE",
+            "description": ""
+          },
+          "mac_addresses": [
+            {
+              "id": 202,
+              "url": "https://netbox.example.com/api/dcim/mac-addresses/202/",
+              "display": "00:30:AB:7D:79:BE",
+              "mac_address": "00:30:AB:7D:79:BE",
+              "description": ""
+            }
+          ],
+          "speed": null,
+          "duplex": null,
+          "wwn": null,
+          "mgmt_only": false,
+          "description": "",
+          "mode": null,
+          "rf_role": null,
+          "rf_channel": null,
+          "poe_mode": null,
+          "poe_type": null,
+          "rf_channel_frequency": null,
+          "rf_channel_width": null,
+          "tx_power": null,
+          "untagged_vlan": null,
+          "tagged_vlans": [],
+          "qinq_svlan": null,
+          "vlan_translation_policy": null,
+          "mark_connected": false,
+          "cable": null,
+          "cable_end": null,
+          "wireless_link": null,
+          "link_peers": [],
+          "link_peers_type": null,
+          "wireless_lans": [],
+          "vrf": {
+            "id": 80,
+            "url": "https://netbox.example.com/api/ipam/vrfs/80/",
+            "display": "DOSTNO_SWIFT (0055-DOSTNO_SWIFT)",
+            "name": "DOSTNO_SWIFT",
+            "rd": "0055-DOSTNO_SWIFT",
+            "description": "Dostno Swift"
+          },
+          "l2vpn_termination": null,
+          "connected_endpoints": null,
+          "connected_endpoints_type": null,
+          "connected_endpoints_reachable": null,
+          "tags": [],
+          "custom_fields": {},
+          "created": "2021-10-26T00:00:00Z",
+          "last_updated": "2025-10-27T08:30:32.063277Z",
+          "count_ipaddresses": 2,
+          "count_fhrp_groups": 0,
+          "_occupied": false
+        },
+        {
+          "id": 5289,
+          "url": "https://netbox.example.com/api/dcim/interfaces/5289/",
+          "display_url": "https://netbox.example.com/dcim/interfaces/5289/",
+          "display": "swp53s0.66",
+          "device": {
+            "id": 82,
+            "url": "https://netbox.example.com/api/dcim/devices/82/",
+            "display": "switch2.dostno.systems",
+            "name": "switch2.dostno.systems",
+            "description": ""
+          },
+          "vdcs": [],
+          "module": null,
+          "name": "swp53s0.66",
+          "label": "",
+          "type": {
+            "value": "virtual",
+            "label": "Virtual"
+          },
+          "enabled": true,
+          "parent": {
+            "id": 518,
+            "url": "https://netbox.example.com/api/dcim/interfaces/518/",
+            "display_url": "https://netbox.example.com/dcim/interfaces/518/",
+            "display": "swp53s0",
+            "device": {
+              "id": 82,
+              "url": "https://netbox.example.com/api/dcim/devices/82/",
+              "display_url": "https://netbox.example.com/dcim/devices/82/",
+              "display": "switch2.dostno.systems",
+              "name": "switch2.dostno.systems"
+            },
+            "name": "swp53s0",
+            "cable": 137,
+            "_occupied": true
+          },
+          "bridge": null,
+          "lag": null,
+          "mtu": null,
+          "mac_address": null,
+          "primary_mac_address": null,
+          "mac_addresses": [],
+          "speed": null,
+          "duplex": null,
+          "wwn": null,
+          "mgmt_only": false,
+          "description": "",
+          "mode": null,
+          "rf_role": null,
+          "rf_channel": null,
+          "poe_mode": null,
+          "poe_type": null,
+          "rf_channel_frequency": null,
+          "rf_channel_width": null,
+          "tx_power": null,
+          "untagged_vlan": null,
+          "tagged_vlans": [],
+          "qinq_svlan": null,
+          "vlan_translation_policy": null,
+          "mark_connected": false,
+          "cable": null,
+          "cable_end": null,
+          "wireless_link": null,
+          "link_peers": [],
+          "link_peers_type": null,
+          "wireless_lans": [],
+          "vrf": {
+            "id": 113,
+            "url": "https://netbox.example.com/api/ipam/vrfs/113/",
+            "display": "DOSTNO_SABER (0066-DOSTNO_SABER)",
+            "name": "DOSTNO_SABER",
+            "rd": "0066-DOSTNO_SABER",
+            "description": ""
+          },
+          "l2vpn_termination": null,
+          "connected_endpoints": null,
+          "connected_endpoints_type": null,
+          "connected_endpoints_reachable": null,
+          "tags": [],
+          "custom_fields": {},
+          "created": "2024-09-05T10:11:58.662562Z",
+          "last_updated": "2025-10-27T08:30:39.333786Z",
+          "count_ipaddresses": 0,
+          "count_fhrp_groups": 0,
+          "_occupied": false
+        },
+        {
+          "id": 5291,
+          "url": "https://netbox.example.com/api/dcim/interfaces/5291/",
+          "display_url": "https://netbox.example.com/dcim/interfaces/5291/",
+          "display": "swp53s0.94",
+          "device": {
+            "id": 82,
+            "url": "https://netbox.example.com/api/dcim/devices/82/",
+            "display": "switch2.dostno.systems",
+            "name": "switch2.dostno.systems",
+            "description": ""
+          },
+          "vdcs": [],
+          "module": null,
+          "name": "swp53s0.94",
+          "label": "",
+          "type": {
+            "value": "virtual",
+            "label": "Virtual"
+          },
+          "enabled": true,
+          "parent": {
+            "id": 518,
+            "url": "https://netbox.example.com/api/dcim/interfaces/518/",
+            "display_url": "https://netbox.example.com/dcim/interfaces/518/",
+            "display": "swp53s0",
+            "device": {
+              "id": 82,
+              "url": "https://netbox.example.com/api/dcim/devices/82/",
+              "display_url": "https://netbox.example.com/dcim/devices/82/",
+              "display": "switch2.dostno.systems",
+              "name": "switch2.dostno.systems"
+            },
+            "name": "swp53s0",
+            "cable": 137,
+            "_occupied": true
+          },
+          "bridge": null,
+          "lag": null,
+          "mtu": null,
+          "mac_address": null,
+          "primary_mac_address": null,
+          "mac_addresses": [],
+          "speed": null,
+          "duplex": null,
+          "wwn": null,
+          "mgmt_only": false,
+          "description": "",
+          "mode": null,
+          "rf_role": null,
+          "rf_channel": null,
+          "poe_mode": null,
+          "poe_type": null,
+          "rf_channel_frequency": null,
+          "rf_channel_width": null,
+          "tx_power": null,
+          "untagged_vlan": null,
+          "tagged_vlans": [],
+          "qinq_svlan": null,
+          "vlan_translation_policy": null,
+          "mark_connected": false,
+          "cable": null,
+          "cable_end": null,
+          "wireless_link": null,
+          "link_peers": [],
+          "link_peers_type": null,
+          "wireless_lans": [],
+          "vrf": {
+            "id": 115,
+            "url": "https://netbox.example.com/api/ipam/vrfs/115/",
+            "display": "DOSTNO_RIM (0094-DOSTNO_RIM)",
+            "name": "DOSTNO_RIM",
+            "rd": "0094-DOSTNO_RIM",
+            "description": ""
+          },
+          "l2vpn_termination": null,
+          "connected_endpoints": null,
+          "connected_endpoints_type": null,
+          "connected_endpoints_reachable": null,
+          "tags": [],
+          "custom_fields": {},
+          "created": "2024-09-05T11:27:42.679753Z",
+          "last_updated": "2025-10-27T08:31:01.468505Z",
+          "count_ipaddresses": 0,
+          "count_fhrp_groups": 0,
+          "_occupied": false
+        },
+        {
+          "id": 5290,
+          "url": "https://netbox.example.com/api/dcim/interfaces/5290/",
+          "display_url": "https://netbox.example.com/dcim/interfaces/5290/",
+          "display": "swp53s0.623",
+          "device": {
+            "id": 82,
+            "url": "https://netbox.example.com/api/dcim/devices/82/",
+            "display": "switch2.dostno.systems",
+            "name": "switch2.dostno.systems",
+            "description": ""
+          },
+          "vdcs": [],
+          "module": null,
+          "name": "swp53s0.623",
+          "label": "",
+          "type": {
+            "value": "virtual",
+            "label": "Virtual"
+          },
+          "enabled": true,
+          "parent": {
+            "id": 518,
+            "url": "https://netbox.example.com/api/dcim/interfaces/518/",
+            "display_url": "https://netbox.example.com/dcim/interfaces/518/",
+            "display": "swp53s0",
+            "device": {
+              "id": 82,
+              "url": "https://netbox.example.com/api/dcim/devices/82/",
+              "display_url": "https://netbox.example.com/dcim/devices/82/",
+              "display": "switch2.dostno.systems",
+              "name": "switch2.dostno.systems"
+            },
+            "name": "swp53s0",
+            "cable": 137,
+            "_occupied": true
+          },
+          "bridge": null,
+          "lag": null,
+          "mtu": null,
+          "mac_address": null,
+          "primary_mac_address": null,
+          "mac_addresses": [],
+          "speed": null,
+          "duplex": null,
+          "wwn": null,
+          "mgmt_only": false,
+          "description": "",
+          "mode": null,
+          "rf_role": null,
+          "rf_channel": null,
+          "poe_mode": null,
+          "poe_type": null,
+          "rf_channel_frequency": null,
+          "rf_channel_width": null,
+          "tx_power": null,
+          "untagged_vlan": null,
+          "tagged_vlans": [],
+          "qinq_svlan": null,
+          "vlan_translation_policy": null,
+          "mark_connected": false,
+          "cable": null,
+          "cable_end": null,
+          "wireless_link": null,
+          "link_peers": [],
+          "link_peers_type": null,
+          "wireless_lans": [],
+          "vrf": {
+            "id": 114,
+            "url": "https://netbox.example.com/api/ipam/vrfs/114/",
+            "display": "DOSTNO_EDEAN (0623-DOSTNO_EDEAN)",
+            "name": "DOSTNO_EDEAN",
+            "rd": "0623-DOSTNO_EDEAN",
+            "description": ""
+          },
+          "l2vpn_termination": null,
+          "connected_endpoints": null,
+          "connected_endpoints_type": null,
+          "connected_endpoints_reachable": null,
+          "tags": [],
+          "custom_fields": {},
+          "created": "2024-09-05T11:27:25.528233Z",
+          "last_updated": "2025-10-27T08:31:09.684763Z",
+          "count_ipaddresses": 0,
+          "count_fhrp_groups": 0,
+          "_occupied": false
+        },
+        {
+          "id": 596,
+          "url": "https://netbox.example.com/api/dcim/interfaces/596/",
+          "display_url": "https://netbox.example.com/dcim/interfaces/596/",
+          "display": "swp53s0.666",
+          "device": {
+            "id": 82,
+            "url": "https://netbox.example.com/api/dcim/devices/82/",
+            "display": "switch2.dostno.systems",
+            "name": "switch2.dostno.systems",
+            "description": ""
+          },
+          "vdcs": [],
+          "module": null,
+          "name": "swp53s0.666",
+          "label": "",
+          "type": {
+            "value": "virtual",
+            "label": "Virtual"
+          },
+          "enabled": true,
+          "parent": {
+            "id": 518,
+            "url": "https://netbox.example.com/api/dcim/interfaces/518/",
+            "display_url": "https://netbox.example.com/dcim/interfaces/518/",
+            "display": "swp53s0",
+            "device": {
+              "id": 82,
+              "url": "https://netbox.example.com/api/dcim/devices/82/",
+              "display_url": "https://netbox.example.com/dcim/devices/82/",
+              "display": "switch2.dostno.systems",
+              "name": "switch2.dostno.systems"
+            },
+            "name": "swp53s0",
+            "cable": 137,
+            "_occupied": true
+          },
+          "bridge": null,
+          "lag": null,
+          "mtu": null,
+          "mac_address": "00:30:AB:7D:79:BE",
+          "primary_mac_address": {
+            "id": 203,
+            "url": "https://netbox.example.com/api/dcim/mac-addresses/203/",
+            "display": "00:30:AB:7D:79:BE",
+            "mac_address": "00:30:AB:7D:79:BE",
+            "description": ""
+          },
+          "mac_addresses": [
+            {
+              "id": 203,
+              "url": "https://netbox.example.com/api/dcim/mac-addresses/203/",
+              "display": "00:30:AB:7D:79:BE",
+              "mac_address": "00:30:AB:7D:79:BE",
+              "description": ""
+            }
+          ],
+          "speed": null,
+          "duplex": null,
+          "wwn": null,
+          "mgmt_only": false,
+          "description": "",
+          "mode": null,
+          "rf_role": null,
+          "rf_channel": null,
+          "poe_mode": null,
+          "poe_type": null,
+          "rf_channel_frequency": null,
+          "rf_channel_width": null,
+          "tx_power": null,
+          "untagged_vlan": null,
+          "tagged_vlans": [],
+          "qinq_svlan": null,
+          "vlan_translation_policy": null,
+          "mark_connected": false,
+          "cable": null,
+          "cable_end": null,
+          "wireless_link": null,
+          "link_peers": [],
+          "link_peers_type": null,
+          "wireless_lans": [],
+          "vrf": {
+            "id": 73,
+            "url": "https://netbox.example.com/api/ipam/vrfs/73/",
+            "display": "DOSTNO (0666-DOSTNO)",
+            "name": "DOSTNO",
+            "rd": "0666-DOSTNO",
+            "description": "DOSTNO_MGMT (semi equivalent)"
+          },
+          "l2vpn_termination": null,
+          "connected_endpoints": null,
+          "connected_endpoints_type": null,
+          "connected_endpoints_reachable": null,
+          "tags": [],
+          "custom_fields": {},
+          "created": "2021-05-04T00:00:00Z",
+          "last_updated": "2025-10-27T08:31:15.827664Z",
+          "count_ipaddresses": 5,
+          "count_fhrp_groups": 0,
+          "_occupied": false
+        }
+      ]
+    }
+  },
+  {
+    "method": "GET",
+    "path": "/api/dcim/interfaces/",
+    "params": {
+      "device_id": 82,
+      "name__isw": "swp53s0.",
+      "limit": 0
+    },
+    "data": null,
+    "status": 200,
+    "response": {
+      "count": 6,
+      "next": null,
+      "previous": null,
+      "results": [
+        {
+          "id": 660,
+          "url": "https://netbox.example.com/api/dcim/interfaces/660/",
+          "display_url": "https://netbox.example.com/dcim/interfaces/660/",
+          "display": "swp53s0.50",
+          "device": {
+            "id": 82,
+            "url": "https://netbox.example.com/api/dcim/devices/82/",
+            "display": "switch2.dostno.systems",
+            "name": "switch2.dostno.systems",
+            "description": ""
+          },
+          "vdcs": [],
+          "module": null,
+          "name": "swp53s0.50",
+          "label": "",
+          "type": {
+            "value": "virtual",
+            "label": "Virtual"
+          },
+          "enabled": true,
+          "parent": {
+            "id": 518,
+            "url": "https://netbox.example.com/api/dcim/interfaces/518/",
+            "display_url": "https://netbox.example.com/dcim/interfaces/518/",
+            "display": "swp53s0",
+            "device": {
+              "id": 82,
+              "url": "https://netbox.example.com/api/dcim/devices/82/",
+              "display_url": "https://netbox.example.com/dcim/devices/82/",
+              "display": "switch2.dostno.systems",
+              "name": "switch2.dostno.systems"
+            },
+            "name": "swp53s0",
+            "cable": 137,
+            "_occupied": true
+          },
+          "bridge": null,
+          "lag": null,
+          "mtu": null,
+          "mac_address": "00:30:AB:7D:79:BE",
+          "primary_mac_address": {
+            "id": 201,
+            "url": "https://netbox.example.com/api/dcim/mac-addresses/201/",
+            "display": "00:30:AB:7D:79:BE",
+            "mac_address": "00:30:AB:7D:79:BE",
+            "description": ""
+          },
+          "mac_addresses": [
+            {
+              "id": 201,
+              "url": "https://netbox.example.com/api/dcim/mac-addresses/201/",
+              "display": "00:30:AB:7D:79:BE",
+              "mac_address": "00:30:AB:7D:79:BE",
+              "description": ""
+            }
+          ],
+          "speed": null,
+          "duplex": null,
+          "wwn": null,
+          "mgmt_only": false,
+          "description": "",
+          "mode": null,
+          "rf_role": null,
+          "rf_channel": null,
+          "poe_mode": null,
+          "poe_type": null,
+          "rf_channel_frequency": null,
+          "rf_channel_width": null,
+          "tx_power": null,
+          "untagged_vlan": null,
+          "tagged_vlans": [],
+          "qinq_svlan": null,
+          "vlan_translation_policy": null,
+          "mark_connected": false,
+          "cable": null,
+          "cable_end": null,
+          "wireless_link": null,
+          "link_peers": [],
+          "link_peers_type": null,
+          "wireless_lans": [],
+          "vrf": {
+            "id": 5,
+            "url": "https://netbox.example.com/api/ipam/vrfs/5/",
+            "display": "DOSTNO_PUBLIC (0050-DOSTNO_PUBLIC)",
+            "name": "DOSTNO_PUBLIC",
+            "rd": "0050-DOSTNO_PUBLIC",
+            "description": "DOSTNO_PUBLIC equivalent"
+          },
+          "l2vpn_termination": null,
+          "connected_endpoints": null,
+          "connected_endpoints_type": null,
+          "connected_endpoints_reachable": null,
+          "tags": [],
+          "custom_fields": {},
+          "created": "2021-06-16T00:00:00Z",
+          "last_updated": "2025-10-27T08:30:25.373608Z",
+          "count_ipaddresses": 1,
+          "count_fhrp_groups": 0,
+          "_occupied": false
+        },
+        {
+          "id": 4989,
+          "url": "https://netbox.example.com/api/dcim/interfaces/4989/",
+          "display_url": "https://netbox.example.com/dcim/interfaces/4989/",
+          "display": "swp53s0.55",
+          "device": {
+            "id": 82,
+            "url": "https://netbox.example.com/api/dcim/devices/82/",
+            "display": "switch2.dostno.systems",
+            "name": "switch2.dostno.systems",
+            "description": ""
+          },
+          "vdcs": [],
+          "module": null,
+          "name": "swp53s0.55",
+          "label": "",
+          "type": {
+            "value": "virtual",
+            "label": "Virtual"
+          },
+          "enabled": true,
+          "parent": {
+            "id": 518,
+            "url": "https://netbox.example.com/api/dcim/interfaces/518/",
+            "display_url": "https://netbox.example.com/dcim/interfaces/518/",
+            "display": "swp53s0",
+            "device": {
+              "id": 82,
+              "url": "https://netbox.example.com/api/dcim/devices/82/",
+              "display_url": "https://netbox.example.com/dcim/devices/82/",
+              "display": "switch2.dostno.systems",
+              "name": "switch2.dostno.systems"
+            },
+            "name": "swp53s0",
+            "cable": 137,
+            "_occupied": true
+          },
+          "bridge": null,
+          "lag": null,
+          "mtu": null,
+          "mac_address": "00:30:AB:7D:79:BE",
+          "primary_mac_address": {
+            "id": 202,
+            "url": "https://netbox.example.com/api/dcim/mac-addresses/202/",
+            "display": "00:30:AB:7D:79:BE",
+            "mac_address": "00:30:AB:7D:79:BE",
+            "description": ""
+          },
+          "mac_addresses": [
+            {
+              "id": 202,
+              "url": "https://netbox.example.com/api/dcim/mac-addresses/202/",
+              "display": "00:30:AB:7D:79:BE",
+              "mac_address": "00:30:AB:7D:79:BE",
+              "description": ""
+            }
+          ],
+          "speed": null,
+          "duplex": null,
+          "wwn": null,
+          "mgmt_only": false,
+          "description": "",
+          "mode": null,
+          "rf_role": null,
+          "rf_channel": null,
+          "poe_mode": null,
+          "poe_type": null,
+          "rf_channel_frequency": null,
+          "rf_channel_width": null,
+          "tx_power": null,
+          "untagged_vlan": null,
+          "tagged_vlans": [],
+          "qinq_svlan": null,
+          "vlan_translation_policy": null,
+          "mark_connected": false,
+          "cable": null,
+          "cable_end": null,
+          "wireless_link": null,
+          "link_peers": [],
+          "link_peers_type": null,
+          "wireless_lans": [],
+          "vrf": {
+            "id": 80,
+            "url": "https://netbox.example.com/api/ipam/vrfs/80/",
+            "display": "DOSTNO_SWIFT (0055-DOSTNO_SWIFT)",
+            "name": "DOSTNO_SWIFT",
+            "rd": "0055-DOSTNO_SWIFT",
+            "description": "Dostno Swift"
+          },
+          "l2vpn_termination": null,
+          "connected_endpoints": null,
+          "connected_endpoints_type": null,
+          "connected_endpoints_reachable": null,
+          "tags": [],
+          "custom_fields": {},
+          "created": "2021-10-26T00:00:00Z",
+          "last_updated": "2025-10-27T08:30:32.063277Z",
+          "count_ipaddresses": 2,
+          "count_fhrp_groups": 0,
+          "_occupied": false
+        },
+        {
+          "id": 5289,
+          "url": "https://netbox.example.com/api/dcim/interfaces/5289/",
+          "display_url": "https://netbox.example.com/dcim/interfaces/5289/",
+          "display": "swp53s0.66",
+          "device": {
+            "id": 82,
+            "url": "https://netbox.example.com/api/dcim/devices/82/",
+            "display": "switch2.dostno.systems",
+            "name": "switch2.dostno.systems",
+            "description": ""
+          },
+          "vdcs": [],
+          "module": null,
+          "name": "swp53s0.66",
+          "label": "",
+          "type": {
+            "value": "virtual",
+            "label": "Virtual"
+          },
+          "enabled": true,
+          "parent": {
+            "id": 518,
+            "url": "https://netbox.example.com/api/dcim/interfaces/518/",
+            "display_url": "https://netbox.example.com/dcim/interfaces/518/",
+            "display": "swp53s0",
+            "device": {
+              "id": 82,
+              "url": "https://netbox.example.com/api/dcim/devices/82/",
+              "display_url": "https://netbox.example.com/dcim/devices/82/",
+              "display": "switch2.dostno.systems",
+              "name": "switch2.dostno.systems"
+            },
+            "name": "swp53s0",
+            "cable": 137,
+            "_occupied": true
+          },
+          "bridge": null,
+          "lag": null,
+          "mtu": null,
+          "mac_address": null,
+          "primary_mac_address": null,
+          "mac_addresses": [],
+          "speed": null,
+          "duplex": null,
+          "wwn": null,
+          "mgmt_only": false,
+          "description": "",
+          "mode": null,
+          "rf_role": null,
+          "rf_channel": null,
+          "poe_mode": null,
+          "poe_type": null,
+          "rf_channel_frequency": null,
+          "rf_channel_width": null,
+          "tx_power": null,
+          "untagged_vlan": null,
+          "tagged_vlans": [],
+          "qinq_svlan": null,
+          "vlan_translation_policy": null,
+          "mark_connected": false,
+          "cable": null,
+          "cable_end": null,
+          "wireless_link": null,
+          "link_peers": [],
+          "link_peers_type": null,
+          "wireless_lans": [],
+          "vrf": {
+            "id": 113,
+            "url": "https://netbox.example.com/api/ipam/vrfs/113/",
+            "display": "DOSTNO_SABER (0066-DOSTNO_SABER)",
+            "name": "DOSTNO_SABER",
+            "rd": "0066-DOSTNO_SABER",
+            "description": ""
+          },
+          "l2vpn_termination": null,
+          "connected_endpoints": null,
+          "connected_endpoints_type": null,
+          "connected_endpoints_reachable": null,
+          "tags": [],
+          "custom_fields": {},
+          "created": "2024-09-05T10:11:58.662562Z",
+          "last_updated": "2025-10-27T08:30:39.333786Z",
+          "count_ipaddresses": 0,
+          "count_fhrp_groups": 0,
+          "_occupied": false
+        },
+        {
+          "id": 5291,
+          "url": "https://netbox.example.com/api/dcim/interfaces/5291/",
+          "display_url": "https://netbox.example.com/dcim/interfaces/5291/",
+          "display": "swp53s0.94",
+          "device": {
+            "id": 82,
+            "url": "https://netbox.example.com/api/dcim/devices/82/",
+            "display": "switch2.dostno.systems",
+            "name": "switch2.dostno.systems",
+            "description": ""
+          },
+          "vdcs": [],
+          "module": null,
+          "name": "swp53s0.94",
+          "label": "",
+          "type": {
+            "value": "virtual",
+            "label": "Virtual"
+          },
+          "enabled": true,
+          "parent": {
+            "id": 518,
+            "url": "https://netbox.example.com/api/dcim/interfaces/518/",
+            "display_url": "https://netbox.example.com/dcim/interfaces/518/",
+            "display": "swp53s0",
+            "device": {
+              "id": 82,
+              "url": "https://netbox.example.com/api/dcim/devices/82/",
+              "display_url": "https://netbox.example.com/dcim/devices/82/",
+              "display": "switch2.dostno.systems",
+              "name": "switch2.dostno.systems"
+            },
+            "name": "swp53s0",
+            "cable": 137,
+            "_occupied": true
+          },
+          "bridge": null,
+          "lag": null,
+          "mtu": null,
+          "mac_address": null,
+          "primary_mac_address": null,
+          "mac_addresses": [],
+          "speed": null,
+          "duplex": null,
+          "wwn": null,
+          "mgmt_only": false,
+          "description": "",
+          "mode": null,
+          "rf_role": null,
+          "rf_channel": null,
+          "poe_mode": null,
+          "poe_type": null,
+          "rf_channel_frequency": null,
+          "rf_channel_width": null,
+          "tx_power": null,
+          "untagged_vlan": null,
+          "tagged_vlans": [],
+          "qinq_svlan": null,
+          "vlan_translation_policy": null,
+          "mark_connected": false,
+          "cable": null,
+          "cable_end": null,
+          "wireless_link": null,
+          "link_peers": [],
+          "link_peers_type": null,
+          "wireless_lans": [],
+          "vrf": {
+            "id": 115,
+            "url": "https://netbox.example.com/api/ipam/vrfs/115/",
+            "display": "DOSTNO_RIM (0094-DOSTNO_RIM)",
+            "name": "DOSTNO_RIM",
+            "rd": "0094-DOSTNO_RIM",
+            "description": ""
+          },
+          "l2vpn_termination": null,
+          "connected_endpoints": null,
+          "connected_endpoints_type": null,
+          "connected_endpoints_reachable": null,
+          "tags": [],
+          "custom_fields": {},
+          "created": "2024-09-05T11:27:42.679753Z",
+          "last_updated": "2025-10-27T08:31:01.468505Z",
+          "count_ipaddresses": 0,
+          "count_fhrp_groups": 0,
+          "_occupied": false
+        },
+        {
+          "id": 5290,
+          "url": "https://netbox.example.com/api/dcim/interfaces/5290/",
+          "display_url": "https://netbox.example.com/dcim/interfaces/5290/",
+          "display": "swp53s0.623",
+          "device": {
+            "id": 82,
+            "url": "https://netbox.example.com/api/dcim/devices/82/",
+            "display": "switch2.dostno.systems",
+            "name": "switch2.dostno.systems",
+            "description": ""
+          },
+          "vdcs": [],
+          "module": null,
+          "name": "swp53s0.623",
+          "label": "",
+          "type": {
+            "value": "virtual",
+            "label": "Virtual"
+          },
+          "enabled": true,
+          "parent": {
+            "id": 518,
+            "url": "https://netbox.example.com/api/dcim/interfaces/518/",
+            "display_url": "https://netbox.example.com/dcim/interfaces/518/",
+            "display": "swp53s0",
+            "device": {
+              "id": 82,
+              "url": "https://netbox.example.com/api/dcim/devices/82/",
+              "display_url": "https://netbox.example.com/dcim/devices/82/",
+              "display": "switch2.dostno.systems",
+              "name": "switch2.dostno.systems"
+            },
+            "name": "swp53s0",
+            "cable": 137,
+            "_occupied": true
+          },
+          "bridge": null,
+          "lag": null,
+          "mtu": null,
+          "mac_address": null,
+          "primary_mac_address": null,
+          "mac_addresses": [],
+          "speed": null,
+          "duplex": null,
+          "wwn": null,
+          "mgmt_only": false,
+          "description": "",
+          "mode": null,
+          "rf_role": null,
+          "rf_channel": null,
+          "poe_mode": null,
+          "poe_type": null,
+          "rf_channel_frequency": null,
+          "rf_channel_width": null,
+          "tx_power": null,
+          "untagged_vlan": null,
+          "tagged_vlans": [],
+          "qinq_svlan": null,
+          "vlan_translation_policy": null,
+          "mark_connected": false,
+          "cable": null,
+          "cable_end": null,
+          "wireless_link": null,
+          "link_peers": [],
+          "link_peers_type": null,
+          "wireless_lans": [],
+          "vrf": {
+            "id": 114,
+            "url": "https://netbox.example.com/api/ipam/vrfs/114/",
+            "display": "DOSTNO_EDEAN (0623-DOSTNO_EDEAN)",
+            "name": "DOSTNO_EDEAN",
+            "rd": "0623-DOSTNO_EDEAN",
+            "description": ""
+          },
+          "l2vpn_termination": null,
+          "connected_endpoints": null,
+          "connected_endpoints_type": null,
+          "connected_endpoints_reachable": null,
+          "tags": [],
+          "custom_fields": {},
+          "created": "2024-09-05T11:27:25.528233Z",
+          "last_updated": "2025-10-27T08:31:09.684763Z",
+          "count_ipaddresses": 0,
+          "count_fhrp_groups": 0,
+          "_occupied": false
+        },
+        {
+          "id": 596,
+          "url": "https://netbox.example.com/api/dcim/interfaces/596/",
+          "display_url": "https://netbox.example.com/dcim/interfaces/596/",
+          "display": "swp53s0.666",
+          "device": {
+            "id": 82,
+            "url": "https://netbox.example.com/api/dcim/devices/82/",
+            "display": "switch2.dostno.systems",
+            "name": "switch2.dostno.systems",
+            "description": ""
+          },
+          "vdcs": [],
+          "module": null,
+          "name": "swp53s0.666",
+          "label": "",
+          "type": {
+            "value": "virtual",
+            "label": "Virtual"
+          },
+          "enabled": true,
+          "parent": {
+            "id": 518,
+            "url": "https://netbox.example.com/api/dcim/interfaces/518/",
+            "display_url": "https://netbox.example.com/dcim/interfaces/518/",
+            "display": "swp53s0",
+            "device": {
+              "id": 82,
+              "url": "https://netbox.example.com/api/dcim/devices/82/",
+              "display_url": "https://netbox.example.com/dcim/devices/82/",
+              "display": "switch2.dostno.systems",
+              "name": "switch2.dostno.systems"
+            },
+            "name": "swp53s0",
+            "cable": 137,
+            "_occupied": true
+          },
+          "bridge": null,
+          "lag": null,
+          "mtu": null,
+          "mac_address": "00:30:AB:7D:79:BE",
+          "primary_mac_address": {
+            "id": 203,
+            "url": "https://netbox.example.com/api/dcim/mac-addresses/203/",
+            "display": "00:30:AB:7D:79:BE",
+            "mac_address": "00:30:AB:7D:79:BE",
+            "description": ""
+          },
+          "mac_addresses": [
+            {
+              "id": 203,
+              "url": "https://netbox.example.com/api/dcim/mac-addresses/203/",
+              "display": "00:30:AB:7D:79:BE",
+              "mac_address": "00:30:AB:7D:79:BE",
+              "description": ""
+            }
+          ],
+          "speed": null,
+          "duplex": null,
+          "wwn": null,
+          "mgmt_only": false,
+          "description": "",
+          "mode": null,
+          "rf_role": null,
+          "rf_channel": null,
+          "poe_mode": null,
+          "poe_type": null,
+          "rf_channel_frequency": null,
+          "rf_channel_width": null,
+          "tx_power": null,
+          "untagged_vlan": null,
+          "tagged_vlans": [],
+          "qinq_svlan": null,
+          "vlan_translation_policy": null,
+          "mark_connected": false,
+          "cable": null,
+          "cable_end": null,
+          "wireless_link": null,
+          "link_peers": [],
+          "link_peers_type": null,
+          "wireless_lans": [],
+          "vrf": {
+            "id": 73,
+            "url": "https://netbox.example.com/api/ipam/vrfs/73/",
+            "display": "DOSTNO (0666-DOSTNO)",
+            "name": "DOSTNO",
+            "rd": "0666-DOSTNO",
+            "description": "DOSTNO_MGMT (semi equivalent)"
+          },
+          "l2vpn_termination": null,
+          "connected_endpoints": null,
+          "connected_endpoints_type": null,
+          "connected_endpoints_reachable": null,
+          "tags": [],
+          "custom_fields": {},
+          "created": "2021-05-04T00:00:00Z",
+          "last_updated": "2025-10-27T08:31:15.827664Z",
+          "count_ipaddresses": 5,
+          "count_fhrp_groups": 0,
+          "_occupied": false
+        }
+      ]
+    }
+  },
+  {
+    "method": "GET",
+    "path": "/api/dcim/devices/",
+    "params": {
+      "name": "switch3.dostno.systems",
+      "limit": 0
+    },
+    "data": null,
+    "status": 200,
+    "response": {
+      "count": 1,
+      "next": null,
+      "previous": null,
+      "results": [
+        {
+          "id": 83,
+          "url": "https://netbox.example.com/api/dcim/devices/83/",
+          "display_url": "https://netbox.example.com/dcim/devices/83/",
+          "display": "switch3.dostno.systems",
+          "name": "switch3.dostno.systems",
+          "device_type": {
+            "id": 222,
+            "url": "https://netbox.example.com/api/dcim/device-types/222/",
+            "display": "AS7326-56X",
+            "manufacturer": {
+              "id": 76,
+              "url": "https://netbox.example.com/api/dcim/manufacturers/76/",
+              "display": "Edgecore",
+              "name": "Edgecore",
+              "slug": "edgecore",
+              "description": ""
+            },
+            "model": "AS7326-56X",
+            "slug": "AS7326-56x",
+            "description": ""
+          },
+          "role": {
+            "id": 5,
+            "url": "https://netbox.example.com/api/dcim/device-roles/5/",
+            "display": "closso-network",
+            "name": "closso-network",
+            "slug": "closso-network",
+            "description": "",
+            "device_count": 0,
+            "virtualmachine_count": 0,
+            "_depth": 0
+          },
+          "tenant": {
+            "id": 109,
+            "url": "https://netbox.example.com/api/tenancy/tenants/109/",
+            "display": "Dostno Closso cat4",
+            "name": "Dostno Closso cat4",
+            "slug": "dostno-closso-cat4",
+            "description": ""
+          },
+          "platform": {
+            "id": 1,
+            "url": "https://netbox.example.com/api/dcim/platforms/1/",
+            "display": "Cumulus Linux 3.x",
+            "name": "Cumulus Linux 3.x",
+            "slug": "cumulus-linux-3-x",
+            "description": ""
+          },
+          "serial": "",
+          "asset_tag": null,
+          "site": {
+            "id": 1,
+            "url": "https://netbox.example.com/api/dcim/sites/1/",
+            "display": "DR",
+            "name": "DR",
+            "slug": "dr",
+            "description": ""
+          },
+          "location": null,
+          "rack": {
+            "id": 1,
+            "url": "https://netbox.example.com/api/dcim/racks/1/",
+            "display": "D02",
+            "name": "D02",
+            "description": ""
+          },
+          "position": 42.0,
+          "face": {
+            "value": "rear",
+            "label": "Rear"
+          },
+          "latitude": null,
+          "longitude": null,
+          "parent_device": null,
+          "status": {
+            "value": "active",
+            "label": "Active"
+          },
+          "airflow": null,
+          "primary_ip": {
+            "id": 145,
+            "url": "https://netbox.example.com/api/ipam/ip-addresses/145/",
+            "display": "10.123.1.218/24",
+            "family": {
+              "value": 4,
+              "label": "IPv4"
+            },
+            "address": "10.123.1.218/24",
+            "description": ""
+          },
+          "primary_ip4": {
+            "id": 145,
+            "url": "https://netbox.example.com/api/ipam/ip-addresses/145/",
+            "display": "10.123.1.218/24",
+            "family": {
+              "value": 4,
+              "label": "IPv4"
+            },
+            "address": "10.123.1.218/24",
+            "description": ""
+          },
+          "primary_ip6": null,
+          "oob_ip": null,
+          "cluster": null,
+          "virtual_chassis": null,
+          "vc_position": null,
+          "vc_priority": null,
+          "description": "",
+          "comments": "",
+          "config_template": {
+            "id": 1,
+            "url": "https://netbox.example.com/api/extras/config-templates/1/",
+            "display": "closso",
+            "name": "closso",
+            "description": "Generic closso configuration that includes all significant settings."
+          },
+          "config_context": {
+            "osso_isms": {
+              "data_class": {
+                "level": 4,
+                "description": "Category 4"
+              }
+            },
+            "grafana": {
+              "alloy": {
+                "enabled": true
+              }
+            },
+            "closso_ipv6": true,
+            "community": "54321:10004",
+            "ssh": {
+              "allow_from": "10.123.1.1",
+              "oxidized_allow_from": "10.123.1.2"
+            },
+            "pci_dss": {
+              "separate_users": true
+            },
+            "zabbix_proxy_ip": "10.123.1.1",
+            "cumulus": {
+              "ports.conf": {
+                "56": "4x10G"
+              }
+            }
+          },
+          "local_context_data": {
+            "cumulus": {
+              "ports.conf": {
+                "56": "4x10G"
+              }
+            },
+            "closso_ipv6": true
+          },
+          "tags": [],
+          "custom_fields": {
+            "asn": 65211,
+            "cumulus_version": "3.7.12",
+            "gocollect_id": "65dd7075-fcce-4919-8231-cbad30daebae",
+            "machine_id": "2c7b959398c54e879f51415abb81d19e",
+            "service_code_device": "netbox-device"
+          },
+          "created": "2020-11-07T00:00:00Z",
+          "last_updated": "2025-10-28T08:43:13.490715Z",
+          "console_port_count": 0,
+          "console_server_port_count": 0,
+          "power_port_count": 0,
+          "power_outlet_count": 0,
+          "interface_count": 62,
+          "front_port_count": 0,
+          "rear_port_count": 0,
+          "device_bay_count": 0,
+          "module_bay_count": 0,
+          "inventory_item_count": 0
+        }
+      ]
+    }
+  },
+  {
+    "method": "GET",
+    "path": "/api/dcim/interfaces/",
+    "params": {
+      "device_id": 83,
+      "name": "swp51",
+      "limit": 0
+    },
+    "data": null,
+    "status": 200,
+    "response": {
+      "count": 1,
+      "next": null,
+      "previous": null,
+      "results": [
+        {
+          "id": 473,
+          "url": "https://netbox.example.com/api/dcim/interfaces/473/",
+          "display_url": "https://netbox.example.com/dcim/interfaces/473/",
+          "display": "swp51",
+          "device": {
+            "id": 83,
+            "url": "https://netbox.example.com/api/dcim/devices/83/",
+            "display": "switch3.dostno.systems",
+            "name": "switch3.dostno.systems",
+            "description": ""
+          },
+          "vdcs": [],
+          "module": null,
+          "name": "swp51",
+          "label": "",
+          "type": {
+            "value": "100gbase-x-qsfp28",
+            "label": "QSFP28 (100GE)"
+          },
+          "enabled": true,
+          "parent": null,
+          "bridge": null,
+          "lag": null,
+          "mtu": null,
+          "mac_address": null,
+          "primary_mac_address": null,
+          "mac_addresses": [],
+          "speed": null,
+          "duplex": null,
+          "wwn": null,
+          "mgmt_only": false,
+          "description": "old description",
+          "mode": {
+            "value": "tagged-all",
+            "label": "Tagged (All)"
+          },
+          "rf_role": null,
+          "rf_channel": null,
+          "poe_mode": null,
+          "poe_type": null,
+          "rf_channel_frequency": null,
+          "rf_channel_width": null,
+          "tx_power": null,
+          "untagged_vlan": null,
+          "tagged_vlans": [],
+          "qinq_svlan": null,
+          "vlan_translation_policy": null,
+          "mark_connected": false,
+          "cable": null,
+          "cable_end": null,
+          "wireless_link": null,
+          "link_peers": [],
+          "link_peers_type": null,
+          "wireless_lans": [],
+          "vrf": null,
+          "l2vpn_termination": null,
+          "connected_endpoints": null,
+          "connected_endpoints_type": null,
+          "connected_endpoints_reachable": null,
+          "tags": [
+            {
+              "id": 6,
+              "url": "https://netbox.example.com/api/extras/tags/6/",
+              "display_url": "https://netbox.example.com/extras/tags/6/",
+              "display": "TESTA",
+              "name": "TESTA",
+              "slug": "testa",
+              "color": "9e9e9e"
+            },
+            {
+              "id": 7,
+              "url": "https://netbox.example.com/api/extras/tags/7/",
+              "display_url": "https://netbox.example.com/extras/tags/7/",
+              "display": "TESTB",
+              "name": "TESTB",
+              "slug": "testb",
+              "color": "9e9e9e"
+            }
+          ],
+          "custom_fields": {},
+          "created": "2021-05-04T00:00:00Z",
+          "last_updated": "2026-02-19T16:21:50.563450Z",
+          "count_ipaddresses": 0,
+          "count_fhrp_groups": 0,
+          "_occupied": false
+        }
+      ]
+    }
+  },
+  {
+    "method": "GET",
+    "path": "/api/dcim/interfaces/",
+    "params": {
+      "device_id": 83,
+      "parent_id": 473,
+      "limit": 0
+    },
+    "data": null,
+    "status": 200,
+    "response": {
+      "count": 0,
+      "next": null,
+      "previous": null,
+      "results": []
+    }
+  },
+  {
+    "method": "GET",
+    "path": "/api/dcim/interfaces/",
+    "params": {
+      "device_id": 83,
+      "name__isw": "swp51.",
+      "limit": 0
+    },
+    "data": null,
+    "status": 200,
+    "response": {
+      "count": 0,
+      "next": null,
+      "previous": null,
+      "results": []
+    }
+  },
+  {
+    "method": "GET",
+    "path": "/api/dcim/cables/137/",
+    "params": {},
+    "data": null,
+    "status": 200,
+    "response": {
+      "id": 137,
+      "url": "https://netbox.example.com/api/dcim/cables/137/",
+      "display_url": "https://netbox.example.com/dcim/cables/137/",
+      "display": "#137",
+      "type": "dac-active",
+      "a_terminations": [
+        {
+          "object_type": "dcim.interface",
+          "object_id": 518,
+          "object": {
+            "id": 518,
+            "url": "https://netbox.example.com/api/dcim/interfaces/518/",
+            "display": "swp53s0",
+            "device": {
+              "id": 82,
+              "url": "https://netbox.example.com/api/dcim/devices/82/",
+              "display": "switch2.dostno.systems",
+              "name": "switch2.dostno.systems",
+              "description": ""
+            },
+            "name": "swp53s0",
+            "description": "",
+            "cable": {
+              "id": 137,
+              "url": "https://netbox.example.com/api/dcim/cables/137/",
+              "display": "#137",
+              "label": "",
+              "description": ""
+            },
+            "_occupied": true
+          }
+        }
+      ],
+      "b_terminations": [
+        {
+          "object_type": "dcim.interface",
+          "object_id": 5581,
+          "object": {
+            "id": 5581,
+            "url": "https://netbox.example.com/api/dcim/interfaces/5581/",
+            "display": "enmlx0",
+            "device": {
+              "id": 6,
+              "url": "https://netbox.example.com/api/dcim/devices/6/",
+              "display": "pve1.dostno.systems",
+              "name": "pve1.dostno.systems",
+              "description": ""
+            },
+            "name": "enmlx0",
+            "description": "",
+            "cable": {
+              "id": 137,
+              "url": "https://netbox.example.com/api/dcim/cables/137/",
+              "display": "#137",
+              "label": "",
+              "description": ""
+            },
+            "_occupied": true
+          }
+        }
+      ],
+      "status": {
+        "value": "connected",
+        "label": "Connected"
+      },
+      "tenant": null,
+      "label": "",
+      "color": "",
+      "length": null,
+      "length_unit": null,
+      "description": "",
+      "comments": "",
+      "tags": [],
+      "custom_fields": {},
+      "created": "2020-11-11T00:00:00Z",
+      "last_updated": "2025-09-18T09:44:01.598552Z"
+    }
+  },
+  {
+    "method": "GET",
+    "path": "/api/ipam/ip-addresses/",
+    "params": {
+      "assigned_object_id": 518,
+      "limit": 0
+    },
+    "data": null,
+    "status": 200,
+    "response": {
+      "count": 0,
+      "next": null,
+      "previous": null,
+      "results": []
+    }
+  },
+  {
+    "method": "GET",
+    "path": "/api/ipam/ip-addresses/",
+    "params": {
+      "assigned_object_id": 660,
+      "limit": 0
+    },
+    "data": null,
+    "status": 200,
+    "response": {
+      "count": 1,
+      "next": null,
+      "previous": null,
+      "results": [
+        {
+          "id": 3903,
+          "url": "https://netbox.example.com/api/ipam/ip-addresses/3903/",
+          "display_url": "https://netbox.example.com/ipam/ip-addresses/3903/",
+          "display": "1234:8080:666:2::/127",
+          "family": {
+            "value": 6,
+            "label": "IPv6"
+          },
+          "address": "1234:8080:666:2::/127",
+          "vrf": {
+            "id": 5,
+            "url": "https://netbox.example.com/api/ipam/vrfs/5/",
+            "display": "DOSTNO_PUBLIC (0050-DOSTNO_PUBLIC)",
+            "name": "DOSTNO_PUBLIC",
+            "rd": "0050-DOSTNO_PUBLIC",
+            "description": "DOSTNO_PUBLIC equivalent"
+          },
+          "tenant": null,
+          "status": {
+            "value": "active",
+            "label": "Active"
+          },
+          "role": null,
+          "assigned_object_type": "dcim.interface",
+          "assigned_object_id": 660,
+          "assigned_object": {
+            "id": 660,
+            "url": "https://netbox.example.com/api/dcim/interfaces/660/",
+            "display": "swp53s0.50",
+            "device": {
+              "id": 82,
+              "url": "https://netbox.example.com/api/dcim/devices/82/",
+              "display": "switch2.dostno.systems",
+              "name": "switch2.dostno.systems",
+              "description": ""
+            },
+            "name": "swp53s0.50",
+            "description": "",
+            "cable": null,
+            "_occupied": false
+          },
+          "nat_inside": null,
+          "nat_outside": [],
+          "dns_name": "",
+          "description": "",
+          "comments": "",
+          "tags": [],
+          "custom_fields": {},
+          "created": "2025-10-23T07:37:20.445504Z",
+          "last_updated": "2025-10-23T07:37:20.445538Z"
+        }
+      ]
+    }
+  },
+  {
+    "method": "GET",
+    "path": "/api/ipam/ip-addresses/",
+    "params": {
+      "assigned_object_id": 4989,
+      "limit": 0
+    },
+    "data": null,
+    "status": 200,
+    "response": {
+      "count": 2,
+      "next": null,
+      "previous": null,
+      "results": [
+        {
+          "id": 3360,
+          "url": "https://netbox.example.com/api/ipam/ip-addresses/3360/",
+          "display_url": "https://netbox.example.com/ipam/ip-addresses/3360/",
+          "display": "10.123.5.44/31",
+          "family": {
+            "value": 4,
+            "label": "IPv4"
+          },
+          "address": "10.123.5.44/31",
+          "vrf": {
+            "id": 80,
+            "url": "https://netbox.example.com/api/ipam/vrfs/80/",
+            "display": "DOSTNO_SWIFT (0055-DOSTNO_SWIFT)",
+            "name": "DOSTNO_SWIFT",
+            "rd": "0055-DOSTNO_SWIFT",
+            "description": "Dostno Swift"
+          },
+          "tenant": null,
+          "status": {
+            "value": "active",
+            "label": "Active"
+          },
+          "role": null,
+          "assigned_object_type": "dcim.interface",
+          "assigned_object_id": 4989,
+          "assigned_object": {
+            "id": 4989,
+            "url": "https://netbox.example.com/api/dcim/interfaces/4989/",
+            "display": "swp53s0.55",
+            "device": {
+              "id": 82,
+              "url": "https://netbox.example.com/api/dcim/devices/82/",
+              "display": "switch2.dostno.systems",
+              "name": "switch2.dostno.systems",
+              "description": ""
+            },
+            "name": "swp53s0.55",
+            "description": "",
+            "cable": null,
+            "_occupied": false
+          },
+          "nat_inside": null,
+          "nat_outside": [],
+          "dns_name": "",
+          "description": "",
+          "comments": "",
+          "tags": [],
+          "custom_fields": {},
+          "created": "2021-10-28T00:00:00Z",
+          "last_updated": "2021-10-28T14:02:28.248770Z"
+        },
+        {
+          "id": 3362,
+          "url": "https://netbox.example.com/api/ipam/ip-addresses/3362/",
+          "display_url": "https://netbox.example.com/ipam/ip-addresses/3362/",
+          "display": "10.123.5.48/31",
+          "family": {
+            "value": 4,
+            "label": "IPv4"
+          },
+          "address": "10.123.5.48/31",
+          "vrf": {
+            "id": 80,
+            "url": "https://netbox.example.com/api/ipam/vrfs/80/",
+            "display": "DOSTNO_SWIFT (0055-DOSTNO_SWIFT)",
+            "name": "DOSTNO_SWIFT",
+            "rd": "0055-DOSTNO_SWIFT",
+            "description": "Dostno Swift"
+          },
+          "tenant": null,
+          "status": {
+            "value": "active",
+            "label": "Active"
+          },
+          "role": null,
+          "assigned_object_type": "dcim.interface",
+          "assigned_object_id": 4989,
+          "assigned_object": {
+            "id": 4989,
+            "url": "https://netbox.example.com/api/dcim/interfaces/4989/",
+            "display": "swp53s0.55",
+            "device": {
+              "id": 82,
+              "url": "https://netbox.example.com/api/dcim/devices/82/",
+              "display": "switch2.dostno.systems",
+              "name": "switch2.dostno.systems",
+              "description": ""
+            },
+            "name": "swp53s0.55",
+            "description": "",
+            "cable": null,
+            "_occupied": false
+          },
+          "nat_inside": null,
+          "nat_outside": [],
+          "dns_name": "",
+          "description": "",
+          "comments": "",
+          "tags": [],
+          "custom_fields": {},
+          "created": "2021-10-29T00:00:00Z",
+          "last_updated": "2021-10-29T08:06:33.502990Z"
+        }
+      ]
+    }
+  },
+  {
+    "method": "GET",
+    "path": "/api/ipam/ip-addresses/",
+    "params": {
+      "assigned_object_id": 5289,
+      "limit": 0
+    },
+    "data": null,
+    "status": 200,
+    "response": {
+      "count": 0,
+      "next": null,
+      "previous": null,
+      "results": []
+    }
+  },
+  {
+    "method": "GET",
+    "path": "/api/ipam/ip-addresses/",
+    "params": {
+      "assigned_object_id": 5291,
+      "limit": 0
+    },
+    "data": null,
+    "status": 200,
+    "response": {
+      "count": 0,
+      "next": null,
+      "previous": null,
+      "results": []
+    }
+  },
+  {
+    "method": "GET",
+    "path": "/api/ipam/ip-addresses/",
+    "params": {
+      "assigned_object_id": 5290,
+      "limit": 0
+    },
+    "data": null,
+    "status": 200,
+    "response": {
+      "count": 0,
+      "next": null,
+      "previous": null,
+      "results": []
+    }
+  },
+  {
+    "method": "GET",
+    "path": "/api/ipam/ip-addresses/",
+    "params": {
+      "assigned_object_id": 596,
+      "limit": 0
+    },
+    "data": null,
+    "status": 200,
+    "response": {
+      "count": 5,
+      "next": null,
+      "previous": null,
+      "results": [
+        {
+          "id": 239,
+          "url": "https://netbox.example.com/api/ipam/ip-addresses/239/",
+          "display_url": "https://netbox.example.com/ipam/ip-addresses/239/",
+          "display": "10.123.2.0/31",
+          "family": {
+            "value": 4,
+            "label": "IPv4"
+          },
+          "address": "10.123.2.0/31",
+          "vrf": {
+            "id": 73,
+            "url": "https://netbox.example.com/api/ipam/vrfs/73/",
+            "display": "DOSTNO (0666-DOSTNO)",
+            "name": "DOSTNO",
+            "rd": "0666-DOSTNO",
+            "description": "DOSTNO_MGMT (semi equivalent)"
+          },
+          "tenant": null,
+          "status": {
+            "value": "active",
+            "label": "Active"
+          },
+          "role": null,
+          "assigned_object_type": "dcim.interface",
+          "assigned_object_id": 596,
+          "assigned_object": {
+            "id": 596,
+            "url": "https://netbox.example.com/api/dcim/interfaces/596/",
+            "display": "swp53s0.666",
+            "device": {
+              "id": 82,
+              "url": "https://netbox.example.com/api/dcim/devices/82/",
+              "display": "switch2.dostno.systems",
+              "name": "switch2.dostno.systems",
+              "description": ""
+            },
+            "name": "swp53s0.666",
+            "description": "",
+            "cable": null,
+            "_occupied": false
+          },
+          "nat_inside": null,
+          "nat_outside": [],
+          "dns_name": "",
+          "description": "",
+          "comments": "",
+          "tags": [],
+          "custom_fields": {},
+          "created": "2020-11-22T00:00:00Z",
+          "last_updated": "2020-11-27T08:38:09.626661Z"
+        },
+        {
+          "id": 3897,
+          "url": "https://netbox.example.com/api/ipam/ip-addresses/3897/",
+          "display_url": "https://netbox.example.com/ipam/ip-addresses/3897/",
+          "display": "10.123.2.20/31",
+          "family": {
+            "value": 4,
+            "label": "IPv4"
+          },
+          "address": "10.123.2.20/31",
+          "vrf": {
+            "id": 73,
+            "url": "https://netbox.example.com/api/ipam/vrfs/73/",
+            "display": "DOSTNO (0666-DOSTNO)",
+            "name": "DOSTNO",
+            "rd": "0666-DOSTNO",
+            "description": "DOSTNO_MGMT (semi equivalent)"
+          },
+          "tenant": null,
+          "status": {
+            "value": "active",
+            "label": "Active"
+          },
+          "role": null,
+          "assigned_object_type": "dcim.interface",
+          "assigned_object_id": 596,
+          "assigned_object": {
+            "id": 596,
+            "url": "https://netbox.example.com/api/dcim/interfaces/596/",
+            "display": "swp53s0.666",
+            "device": {
+              "id": 82,
+              "url": "https://netbox.example.com/api/dcim/devices/82/",
+              "display": "switch2.dostno.systems",
+              "name": "switch2.dostno.systems",
+              "description": ""
+            },
+            "name": "swp53s0.666",
+            "description": "",
+            "cable": null,
+            "_occupied": false
+          },
+          "nat_inside": null,
+          "nat_outside": [],
+          "dns_name": "",
+          "description": "containerlab GW",
+          "comments": "",
+          "tags": [],
+          "custom_fields": {},
+          "created": "2025-09-18T09:47:06.799648Z",
+          "last_updated": "2025-10-24T09:21:46.953914Z"
+        },
+        {
+          "id": 333,
+          "url": "https://netbox.example.com/api/ipam/ip-addresses/333/",
+          "display_url": "https://netbox.example.com/ipam/ip-addresses/333/",
+          "display": "10.123.20.10/31",
+          "family": {
+            "value": 4,
+            "label": "IPv4"
+          },
+          "address": "10.123.20.10/31",
+          "vrf": {
+            "id": 73,
+            "url": "https://netbox.example.com/api/ipam/vrfs/73/",
+            "display": "DOSTNO (0666-DOSTNO)",
+            "name": "DOSTNO",
+            "rd": "0666-DOSTNO",
+            "description": "DOSTNO_MGMT (semi equivalent)"
+          },
+          "tenant": null,
+          "status": {
+            "value": "active",
+            "label": "Active"
+          },
+          "role": null,
+          "assigned_object_type": "dcim.interface",
+          "assigned_object_id": 596,
+          "assigned_object": {
+            "id": 596,
+            "url": "https://netbox.example.com/api/dcim/interfaces/596/",
+            "display": "swp53s0.666",
+            "device": {
+              "id": 82,
+              "url": "https://netbox.example.com/api/dcim/devices/82/",
+              "display": "switch2.dostno.systems",
+              "name": "switch2.dostno.systems",
+              "description": ""
+            },
+            "name": "swp53s0.666",
+            "description": "",
+            "cable": null,
+            "_occupied": false
+          },
+          "nat_inside": null,
+          "nat_outside": [],
+          "dns_name": "",
+          "description": "",
+          "comments": "",
+          "tags": [],
+          "custom_fields": {},
+          "created": "2021-05-17T00:00:00Z",
+          "last_updated": "2021-05-17T16:47:55.473180Z"
+        },
+        {
+          "id": 334,
+          "url": "https://netbox.example.com/api/ipam/ip-addresses/334/",
+          "display_url": "https://netbox.example.com/ipam/ip-addresses/334/",
+          "display": "10.123.20.13/31",
+          "family": {
+            "value": 4,
+            "label": "IPv4"
+          },
+          "address": "10.123.20.13/31",
+          "vrf": {
+            "id": 73,
+            "url": "https://netbox.example.com/api/ipam/vrfs/73/",
+            "display": "DOSTNO (0666-DOSTNO)",
+            "name": "DOSTNO",
+            "rd": "0666-DOSTNO",
+            "description": "DOSTNO_MGMT (semi equivalent)"
+          },
+          "tenant": null,
+          "status": {
+            "value": "active",
+            "label": "Active"
+          },
+          "role": null,
+          "assigned_object_type": "dcim.interface",
+          "assigned_object_id": 596,
+          "assigned_object": {
+            "id": 596,
+            "url": "https://netbox.example.com/api/dcim/interfaces/596/",
+            "display": "swp53s0.666",
+            "device": {
+              "id": 82,
+              "url": "https://netbox.example.com/api/dcim/devices/82/",
+              "display": "switch2.dostno.systems",
+              "name": "switch2.dostno.systems",
+              "description": ""
+            },
+            "name": "swp53s0.666",
+            "description": "",
+            "cable": null,
+            "_occupied": false
+          },
+          "nat_inside": null,
+          "nat_outside": [],
+          "dns_name": "",
+          "description": "",
+          "comments": "",
+          "tags": [],
+          "custom_fields": {},
+          "created": "2021-05-17T00:00:00Z",
+          "last_updated": "2021-05-17T16:49:34.412420Z"
+        },
+        {
+          "id": 338,
+          "url": "https://netbox.example.com/api/ipam/ip-addresses/338/",
+          "display_url": "https://netbox.example.com/ipam/ip-addresses/338/",
+          "display": "10.123.20.40/31",
+          "family": {
+            "value": 4,
+            "label": "IPv4"
+          },
+          "address": "10.123.20.40/31",
+          "vrf": {
+            "id": 73,
+            "url": "https://netbox.example.com/api/ipam/vrfs/73/",
+            "display": "DOSTNO (0666-DOSTNO)",
+            "name": "DOSTNO",
+            "rd": "0666-DOSTNO",
+            "description": "DOSTNO_MGMT (semi equivalent)"
+          },
+          "tenant": null,
+          "status": {
+            "value": "active",
+            "label": "Active"
+          },
+          "role": null,
+          "assigned_object_type": "dcim.interface",
+          "assigned_object_id": 596,
+          "assigned_object": {
+            "id": 596,
+            "url": "https://netbox.example.com/api/dcim/interfaces/596/",
+            "display": "swp53s0.666",
+            "device": {
+              "id": 82,
+              "url": "https://netbox.example.com/api/dcim/devices/82/",
+              "display": "switch2.dostno.systems",
+              "name": "switch2.dostno.systems",
+              "description": ""
+            },
+            "name": "swp53s0.666",
+            "description": "",
+            "cable": null,
+            "_occupied": false
+          },
+          "nat_inside": null,
+          "nat_outside": [],
+          "dns_name": "",
+          "description": "",
+          "comments": "",
+          "tags": [],
+          "custom_fields": {},
+          "created": "2021-05-19T00:00:00Z",
+          "last_updated": "2021-05-19T13:19:08.248658Z"
+        }
+      ]
+    }
+  },
+  {
+    "method": "PATCH",
+    "path": "/api/dcim/cables/",
+    "params": {},
+    "data": [
+      {
+        "a_terminations": [
+          {
+            "object_type": "dcim.interface",
+            "object_id": 473
+          }
+        ],
+        "id": 137
+      }
+    ],
+    "status": 200,
+    "response": [
+      {
+        "id": 137,
+        "url": "https://netbox.example.com/api/dcim/cables/137/",
+        "display_url": "https://netbox.example.com/dcim/cables/137/",
+        "display": "#137",
+        "type": "dac-active",
+        "a_terminations": [
+          {
+            "object_type": "dcim.interface",
+            "object_id": 473,
+            "object": {
+              "id": 473,
+              "url": "https://netbox.example.com/api/dcim/interfaces/473/",
+              "display": "swp51",
+              "device": {
+                "id": 83,
+                "url": "https://netbox.example.com/api/dcim/devices/83/",
+                "display": "switch3.dostno.systems",
+                "name": "switch3.dostno.systems",
+                "description": ""
+              },
+              "name": "swp51",
+              "description": "old description",
+              "cable": null,
+              "_occupied": false
+            }
+          }
+        ],
+        "b_terminations": [
+          {
+            "object_type": "dcim.interface",
+            "object_id": 5581,
+            "object": {
+              "id": 5581,
+              "url": "https://netbox.example.com/api/dcim/interfaces/5581/",
+              "display": "enmlx0",
+              "device": {
+                "id": 6,
+                "url": "https://netbox.example.com/api/dcim/devices/6/",
+                "display": "pve1.dostno.systems",
+                "name": "pve1.dostno.systems",
+                "description": ""
+              },
+              "name": "enmlx0",
+              "description": "",
+              "cable": {
+                "id": 137,
+                "url": "https://netbox.example.com/api/dcim/cables/137/",
+                "display": "#137",
+                "label": "",
+                "description": ""
+              },
+              "_occupied": true
+            }
+          }
+        ],
+        "status": {
+          "value": "connected",
+          "label": "Connected"
+        },
+        "tenant": null,
+        "label": "",
+        "color": "",
+        "length": null,
+        "length_unit": null,
+        "description": "",
+        "comments": "",
+        "tags": [],
+        "custom_fields": {},
+        "created": "2020-11-11T00:00:00Z",
+        "last_updated": "2026-02-19T16:57:26.172047Z"
+      }
+    ]
+  },
+  {
+    "method": "PATCH",
+    "path": "/api/dcim/interfaces/",
+    "params": {},
+    "data": [
+      {
+        "description": "",
+        "mode": null,
+        "tags": [],
+        "type": "25gbase-x-sfp28",
+        "id": 473
+      }
+    ],
+    "status": 200,
+    "response": [
+      {
+        "id": 473,
+        "url": "https://netbox.example.com/api/dcim/interfaces/473/",
+        "display_url": "https://netbox.example.com/dcim/interfaces/473/",
+        "display": "swp51",
+        "device": {
+          "id": 83,
+          "url": "https://netbox.example.com/api/dcim/devices/83/",
+          "display": "switch3.dostno.systems",
+          "name": "switch3.dostno.systems",
+          "description": ""
+        },
+        "vdcs": [],
+        "module": null,
+        "name": "swp51",
+        "label": "",
+        "type": {
+          "value": "25gbase-x-sfp28",
+          "label": "SFP28 (25GE)"
+        },
+        "enabled": true,
+        "parent": null,
+        "bridge": null,
+        "lag": null,
+        "mtu": null,
+        "mac_address": null,
+        "primary_mac_address": null,
+        "mac_addresses": [],
+        "speed": null,
+        "duplex": null,
+        "wwn": null,
+        "mgmt_only": false,
+        "description": "",
+        "mode": null,
+        "rf_role": null,
+        "rf_channel": null,
+        "poe_mode": null,
+        "poe_type": null,
+        "rf_channel_frequency": null,
+        "rf_channel_width": null,
+        "tx_power": null,
+        "untagged_vlan": null,
+        "tagged_vlans": [],
+        "qinq_svlan": null,
+        "vlan_translation_policy": null,
+        "mark_connected": false,
+        "cable": {
+          "id": 137,
+          "url": "https://netbox.example.com/api/dcim/cables/137/",
+          "display": "#137",
+          "label": "",
+          "description": ""
+        },
+        "cable_end": "A",
+        "wireless_link": null,
+        "link_peers": [
+          {
+            "id": 5581,
+            "url": "https://netbox.example.com/api/dcim/interfaces/5581/",
+            "display": "enmlx0",
+            "device": {
+              "id": 6,
+              "url": "https://netbox.example.com/api/dcim/devices/6/",
+              "display": "pve1.dostno.systems",
+              "name": "pve1.dostno.systems",
+              "description": ""
+            },
+            "name": "enmlx0",
+            "description": "",
+            "cable": {
+              "id": 137,
+              "url": "https://netbox.example.com/api/dcim/cables/137/",
+              "display": "#137",
+              "label": "",
+              "description": ""
+            },
+            "_occupied": true
+          }
+        ],
+        "link_peers_type": "dcim.interface",
+        "wireless_lans": [],
+        "vrf": null,
+        "l2vpn_termination": null,
+        "connected_endpoints": [
+          {
+            "id": 5581,
+            "url": "https://netbox.example.com/api/dcim/interfaces/5581/",
+            "display": "enmlx0",
+            "device": {
+              "id": 6,
+              "url": "https://netbox.example.com/api/dcim/devices/6/",
+              "display": "pve1.dostno.systems",
+              "name": "pve1.dostno.systems",
+              "description": ""
+            },
+            "name": "enmlx0",
+            "description": "",
+            "cable": {
+              "id": 137,
+              "url": "https://netbox.example.com/api/dcim/cables/137/",
+              "display": "#137",
+              "label": "",
+              "description": ""
+            },
+            "_occupied": true
+          }
+        ],
+        "connected_endpoints_type": "dcim.interface",
+        "connected_endpoints_reachable": true,
+        "tags": [],
+        "custom_fields": {},
+        "created": "2021-05-04T00:00:00Z",
+        "last_updated": "2026-02-19T16:57:26.872726Z",
+        "count_ipaddresses": 0,
+        "count_fhrp_groups": 0,
+        "_occupied": true
+      }
+    ]
+  },
+  {
+    "method": "POST",
+    "path": "/api/dcim/interfaces/",
+    "params": {},
+    "data": {
+      "name": "swp51.50",
+      "device": 83,
+      "parent": 473,
+      "description": "",
+      "enabled": true,
+      "label": "",
+      "mode": null,
+      "tags": [],
+      "tagged_vlans": [],
+      "type": "virtual",
+      "untagged_vlan": null,
+      "vrf": 5
+    },
+    "status": 201,
+    "response": {
+      "id": 5629,
+      "url": "https://netbox.example.com/api/dcim/interfaces/5629/",
+      "display_url": "https://netbox.example.com/dcim/interfaces/5629/",
+      "display": "swp51.50",
+      "device": {
+        "id": 83,
+        "url": "https://netbox.example.com/api/dcim/devices/83/",
+        "display": "switch3.dostno.systems",
+        "name": "switch3.dostno.systems",
+        "description": ""
+      },
+      "vdcs": [],
+      "module": null,
+      "name": "swp51.50",
+      "label": "",
+      "type": {
+        "value": "virtual",
+        "label": "Virtual"
+      },
+      "enabled": true,
+      "parent": {
+        "id": 473,
+        "url": "https://netbox.example.com/api/dcim/interfaces/473/",
+        "display_url": "https://netbox.example.com/dcim/interfaces/473/",
+        "display": "swp51",
+        "device": {
+          "id": 83,
+          "url": "https://netbox.example.com/api/dcim/devices/83/",
+          "display_url": "https://netbox.example.com/dcim/devices/83/",
+          "display": "switch3.dostno.systems",
+          "name": "switch3.dostno.systems"
+        },
+        "name": "swp51",
+        "cable": 137,
+        "_occupied": true
+      },
+      "bridge": null,
+      "lag": null,
+      "mtu": null,
+      "mac_address": null,
+      "primary_mac_address": null,
+      "mac_addresses": [],
+      "speed": null,
+      "duplex": null,
+      "wwn": null,
+      "mgmt_only": false,
+      "description": "",
+      "mode": null,
+      "rf_role": null,
+      "rf_channel": null,
+      "poe_mode": null,
+      "poe_type": null,
+      "rf_channel_frequency": null,
+      "rf_channel_width": null,
+      "tx_power": null,
+      "untagged_vlan": null,
+      "tagged_vlans": [],
+      "qinq_svlan": null,
+      "vlan_translation_policy": null,
+      "mark_connected": false,
+      "cable": null,
+      "cable_end": null,
+      "wireless_link": null,
+      "link_peers": [],
+      "link_peers_type": null,
+      "wireless_lans": [],
+      "vrf": {
+        "id": 5,
+        "url": "https://netbox.example.com/api/ipam/vrfs/5/",
+        "display": "DOSTNO_PUBLIC (0050-DOSTNO_PUBLIC)",
+        "name": "DOSTNO_PUBLIC",
+        "rd": "0050-DOSTNO_PUBLIC",
+        "description": "DOSTNO_PUBLIC equivalent"
+      },
+      "l2vpn_termination": null,
+      "connected_endpoints": null,
+      "connected_endpoints_type": null,
+      "connected_endpoints_reachable": null,
+      "tags": [],
+      "custom_fields": {},
+      "created": "2026-02-19T16:57:27.191409Z",
+      "last_updated": "2026-02-19T16:57:27.191448Z",
+      "count_ipaddresses": 0,
+      "count_fhrp_groups": 0,
+      "_occupied": false
+    }
+  },
+  {
+    "method": "GET",
+    "path": "/api/dcim/interfaces/",
+    "params": {
+      "device_id": 83,
+      "name": "swp51.50",
+      "limit": 0
+    },
+    "data": null,
+    "status": 200,
+    "response": {
+      "count": 1,
+      "next": null,
+      "previous": null,
+      "results": [
+        {
+          "id": 5629,
+          "url": "https://netbox.example.com/api/dcim/interfaces/5629/",
+          "display_url": "https://netbox.example.com/dcim/interfaces/5629/",
+          "display": "swp51.50",
+          "device": {
+            "id": 83,
+            "url": "https://netbox.example.com/api/dcim/devices/83/",
+            "display": "switch3.dostno.systems",
+            "name": "switch3.dostno.systems",
+            "description": ""
+          },
+          "vdcs": [],
+          "module": null,
+          "name": "swp51.50",
+          "label": "",
+          "type": {
+            "value": "virtual",
+            "label": "Virtual"
+          },
+          "enabled": true,
+          "parent": {
+            "id": 473,
+            "url": "https://netbox.example.com/api/dcim/interfaces/473/",
+            "display_url": "https://netbox.example.com/dcim/interfaces/473/",
+            "display": "swp51",
+            "device": {
+              "id": 83,
+              "url": "https://netbox.example.com/api/dcim/devices/83/",
+              "display_url": "https://netbox.example.com/dcim/devices/83/",
+              "display": "switch3.dostno.systems",
+              "name": "switch3.dostno.systems"
+            },
+            "name": "swp51",
+            "cable": 137,
+            "_occupied": true
+          },
+          "bridge": null,
+          "lag": null,
+          "mtu": null,
+          "mac_address": null,
+          "primary_mac_address": null,
+          "mac_addresses": [],
+          "speed": null,
+          "duplex": null,
+          "wwn": null,
+          "mgmt_only": false,
+          "description": "",
+          "mode": null,
+          "rf_role": null,
+          "rf_channel": null,
+          "poe_mode": null,
+          "poe_type": null,
+          "rf_channel_frequency": null,
+          "rf_channel_width": null,
+          "tx_power": null,
+          "untagged_vlan": null,
+          "tagged_vlans": [],
+          "qinq_svlan": null,
+          "vlan_translation_policy": null,
+          "mark_connected": false,
+          "cable": null,
+          "cable_end": null,
+          "wireless_link": null,
+          "link_peers": [],
+          "link_peers_type": null,
+          "wireless_lans": [],
+          "vrf": {
+            "id": 5,
+            "url": "https://netbox.example.com/api/ipam/vrfs/5/",
+            "display": "DOSTNO_PUBLIC (0050-DOSTNO_PUBLIC)",
+            "name": "DOSTNO_PUBLIC",
+            "rd": "0050-DOSTNO_PUBLIC",
+            "description": "DOSTNO_PUBLIC equivalent"
+          },
+          "l2vpn_termination": null,
+          "connected_endpoints": null,
+          "connected_endpoints_type": null,
+          "connected_endpoints_reachable": null,
+          "tags": [],
+          "custom_fields": {},
+          "created": "2026-02-19T16:57:27.191409Z",
+          "last_updated": "2026-02-19T16:57:27.191448Z",
+          "count_ipaddresses": 0,
+          "count_fhrp_groups": 0,
+          "_occupied": false
+        }
+      ]
+    }
+  },
+  {
+    "method": "PATCH",
+    "path": "/api/ipam/ip-addresses/",
+    "params": {},
+    "data": [
+      {
+        "assigned_object_type": "dcim.interface",
+        "assigned_object_id": 5629,
+        "id": 3903
+      }
+    ],
+    "status": 200,
+    "response": [
+      {
+        "id": 3903,
+        "url": "https://netbox.example.com/api/ipam/ip-addresses/3903/",
+        "display_url": "https://netbox.example.com/ipam/ip-addresses/3903/",
+        "display": "1234:8080:666:2::/127",
+        "family": {
+          "value": 6,
+          "label": "IPv6"
+        },
+        "address": "1234:8080:666:2::/127",
+        "vrf": {
+          "id": 5,
+          "url": "https://netbox.example.com/api/ipam/vrfs/5/",
+          "display": "DOSTNO_PUBLIC (0050-DOSTNO_PUBLIC)",
+          "name": "DOSTNO_PUBLIC",
+          "rd": "0050-DOSTNO_PUBLIC",
+          "description": "DOSTNO_PUBLIC equivalent"
+        },
+        "tenant": null,
+        "status": {
+          "value": "active",
+          "label": "Active"
+        },
+        "role": null,
+        "assigned_object_type": "dcim.interface",
+        "assigned_object_id": 5629,
+        "assigned_object": {
+          "id": 5629,
+          "url": "https://netbox.example.com/api/dcim/interfaces/5629/",
+          "display": "swp51.50",
+          "device": {
+            "id": 83,
+            "url": "https://netbox.example.com/api/dcim/devices/83/",
+            "display": "switch3.dostno.systems",
+            "name": "switch3.dostno.systems",
+            "description": ""
+          },
+          "name": "swp51.50",
+          "description": "",
+          "cable": null,
+          "_occupied": false
+        },
+        "nat_inside": null,
+        "nat_outside": [],
+        "dns_name": "",
+        "description": "",
+        "comments": "",
+        "tags": [],
+        "custom_fields": {},
+        "created": "2025-10-23T07:37:20.445504Z",
+        "last_updated": "2026-02-19T16:57:27.656309Z"
+      }
+    ]
+  },
+  {
+    "method": "DELETE",
+    "path": "/api/dcim/interfaces/",
+    "params": {},
+    "data": [
+      {
+        "id": 660
+      }
+    ],
+    "status": 204,
+    "response": null
+  },
+  {
+    "method": "POST",
+    "path": "/api/dcim/interfaces/",
+    "params": {},
+    "data": {
+      "name": "swp51.55",
+      "device": 83,
+      "parent": 473,
+      "description": "",
+      "enabled": true,
+      "label": "",
+      "mode": null,
+      "tags": [],
+      "tagged_vlans": [],
+      "type": "virtual",
+      "untagged_vlan": null,
+      "vrf": 80
+    },
+    "status": 201,
+    "response": {
+      "id": 5630,
+      "url": "https://netbox.example.com/api/dcim/interfaces/5630/",
+      "display_url": "https://netbox.example.com/dcim/interfaces/5630/",
+      "display": "swp51.55",
+      "device": {
+        "id": 83,
+        "url": "https://netbox.example.com/api/dcim/devices/83/",
+        "display": "switch3.dostno.systems",
+        "name": "switch3.dostno.systems",
+        "description": ""
+      },
+      "vdcs": [],
+      "module": null,
+      "name": "swp51.55",
+      "label": "",
+      "type": {
+        "value": "virtual",
+        "label": "Virtual"
+      },
+      "enabled": true,
+      "parent": {
+        "id": 473,
+        "url": "https://netbox.example.com/api/dcim/interfaces/473/",
+        "display_url": "https://netbox.example.com/dcim/interfaces/473/",
+        "display": "swp51",
+        "device": {
+          "id": 83,
+          "url": "https://netbox.example.com/api/dcim/devices/83/",
+          "display_url": "https://netbox.example.com/dcim/devices/83/",
+          "display": "switch3.dostno.systems",
+          "name": "switch3.dostno.systems"
+        },
+        "name": "swp51",
+        "cable": 137,
+        "_occupied": true
+      },
+      "bridge": null,
+      "lag": null,
+      "mtu": null,
+      "mac_address": null,
+      "primary_mac_address": null,
+      "mac_addresses": [],
+      "speed": null,
+      "duplex": null,
+      "wwn": null,
+      "mgmt_only": false,
+      "description": "",
+      "mode": null,
+      "rf_role": null,
+      "rf_channel": null,
+      "poe_mode": null,
+      "poe_type": null,
+      "rf_channel_frequency": null,
+      "rf_channel_width": null,
+      "tx_power": null,
+      "untagged_vlan": null,
+      "tagged_vlans": [],
+      "qinq_svlan": null,
+      "vlan_translation_policy": null,
+      "mark_connected": false,
+      "cable": null,
+      "cable_end": null,
+      "wireless_link": null,
+      "link_peers": [],
+      "link_peers_type": null,
+      "wireless_lans": [],
+      "vrf": {
+        "id": 80,
+        "url": "https://netbox.example.com/api/ipam/vrfs/80/",
+        "display": "DOSTNO_SWIFT (0055-DOSTNO_SWIFT)",
+        "name": "DOSTNO_SWIFT",
+        "rd": "0055-DOSTNO_SWIFT",
+        "description": "Dostno Swift"
+      },
+      "l2vpn_termination": null,
+      "connected_endpoints": null,
+      "connected_endpoints_type": null,
+      "connected_endpoints_reachable": null,
+      "tags": [],
+      "custom_fields": {},
+      "created": "2026-02-19T16:57:28.109359Z",
+      "last_updated": "2026-02-19T16:57:28.109403Z",
+      "count_ipaddresses": 0,
+      "count_fhrp_groups": 0,
+      "_occupied": false
+    }
+  },
+  {
+    "method": "GET",
+    "path": "/api/dcim/interfaces/",
+    "params": {
+      "device_id": 83,
+      "name": "swp51.55",
+      "limit": 0
+    },
+    "data": null,
+    "status": 200,
+    "response": {
+      "count": 1,
+      "next": null,
+      "previous": null,
+      "results": [
+        {
+          "id": 5630,
+          "url": "https://netbox.example.com/api/dcim/interfaces/5630/",
+          "display_url": "https://netbox.example.com/dcim/interfaces/5630/",
+          "display": "swp51.55",
+          "device": {
+            "id": 83,
+            "url": "https://netbox.example.com/api/dcim/devices/83/",
+            "display": "switch3.dostno.systems",
+            "name": "switch3.dostno.systems",
+            "description": ""
+          },
+          "vdcs": [],
+          "module": null,
+          "name": "swp51.55",
+          "label": "",
+          "type": {
+            "value": "virtual",
+            "label": "Virtual"
+          },
+          "enabled": true,
+          "parent": {
+            "id": 473,
+            "url": "https://netbox.example.com/api/dcim/interfaces/473/",
+            "display_url": "https://netbox.example.com/dcim/interfaces/473/",
+            "display": "swp51",
+            "device": {
+              "id": 83,
+              "url": "https://netbox.example.com/api/dcim/devices/83/",
+              "display_url": "https://netbox.example.com/dcim/devices/83/",
+              "display": "switch3.dostno.systems",
+              "name": "switch3.dostno.systems"
+            },
+            "name": "swp51",
+            "cable": 137,
+            "_occupied": true
+          },
+          "bridge": null,
+          "lag": null,
+          "mtu": null,
+          "mac_address": null,
+          "primary_mac_address": null,
+          "mac_addresses": [],
+          "speed": null,
+          "duplex": null,
+          "wwn": null,
+          "mgmt_only": false,
+          "description": "",
+          "mode": null,
+          "rf_role": null,
+          "rf_channel": null,
+          "poe_mode": null,
+          "poe_type": null,
+          "rf_channel_frequency": null,
+          "rf_channel_width": null,
+          "tx_power": null,
+          "untagged_vlan": null,
+          "tagged_vlans": [],
+          "qinq_svlan": null,
+          "vlan_translation_policy": null,
+          "mark_connected": false,
+          "cable": null,
+          "cable_end": null,
+          "wireless_link": null,
+          "link_peers": [],
+          "link_peers_type": null,
+          "wireless_lans": [],
+          "vrf": {
+            "id": 80,
+            "url": "https://netbox.example.com/api/ipam/vrfs/80/",
+            "display": "DOSTNO_SWIFT (0055-DOSTNO_SWIFT)",
+            "name": "DOSTNO_SWIFT",
+            "rd": "0055-DOSTNO_SWIFT",
+            "description": "Dostno Swift"
+          },
+          "l2vpn_termination": null,
+          "connected_endpoints": null,
+          "connected_endpoints_type": null,
+          "connected_endpoints_reachable": null,
+          "tags": [],
+          "custom_fields": {},
+          "created": "2026-02-19T16:57:28.109359Z",
+          "last_updated": "2026-02-19T16:57:28.109403Z",
+          "count_ipaddresses": 0,
+          "count_fhrp_groups": 0,
+          "_occupied": false
+        }
+      ]
+    }
+  },
+  {
+    "method": "PATCH",
+    "path": "/api/ipam/ip-addresses/",
+    "params": {},
+    "data": [
+      {
+        "assigned_object_type": "dcim.interface",
+        "assigned_object_id": 5630,
+        "id": 3360
+      }
+    ],
+    "status": 200,
+    "response": [
+      {
+        "id": 3360,
+        "url": "https://netbox.example.com/api/ipam/ip-addresses/3360/",
+        "display_url": "https://netbox.example.com/ipam/ip-addresses/3360/",
+        "display": "10.123.5.44/31",
+        "family": {
+          "value": 4,
+          "label": "IPv4"
+        },
+        "address": "10.123.5.44/31",
+        "vrf": {
+          "id": 80,
+          "url": "https://netbox.example.com/api/ipam/vrfs/80/",
+          "display": "DOSTNO_SWIFT (0055-DOSTNO_SWIFT)",
+          "name": "DOSTNO_SWIFT",
+          "rd": "0055-DOSTNO_SWIFT",
+          "description": "Dostno Swift"
+        },
+        "tenant": null,
+        "status": {
+          "value": "active",
+          "label": "Active"
+        },
+        "role": null,
+        "assigned_object_type": "dcim.interface",
+        "assigned_object_id": 5630,
+        "assigned_object": {
+          "id": 5630,
+          "url": "https://netbox.example.com/api/dcim/interfaces/5630/",
+          "display": "swp51.55",
+          "device": {
+            "id": 83,
+            "url": "https://netbox.example.com/api/dcim/devices/83/",
+            "display": "switch3.dostno.systems",
+            "name": "switch3.dostno.systems",
+            "description": ""
+          },
+          "name": "swp51.55",
+          "description": "",
+          "cable": null,
+          "_occupied": false
+        },
+        "nat_inside": null,
+        "nat_outside": [],
+        "dns_name": "",
+        "description": "",
+        "comments": "",
+        "tags": [],
+        "custom_fields": {},
+        "created": "2021-10-28T00:00:00Z",
+        "last_updated": "2026-02-19T16:57:33.321303Z"
+      }
+    ]
+  },
+  {
+    "method": "GET",
+    "path": "/api/dcim/interfaces/",
+    "params": {
+      "device_id": 83,
+      "name": "swp51.55",
+      "limit": 0
+    },
+    "data": null,
+    "status": 200,
+    "response": {
+      "count": 1,
+      "next": null,
+      "previous": null,
+      "results": [
+        {
+          "id": 5630,
+          "url": "https://netbox.example.com/api/dcim/interfaces/5630/",
+          "display_url": "https://netbox.example.com/dcim/interfaces/5630/",
+          "display": "swp51.55",
+          "device": {
+            "id": 83,
+            "url": "https://netbox.example.com/api/dcim/devices/83/",
+            "display": "switch3.dostno.systems",
+            "name": "switch3.dostno.systems",
+            "description": ""
+          },
+          "vdcs": [],
+          "module": null,
+          "name": "swp51.55",
+          "label": "",
+          "type": {
+            "value": "virtual",
+            "label": "Virtual"
+          },
+          "enabled": true,
+          "parent": {
+            "id": 473,
+            "url": "https://netbox.example.com/api/dcim/interfaces/473/",
+            "display_url": "https://netbox.example.com/dcim/interfaces/473/",
+            "display": "swp51",
+            "device": {
+              "id": 83,
+              "url": "https://netbox.example.com/api/dcim/devices/83/",
+              "display_url": "https://netbox.example.com/dcim/devices/83/",
+              "display": "switch3.dostno.systems",
+              "name": "switch3.dostno.systems"
+            },
+            "name": "swp51",
+            "cable": 137,
+            "_occupied": true
+          },
+          "bridge": null,
+          "lag": null,
+          "mtu": null,
+          "mac_address": null,
+          "primary_mac_address": null,
+          "mac_addresses": [],
+          "speed": null,
+          "duplex": null,
+          "wwn": null,
+          "mgmt_only": false,
+          "description": "",
+          "mode": null,
+          "rf_role": null,
+          "rf_channel": null,
+          "poe_mode": null,
+          "poe_type": null,
+          "rf_channel_frequency": null,
+          "rf_channel_width": null,
+          "tx_power": null,
+          "untagged_vlan": null,
+          "tagged_vlans": [],
+          "qinq_svlan": null,
+          "vlan_translation_policy": null,
+          "mark_connected": false,
+          "cable": null,
+          "cable_end": null,
+          "wireless_link": null,
+          "link_peers": [],
+          "link_peers_type": null,
+          "wireless_lans": [],
+          "vrf": {
+            "id": 80,
+            "url": "https://netbox.example.com/api/ipam/vrfs/80/",
+            "display": "DOSTNO_SWIFT (0055-DOSTNO_SWIFT)",
+            "name": "DOSTNO_SWIFT",
+            "rd": "0055-DOSTNO_SWIFT",
+            "description": "Dostno Swift"
+          },
+          "l2vpn_termination": null,
+          "connected_endpoints": null,
+          "connected_endpoints_type": null,
+          "connected_endpoints_reachable": null,
+          "tags": [],
+          "custom_fields": {},
+          "created": "2026-02-19T16:57:28.109359Z",
+          "last_updated": "2026-02-19T16:57:28.109403Z",
+          "count_ipaddresses": 1,
+          "count_fhrp_groups": 0,
+          "_occupied": false
+        }
+      ]
+    }
+  },
+  {
+    "method": "PATCH",
+    "path": "/api/ipam/ip-addresses/",
+    "params": {},
+    "data": [
+      {
+        "assigned_object_type": "dcim.interface",
+        "assigned_object_id": 5630,
+        "id": 3362
+      }
+    ],
+    "status": 200,
+    "response": [
+      {
+        "id": 3362,
+        "url": "https://netbox.example.com/api/ipam/ip-addresses/3362/",
+        "display_url": "https://netbox.example.com/ipam/ip-addresses/3362/",
+        "display": "10.123.5.48/31",
+        "family": {
+          "value": 4,
+          "label": "IPv4"
+        },
+        "address": "10.123.5.48/31",
+        "vrf": {
+          "id": 80,
+          "url": "https://netbox.example.com/api/ipam/vrfs/80/",
+          "display": "DOSTNO_SWIFT (0055-DOSTNO_SWIFT)",
+          "name": "DOSTNO_SWIFT",
+          "rd": "0055-DOSTNO_SWIFT",
+          "description": "Dostno Swift"
+        },
+        "tenant": null,
+        "status": {
+          "value": "active",
+          "label": "Active"
+        },
+        "role": null,
+        "assigned_object_type": "dcim.interface",
+        "assigned_object_id": 5630,
+        "assigned_object": {
+          "id": 5630,
+          "url": "https://netbox.example.com/api/dcim/interfaces/5630/",
+          "display": "swp51.55",
+          "device": {
+            "id": 83,
+            "url": "https://netbox.example.com/api/dcim/devices/83/",
+            "display": "switch3.dostno.systems",
+            "name": "switch3.dostno.systems",
+            "description": ""
+          },
+          "name": "swp51.55",
+          "description": "",
+          "cable": null,
+          "_occupied": false
+        },
+        "nat_inside": null,
+        "nat_outside": [],
+        "dns_name": "",
+        "description": "",
+        "comments": "",
+        "tags": [],
+        "custom_fields": {},
+        "created": "2021-10-29T00:00:00Z",
+        "last_updated": "2026-02-19T16:57:34.027323Z"
+      }
+    ]
+  },
+  {
+    "method": "DELETE",
+    "path": "/api/dcim/interfaces/",
+    "params": {},
+    "data": [
+      {
+        "id": 4989
+      }
+    ],
+    "status": 204,
+    "response": null
+  },
+  {
+    "method": "POST",
+    "path": "/api/dcim/interfaces/",
+    "params": {},
+    "data": {
+      "name": "swp51.66",
+      "device": 83,
+      "parent": 473,
+      "description": "",
+      "enabled": true,
+      "label": "",
+      "mode": null,
+      "tags": [],
+      "tagged_vlans": [],
+      "type": "virtual",
+      "untagged_vlan": null,
+      "vrf": 113
+    },
+    "status": 201,
+    "response": {
+      "id": 5631,
+      "url": "https://netbox.example.com/api/dcim/interfaces/5631/",
+      "display_url": "https://netbox.example.com/dcim/interfaces/5631/",
+      "display": "swp51.66",
+      "device": {
+        "id": 83,
+        "url": "https://netbox.example.com/api/dcim/devices/83/",
+        "display": "switch3.dostno.systems",
+        "name": "switch3.dostno.systems",
+        "description": ""
+      },
+      "vdcs": [],
+      "module": null,
+      "name": "swp51.66",
+      "label": "",
+      "type": {
+        "value": "virtual",
+        "label": "Virtual"
+      },
+      "enabled": true,
+      "parent": {
+        "id": 473,
+        "url": "https://netbox.example.com/api/dcim/interfaces/473/",
+        "display_url": "https://netbox.example.com/dcim/interfaces/473/",
+        "display": "swp51",
+        "device": {
+          "id": 83,
+          "url": "https://netbox.example.com/api/dcim/devices/83/",
+          "display_url": "https://netbox.example.com/dcim/devices/83/",
+          "display": "switch3.dostno.systems",
+          "name": "switch3.dostno.systems"
+        },
+        "name": "swp51",
+        "cable": 137,
+        "_occupied": true
+      },
+      "bridge": null,
+      "lag": null,
+      "mtu": null,
+      "mac_address": null,
+      "primary_mac_address": null,
+      "mac_addresses": [],
+      "speed": null,
+      "duplex": null,
+      "wwn": null,
+      "mgmt_only": false,
+      "description": "",
+      "mode": null,
+      "rf_role": null,
+      "rf_channel": null,
+      "poe_mode": null,
+      "poe_type": null,
+      "rf_channel_frequency": null,
+      "rf_channel_width": null,
+      "tx_power": null,
+      "untagged_vlan": null,
+      "tagged_vlans": [],
+      "qinq_svlan": null,
+      "vlan_translation_policy": null,
+      "mark_connected": false,
+      "cable": null,
+      "cable_end": null,
+      "wireless_link": null,
+      "link_peers": [],
+      "link_peers_type": null,
+      "wireless_lans": [],
+      "vrf": {
+        "id": 113,
+        "url": "https://netbox.example.com/api/ipam/vrfs/113/",
+        "display": "DOSTNO_SABER (0066-DOSTNO_SABER)",
+        "name": "DOSTNO_SABER",
+        "rd": "0066-DOSTNO_SABER",
+        "description": ""
+      },
+      "l2vpn_termination": null,
+      "connected_endpoints": null,
+      "connected_endpoints_type": null,
+      "connected_endpoints_reachable": null,
+      "tags": [],
+      "custom_fields": {},
+      "created": "2026-02-19T16:57:34.316776Z",
+      "last_updated": "2026-02-19T16:57:34.316804Z",
+      "count_ipaddresses": 0,
+      "count_fhrp_groups": 0,
+      "_occupied": false
+    }
+  },
+  {
+    "method": "DELETE",
+    "path": "/api/dcim/interfaces/",
+    "params": {},
+    "data": [
+      {
+        "id": 5289
+      }
+    ],
+    "status": 204,
+    "response": null
+  },
+  {
+    "method": "POST",
+    "path": "/api/dcim/interfaces/",
+    "params": {},
+    "data": {
+      "name": "swp51.94",
+      "device": 83,
+      "parent": 473,
+      "description": "",
+      "enabled": true,
+      "label": "",
+      "mode": null,
+      "tags": [],
+      "tagged_vlans": [],
+      "type": "virtual",
+      "untagged_vlan": null,
+      "vrf": 115
+    },
+    "status": 201,
+    "response": {
+      "id": 5632,
+      "url": "https://netbox.example.com/api/dcim/interfaces/5632/",
+      "display_url": "https://netbox.example.com/dcim/interfaces/5632/",
+      "display": "swp51.94",
+      "device": {
+        "id": 83,
+        "url": "https://netbox.example.com/api/dcim/devices/83/",
+        "display": "switch3.dostno.systems",
+        "name": "switch3.dostno.systems",
+        "description": ""
+      },
+      "vdcs": [],
+      "module": null,
+      "name": "swp51.94",
+      "label": "",
+      "type": {
+        "value": "virtual",
+        "label": "Virtual"
+      },
+      "enabled": true,
+      "parent": {
+        "id": 473,
+        "url": "https://netbox.example.com/api/dcim/interfaces/473/",
+        "display_url": "https://netbox.example.com/dcim/interfaces/473/",
+        "display": "swp51",
+        "device": {
+          "id": 83,
+          "url": "https://netbox.example.com/api/dcim/devices/83/",
+          "display_url": "https://netbox.example.com/dcim/devices/83/",
+          "display": "switch3.dostno.systems",
+          "name": "switch3.dostno.systems"
+        },
+        "name": "swp51",
+        "cable": 137,
+        "_occupied": true
+      },
+      "bridge": null,
+      "lag": null,
+      "mtu": null,
+      "mac_address": null,
+      "primary_mac_address": null,
+      "mac_addresses": [],
+      "speed": null,
+      "duplex": null,
+      "wwn": null,
+      "mgmt_only": false,
+      "description": "",
+      "mode": null,
+      "rf_role": null,
+      "rf_channel": null,
+      "poe_mode": null,
+      "poe_type": null,
+      "rf_channel_frequency": null,
+      "rf_channel_width": null,
+      "tx_power": null,
+      "untagged_vlan": null,
+      "tagged_vlans": [],
+      "qinq_svlan": null,
+      "vlan_translation_policy": null,
+      "mark_connected": false,
+      "cable": null,
+      "cable_end": null,
+      "wireless_link": null,
+      "link_peers": [],
+      "link_peers_type": null,
+      "wireless_lans": [],
+      "vrf": {
+        "id": 115,
+        "url": "https://netbox.example.com/api/ipam/vrfs/115/",
+        "display": "DOSTNO_RIM (0094-DOSTNO_RIM)",
+        "name": "DOSTNO_RIM",
+        "rd": "0094-DOSTNO_RIM",
+        "description": ""
+      },
+      "l2vpn_termination": null,
+      "connected_endpoints": null,
+      "connected_endpoints_type": null,
+      "connected_endpoints_reachable": null,
+      "tags": [],
+      "custom_fields": {},
+      "created": "2026-02-19T16:57:34.674695Z",
+      "last_updated": "2026-02-19T16:57:34.674717Z",
+      "count_ipaddresses": 0,
+      "count_fhrp_groups": 0,
+      "_occupied": false
+    }
+  },
+  {
+    "method": "DELETE",
+    "path": "/api/dcim/interfaces/",
+    "params": {},
+    "data": [
+      {
+        "id": 5291
+      }
+    ],
+    "status": 204,
+    "response": null
+  },
+  {
+    "method": "POST",
+    "path": "/api/dcim/interfaces/",
+    "params": {},
+    "data": {
+      "name": "swp51.623",
+      "device": 83,
+      "parent": 473,
+      "description": "",
+      "enabled": true,
+      "label": "",
+      "mode": null,
+      "tags": [],
+      "tagged_vlans": [],
+      "type": "virtual",
+      "untagged_vlan": null,
+      "vrf": 114
+    },
+    "status": 201,
+    "response": {
+      "id": 5633,
+      "url": "https://netbox.example.com/api/dcim/interfaces/5633/",
+      "display_url": "https://netbox.example.com/dcim/interfaces/5633/",
+      "display": "swp51.623",
+      "device": {
+        "id": 83,
+        "url": "https://netbox.example.com/api/dcim/devices/83/",
+        "display": "switch3.dostno.systems",
+        "name": "switch3.dostno.systems",
+        "description": ""
+      },
+      "vdcs": [],
+      "module": null,
+      "name": "swp51.623",
+      "label": "",
+      "type": {
+        "value": "virtual",
+        "label": "Virtual"
+      },
+      "enabled": true,
+      "parent": {
+        "id": 473,
+        "url": "https://netbox.example.com/api/dcim/interfaces/473/",
+        "display_url": "https://netbox.example.com/dcim/interfaces/473/",
+        "display": "swp51",
+        "device": {
+          "id": 83,
+          "url": "https://netbox.example.com/api/dcim/devices/83/",
+          "display_url": "https://netbox.example.com/dcim/devices/83/",
+          "display": "switch3.dostno.systems",
+          "name": "switch3.dostno.systems"
+        },
+        "name": "swp51",
+        "cable": 137,
+        "_occupied": true
+      },
+      "bridge": null,
+      "lag": null,
+      "mtu": null,
+      "mac_address": null,
+      "primary_mac_address": null,
+      "mac_addresses": [],
+      "speed": null,
+      "duplex": null,
+      "wwn": null,
+      "mgmt_only": false,
+      "description": "",
+      "mode": null,
+      "rf_role": null,
+      "rf_channel": null,
+      "poe_mode": null,
+      "poe_type": null,
+      "rf_channel_frequency": null,
+      "rf_channel_width": null,
+      "tx_power": null,
+      "untagged_vlan": null,
+      "tagged_vlans": [],
+      "qinq_svlan": null,
+      "vlan_translation_policy": null,
+      "mark_connected": false,
+      "cable": null,
+      "cable_end": null,
+      "wireless_link": null,
+      "link_peers": [],
+      "link_peers_type": null,
+      "wireless_lans": [],
+      "vrf": {
+        "id": 114,
+        "url": "https://netbox.example.com/api/ipam/vrfs/114/",
+        "display": "DOSTNO_EDEAN (0623-DOSTNO_EDEAN)",
+        "name": "DOSTNO_EDEAN",
+        "rd": "0623-DOSTNO_EDEAN",
+        "description": ""
+      },
+      "l2vpn_termination": null,
+      "connected_endpoints": null,
+      "connected_endpoints_type": null,
+      "connected_endpoints_reachable": null,
+      "tags": [],
+      "custom_fields": {},
+      "created": "2026-02-19T16:57:34.975672Z",
+      "last_updated": "2026-02-19T16:57:34.975705Z",
+      "count_ipaddresses": 0,
+      "count_fhrp_groups": 0,
+      "_occupied": false
+    }
+  },
+  {
+    "method": "DELETE",
+    "path": "/api/dcim/interfaces/",
+    "params": {},
+    "data": [
+      {
+        "id": 5290
+      }
+    ],
+    "status": 204,
+    "response": null
+  },
+  {
+    "method": "POST",
+    "path": "/api/dcim/interfaces/",
+    "params": {},
+    "data": {
+      "name": "swp51.666",
+      "device": 83,
+      "parent": 473,
+      "description": "",
+      "enabled": true,
+      "label": "",
+      "mode": null,
+      "tags": [],
+      "tagged_vlans": [],
+      "type": "virtual",
+      "untagged_vlan": null,
+      "vrf": 73
+    },
+    "status": 201,
+    "response": {
+      "id": 5634,
+      "url": "https://netbox.example.com/api/dcim/interfaces/5634/",
+      "display_url": "https://netbox.example.com/dcim/interfaces/5634/",
+      "display": "swp51.666",
+      "device": {
+        "id": 83,
+        "url": "https://netbox.example.com/api/dcim/devices/83/",
+        "display": "switch3.dostno.systems",
+        "name": "switch3.dostno.systems",
+        "description": ""
+      },
+      "vdcs": [],
+      "module": null,
+      "name": "swp51.666",
+      "label": "",
+      "type": {
+        "value": "virtual",
+        "label": "Virtual"
+      },
+      "enabled": true,
+      "parent": {
+        "id": 473,
+        "url": "https://netbox.example.com/api/dcim/interfaces/473/",
+        "display_url": "https://netbox.example.com/dcim/interfaces/473/",
+        "display": "swp51",
+        "device": {
+          "id": 83,
+          "url": "https://netbox.example.com/api/dcim/devices/83/",
+          "display_url": "https://netbox.example.com/dcim/devices/83/",
+          "display": "switch3.dostno.systems",
+          "name": "switch3.dostno.systems"
+        },
+        "name": "swp51",
+        "cable": 137,
+        "_occupied": true
+      },
+      "bridge": null,
+      "lag": null,
+      "mtu": null,
+      "mac_address": null,
+      "primary_mac_address": null,
+      "mac_addresses": [],
+      "speed": null,
+      "duplex": null,
+      "wwn": null,
+      "mgmt_only": false,
+      "description": "",
+      "mode": null,
+      "rf_role": null,
+      "rf_channel": null,
+      "poe_mode": null,
+      "poe_type": null,
+      "rf_channel_frequency": null,
+      "rf_channel_width": null,
+      "tx_power": null,
+      "untagged_vlan": null,
+      "tagged_vlans": [],
+      "qinq_svlan": null,
+      "vlan_translation_policy": null,
+      "mark_connected": false,
+      "cable": null,
+      "cable_end": null,
+      "wireless_link": null,
+      "link_peers": [],
+      "link_peers_type": null,
+      "wireless_lans": [],
+      "vrf": {
+        "id": 73,
+        "url": "https://netbox.example.com/api/ipam/vrfs/73/",
+        "display": "DOSTNO (0666-DOSTNO)",
+        "name": "DOSTNO",
+        "rd": "0666-DOSTNO",
+        "description": "DOSTNO_MGMT (semi equivalent)"
+      },
+      "l2vpn_termination": null,
+      "connected_endpoints": null,
+      "connected_endpoints_type": null,
+      "connected_endpoints_reachable": null,
+      "tags": [],
+      "custom_fields": {},
+      "created": "2026-02-19T16:57:35.389004Z",
+      "last_updated": "2026-02-19T16:57:35.389036Z",
+      "count_ipaddresses": 0,
+      "count_fhrp_groups": 0,
+      "_occupied": false
+    }
+  },
+  {
+    "method": "GET",
+    "path": "/api/dcim/interfaces/",
+    "params": {
+      "device_id": 83,
+      "name": "swp51.666",
+      "limit": 0
+    },
+    "data": null,
+    "status": 200,
+    "response": {
+      "count": 1,
+      "next": null,
+      "previous": null,
+      "results": [
+        {
+          "id": 5634,
+          "url": "https://netbox.example.com/api/dcim/interfaces/5634/",
+          "display_url": "https://netbox.example.com/dcim/interfaces/5634/",
+          "display": "swp51.666",
+          "device": {
+            "id": 83,
+            "url": "https://netbox.example.com/api/dcim/devices/83/",
+            "display": "switch3.dostno.systems",
+            "name": "switch3.dostno.systems",
+            "description": ""
+          },
+          "vdcs": [],
+          "module": null,
+          "name": "swp51.666",
+          "label": "",
+          "type": {
+            "value": "virtual",
+            "label": "Virtual"
+          },
+          "enabled": true,
+          "parent": {
+            "id": 473,
+            "url": "https://netbox.example.com/api/dcim/interfaces/473/",
+            "display_url": "https://netbox.example.com/dcim/interfaces/473/",
+            "display": "swp51",
+            "device": {
+              "id": 83,
+              "url": "https://netbox.example.com/api/dcim/devices/83/",
+              "display_url": "https://netbox.example.com/dcim/devices/83/",
+              "display": "switch3.dostno.systems",
+              "name": "switch3.dostno.systems"
+            },
+            "name": "swp51",
+            "cable": 137,
+            "_occupied": true
+          },
+          "bridge": null,
+          "lag": null,
+          "mtu": null,
+          "mac_address": null,
+          "primary_mac_address": null,
+          "mac_addresses": [],
+          "speed": null,
+          "duplex": null,
+          "wwn": null,
+          "mgmt_only": false,
+          "description": "",
+          "mode": null,
+          "rf_role": null,
+          "rf_channel": null,
+          "poe_mode": null,
+          "poe_type": null,
+          "rf_channel_frequency": null,
+          "rf_channel_width": null,
+          "tx_power": null,
+          "untagged_vlan": null,
+          "tagged_vlans": [],
+          "qinq_svlan": null,
+          "vlan_translation_policy": null,
+          "mark_connected": false,
+          "cable": null,
+          "cable_end": null,
+          "wireless_link": null,
+          "link_peers": [],
+          "link_peers_type": null,
+          "wireless_lans": [],
+          "vrf": {
+            "id": 73,
+            "url": "https://netbox.example.com/api/ipam/vrfs/73/",
+            "display": "DOSTNO (0666-DOSTNO)",
+            "name": "DOSTNO",
+            "rd": "0666-DOSTNO",
+            "description": "DOSTNO_MGMT (semi equivalent)"
+          },
+          "l2vpn_termination": null,
+          "connected_endpoints": null,
+          "connected_endpoints_type": null,
+          "connected_endpoints_reachable": null,
+          "tags": [],
+          "custom_fields": {},
+          "created": "2026-02-19T16:57:35.389004Z",
+          "last_updated": "2026-02-19T16:57:35.389036Z",
+          "count_ipaddresses": 0,
+          "count_fhrp_groups": 0,
+          "_occupied": false
+        }
+      ]
+    }
+  },
+  {
+    "method": "PATCH",
+    "path": "/api/ipam/ip-addresses/",
+    "params": {},
+    "data": [
+      {
+        "assigned_object_type": "dcim.interface",
+        "assigned_object_id": 5634,
+        "id": 239
+      }
+    ],
+    "status": 200,
+    "response": [
+      {
+        "id": 239,
+        "url": "https://netbox.example.com/api/ipam/ip-addresses/239/",
+        "display_url": "https://netbox.example.com/ipam/ip-addresses/239/",
+        "display": "10.123.2.0/31",
+        "family": {
+          "value": 4,
+          "label": "IPv4"
+        },
+        "address": "10.123.2.0/31",
+        "vrf": {
+          "id": 73,
+          "url": "https://netbox.example.com/api/ipam/vrfs/73/",
+          "display": "DOSTNO (0666-DOSTNO)",
+          "name": "DOSTNO",
+          "rd": "0666-DOSTNO",
+          "description": "DOSTNO_MGMT (semi equivalent)"
+        },
+        "tenant": null,
+        "status": {
+          "value": "active",
+          "label": "Active"
+        },
+        "role": null,
+        "assigned_object_type": "dcim.interface",
+        "assigned_object_id": 5634,
+        "assigned_object": {
+          "id": 5634,
+          "url": "https://netbox.example.com/api/dcim/interfaces/5634/",
+          "display": "swp51.666",
+          "device": {
+            "id": 83,
+            "url": "https://netbox.example.com/api/dcim/devices/83/",
+            "display": "switch3.dostno.systems",
+            "name": "switch3.dostno.systems",
+            "description": ""
+          },
+          "name": "swp51.666",
+          "description": "",
+          "cable": null,
+          "_occupied": false
+        },
+        "nat_inside": null,
+        "nat_outside": [],
+        "dns_name": "",
+        "description": "",
+        "comments": "",
+        "tags": [],
+        "custom_fields": {},
+        "created": "2020-11-22T00:00:00Z",
+        "last_updated": "2026-02-19T16:57:36.212690Z"
+      }
+    ]
+  },
+  {
+    "method": "GET",
+    "path": "/api/dcim/interfaces/",
+    "params": {
+      "device_id": 83,
+      "name": "swp51.666",
+      "limit": 0
+    },
+    "data": null,
+    "status": 200,
+    "response": {
+      "count": 1,
+      "next": null,
+      "previous": null,
+      "results": [
+        {
+          "id": 5634,
+          "url": "https://netbox.example.com/api/dcim/interfaces/5634/",
+          "display_url": "https://netbox.example.com/dcim/interfaces/5634/",
+          "display": "swp51.666",
+          "device": {
+            "id": 83,
+            "url": "https://netbox.example.com/api/dcim/devices/83/",
+            "display": "switch3.dostno.systems",
+            "name": "switch3.dostno.systems",
+            "description": ""
+          },
+          "vdcs": [],
+          "module": null,
+          "name": "swp51.666",
+          "label": "",
+          "type": {
+            "value": "virtual",
+            "label": "Virtual"
+          },
+          "enabled": true,
+          "parent": {
+            "id": 473,
+            "url": "https://netbox.example.com/api/dcim/interfaces/473/",
+            "display_url": "https://netbox.example.com/dcim/interfaces/473/",
+            "display": "swp51",
+            "device": {
+              "id": 83,
+              "url": "https://netbox.example.com/api/dcim/devices/83/",
+              "display_url": "https://netbox.example.com/dcim/devices/83/",
+              "display": "switch3.dostno.systems",
+              "name": "switch3.dostno.systems"
+            },
+            "name": "swp51",
+            "cable": 137,
+            "_occupied": true
+          },
+          "bridge": null,
+          "lag": null,
+          "mtu": null,
+          "mac_address": null,
+          "primary_mac_address": null,
+          "mac_addresses": [],
+          "speed": null,
+          "duplex": null,
+          "wwn": null,
+          "mgmt_only": false,
+          "description": "",
+          "mode": null,
+          "rf_role": null,
+          "rf_channel": null,
+          "poe_mode": null,
+          "poe_type": null,
+          "rf_channel_frequency": null,
+          "rf_channel_width": null,
+          "tx_power": null,
+          "untagged_vlan": null,
+          "tagged_vlans": [],
+          "qinq_svlan": null,
+          "vlan_translation_policy": null,
+          "mark_connected": false,
+          "cable": null,
+          "cable_end": null,
+          "wireless_link": null,
+          "link_peers": [],
+          "link_peers_type": null,
+          "wireless_lans": [],
+          "vrf": {
+            "id": 73,
+            "url": "https://netbox.example.com/api/ipam/vrfs/73/",
+            "display": "DOSTNO (0666-DOSTNO)",
+            "name": "DOSTNO",
+            "rd": "0666-DOSTNO",
+            "description": "DOSTNO_MGMT (semi equivalent)"
+          },
+          "l2vpn_termination": null,
+          "connected_endpoints": null,
+          "connected_endpoints_type": null,
+          "connected_endpoints_reachable": null,
+          "tags": [],
+          "custom_fields": {},
+          "created": "2026-02-19T16:57:35.389004Z",
+          "last_updated": "2026-02-19T16:57:35.389036Z",
+          "count_ipaddresses": 1,
+          "count_fhrp_groups": 0,
+          "_occupied": false
+        }
+      ]
+    }
+  },
+  {
+    "method": "PATCH",
+    "path": "/api/ipam/ip-addresses/",
+    "params": {},
+    "data": [
+      {
+        "assigned_object_type": "dcim.interface",
+        "assigned_object_id": 5634,
+        "id": 3897
+      }
+    ],
+    "status": 200,
+    "response": [
+      {
+        "id": 3897,
+        "url": "https://netbox.example.com/api/ipam/ip-addresses/3897/",
+        "display_url": "https://netbox.example.com/ipam/ip-addresses/3897/",
+        "display": "10.123.2.20/31",
+        "family": {
+          "value": 4,
+          "label": "IPv4"
+        },
+        "address": "10.123.2.20/31",
+        "vrf": {
+          "id": 73,
+          "url": "https://netbox.example.com/api/ipam/vrfs/73/",
+          "display": "DOSTNO (0666-DOSTNO)",
+          "name": "DOSTNO",
+          "rd": "0666-DOSTNO",
+          "description": "DOSTNO_MGMT (semi equivalent)"
+        },
+        "tenant": null,
+        "status": {
+          "value": "active",
+          "label": "Active"
+        },
+        "role": null,
+        "assigned_object_type": "dcim.interface",
+        "assigned_object_id": 5634,
+        "assigned_object": {
+          "id": 5634,
+          "url": "https://netbox.example.com/api/dcim/interfaces/5634/",
+          "display": "swp51.666",
+          "device": {
+            "id": 83,
+            "url": "https://netbox.example.com/api/dcim/devices/83/",
+            "display": "switch3.dostno.systems",
+            "name": "switch3.dostno.systems",
+            "description": ""
+          },
+          "name": "swp51.666",
+          "description": "",
+          "cable": null,
+          "_occupied": false
+        },
+        "nat_inside": null,
+        "nat_outside": [],
+        "dns_name": "",
+        "description": "containerlab GW",
+        "comments": "",
+        "tags": [],
+        "custom_fields": {},
+        "created": "2025-09-18T09:47:06.799648Z",
+        "last_updated": "2026-02-19T16:57:36.567691Z"
+      }
+    ]
+  },
+  {
+    "method": "GET",
+    "path": "/api/dcim/interfaces/",
+    "params": {
+      "device_id": 83,
+      "name": "swp51.666",
+      "limit": 0
+    },
+    "data": null,
+    "status": 200,
+    "response": {
+      "count": 1,
+      "next": null,
+      "previous": null,
+      "results": [
+        {
+          "id": 5634,
+          "url": "https://netbox.example.com/api/dcim/interfaces/5634/",
+          "display_url": "https://netbox.example.com/dcim/interfaces/5634/",
+          "display": "swp51.666",
+          "device": {
+            "id": 83,
+            "url": "https://netbox.example.com/api/dcim/devices/83/",
+            "display": "switch3.dostno.systems",
+            "name": "switch3.dostno.systems",
+            "description": ""
+          },
+          "vdcs": [],
+          "module": null,
+          "name": "swp51.666",
+          "label": "",
+          "type": {
+            "value": "virtual",
+            "label": "Virtual"
+          },
+          "enabled": true,
+          "parent": {
+            "id": 473,
+            "url": "https://netbox.example.com/api/dcim/interfaces/473/",
+            "display_url": "https://netbox.example.com/dcim/interfaces/473/",
+            "display": "swp51",
+            "device": {
+              "id": 83,
+              "url": "https://netbox.example.com/api/dcim/devices/83/",
+              "display_url": "https://netbox.example.com/dcim/devices/83/",
+              "display": "switch3.dostno.systems",
+              "name": "switch3.dostno.systems"
+            },
+            "name": "swp51",
+            "cable": 137,
+            "_occupied": true
+          },
+          "bridge": null,
+          "lag": null,
+          "mtu": null,
+          "mac_address": null,
+          "primary_mac_address": null,
+          "mac_addresses": [],
+          "speed": null,
+          "duplex": null,
+          "wwn": null,
+          "mgmt_only": false,
+          "description": "",
+          "mode": null,
+          "rf_role": null,
+          "rf_channel": null,
+          "poe_mode": null,
+          "poe_type": null,
+          "rf_channel_frequency": null,
+          "rf_channel_width": null,
+          "tx_power": null,
+          "untagged_vlan": null,
+          "tagged_vlans": [],
+          "qinq_svlan": null,
+          "vlan_translation_policy": null,
+          "mark_connected": false,
+          "cable": null,
+          "cable_end": null,
+          "wireless_link": null,
+          "link_peers": [],
+          "link_peers_type": null,
+          "wireless_lans": [],
+          "vrf": {
+            "id": 73,
+            "url": "https://netbox.example.com/api/ipam/vrfs/73/",
+            "display": "DOSTNO (0666-DOSTNO)",
+            "name": "DOSTNO",
+            "rd": "0666-DOSTNO",
+            "description": "DOSTNO_MGMT (semi equivalent)"
+          },
+          "l2vpn_termination": null,
+          "connected_endpoints": null,
+          "connected_endpoints_type": null,
+          "connected_endpoints_reachable": null,
+          "tags": [],
+          "custom_fields": {},
+          "created": "2026-02-19T16:57:35.389004Z",
+          "last_updated": "2026-02-19T16:57:35.389036Z",
+          "count_ipaddresses": 2,
+          "count_fhrp_groups": 0,
+          "_occupied": false
+        }
+      ]
+    }
+  },
+  {
+    "method": "PATCH",
+    "path": "/api/ipam/ip-addresses/",
+    "params": {},
+    "data": [
+      {
+        "assigned_object_type": "dcim.interface",
+        "assigned_object_id": 5634,
+        "id": 333
+      }
+    ],
+    "status": 200,
+    "response": [
+      {
+        "id": 333,
+        "url": "https://netbox.example.com/api/ipam/ip-addresses/333/",
+        "display_url": "https://netbox.example.com/ipam/ip-addresses/333/",
+        "display": "10.123.20.10/31",
+        "family": {
+          "value": 4,
+          "label": "IPv4"
+        },
+        "address": "10.123.20.10/31",
+        "vrf": {
+          "id": 73,
+          "url": "https://netbox.example.com/api/ipam/vrfs/73/",
+          "display": "DOSTNO (0666-DOSTNO)",
+          "name": "DOSTNO",
+          "rd": "0666-DOSTNO",
+          "description": "DOSTNO_MGMT (semi equivalent)"
+        },
+        "tenant": null,
+        "status": {
+          "value": "active",
+          "label": "Active"
+        },
+        "role": null,
+        "assigned_object_type": "dcim.interface",
+        "assigned_object_id": 5634,
+        "assigned_object": {
+          "id": 5634,
+          "url": "https://netbox.example.com/api/dcim/interfaces/5634/",
+          "display": "swp51.666",
+          "device": {
+            "id": 83,
+            "url": "https://netbox.example.com/api/dcim/devices/83/",
+            "display": "switch3.dostno.systems",
+            "name": "switch3.dostno.systems",
+            "description": ""
+          },
+          "name": "swp51.666",
+          "description": "",
+          "cable": null,
+          "_occupied": false
+        },
+        "nat_inside": null,
+        "nat_outside": [],
+        "dns_name": "",
+        "description": "",
+        "comments": "",
+        "tags": [],
+        "custom_fields": {},
+        "created": "2021-05-17T00:00:00Z",
+        "last_updated": "2026-02-19T16:57:37.169810Z"
+      }
+    ]
+  },
+  {
+    "method": "GET",
+    "path": "/api/dcim/interfaces/",
+    "params": {
+      "device_id": 83,
+      "name": "swp51.666",
+      "limit": 0
+    },
+    "data": null,
+    "status": 200,
+    "response": {
+      "count": 1,
+      "next": null,
+      "previous": null,
+      "results": [
+        {
+          "id": 5634,
+          "url": "https://netbox.example.com/api/dcim/interfaces/5634/",
+          "display_url": "https://netbox.example.com/dcim/interfaces/5634/",
+          "display": "swp51.666",
+          "device": {
+            "id": 83,
+            "url": "https://netbox.example.com/api/dcim/devices/83/",
+            "display": "switch3.dostno.systems",
+            "name": "switch3.dostno.systems",
+            "description": ""
+          },
+          "vdcs": [],
+          "module": null,
+          "name": "swp51.666",
+          "label": "",
+          "type": {
+            "value": "virtual",
+            "label": "Virtual"
+          },
+          "enabled": true,
+          "parent": {
+            "id": 473,
+            "url": "https://netbox.example.com/api/dcim/interfaces/473/",
+            "display_url": "https://netbox.example.com/dcim/interfaces/473/",
+            "display": "swp51",
+            "device": {
+              "id": 83,
+              "url": "https://netbox.example.com/api/dcim/devices/83/",
+              "display_url": "https://netbox.example.com/dcim/devices/83/",
+              "display": "switch3.dostno.systems",
+              "name": "switch3.dostno.systems"
+            },
+            "name": "swp51",
+            "cable": 137,
+            "_occupied": true
+          },
+          "bridge": null,
+          "lag": null,
+          "mtu": null,
+          "mac_address": null,
+          "primary_mac_address": null,
+          "mac_addresses": [],
+          "speed": null,
+          "duplex": null,
+          "wwn": null,
+          "mgmt_only": false,
+          "description": "",
+          "mode": null,
+          "rf_role": null,
+          "rf_channel": null,
+          "poe_mode": null,
+          "poe_type": null,
+          "rf_channel_frequency": null,
+          "rf_channel_width": null,
+          "tx_power": null,
+          "untagged_vlan": null,
+          "tagged_vlans": [],
+          "qinq_svlan": null,
+          "vlan_translation_policy": null,
+          "mark_connected": false,
+          "cable": null,
+          "cable_end": null,
+          "wireless_link": null,
+          "link_peers": [],
+          "link_peers_type": null,
+          "wireless_lans": [],
+          "vrf": {
+            "id": 73,
+            "url": "https://netbox.example.com/api/ipam/vrfs/73/",
+            "display": "DOSTNO (0666-DOSTNO)",
+            "name": "DOSTNO",
+            "rd": "0666-DOSTNO",
+            "description": "DOSTNO_MGMT (semi equivalent)"
+          },
+          "l2vpn_termination": null,
+          "connected_endpoints": null,
+          "connected_endpoints_type": null,
+          "connected_endpoints_reachable": null,
+          "tags": [],
+          "custom_fields": {},
+          "created": "2026-02-19T16:57:35.389004Z",
+          "last_updated": "2026-02-19T16:57:35.389036Z",
+          "count_ipaddresses": 3,
+          "count_fhrp_groups": 0,
+          "_occupied": false
+        }
+      ]
+    }
+  },
+  {
+    "method": "PATCH",
+    "path": "/api/ipam/ip-addresses/",
+    "params": {},
+    "data": [
+      {
+        "assigned_object_type": "dcim.interface",
+        "assigned_object_id": 5634,
+        "id": 334
+      }
+    ],
+    "status": 200,
+    "response": [
+      {
+        "id": 334,
+        "url": "https://netbox.example.com/api/ipam/ip-addresses/334/",
+        "display_url": "https://netbox.example.com/ipam/ip-addresses/334/",
+        "display": "10.123.20.13/31",
+        "family": {
+          "value": 4,
+          "label": "IPv4"
+        },
+        "address": "10.123.20.13/31",
+        "vrf": {
+          "id": 73,
+          "url": "https://netbox.example.com/api/ipam/vrfs/73/",
+          "display": "DOSTNO (0666-DOSTNO)",
+          "name": "DOSTNO",
+          "rd": "0666-DOSTNO",
+          "description": "DOSTNO_MGMT (semi equivalent)"
+        },
+        "tenant": null,
+        "status": {
+          "value": "active",
+          "label": "Active"
+        },
+        "role": null,
+        "assigned_object_type": "dcim.interface",
+        "assigned_object_id": 5634,
+        "assigned_object": {
+          "id": 5634,
+          "url": "https://netbox.example.com/api/dcim/interfaces/5634/",
+          "display": "swp51.666",
+          "device": {
+            "id": 83,
+            "url": "https://netbox.example.com/api/dcim/devices/83/",
+            "display": "switch3.dostno.systems",
+            "name": "switch3.dostno.systems",
+            "description": ""
+          },
+          "name": "swp51.666",
+          "description": "",
+          "cable": null,
+          "_occupied": false
+        },
+        "nat_inside": null,
+        "nat_outside": [],
+        "dns_name": "",
+        "description": "",
+        "comments": "",
+        "tags": [],
+        "custom_fields": {},
+        "created": "2021-05-17T00:00:00Z",
+        "last_updated": "2026-02-19T16:57:37.535270Z"
+      }
+    ]
+  },
+  {
+    "method": "GET",
+    "path": "/api/dcim/interfaces/",
+    "params": {
+      "device_id": 83,
+      "name": "swp51.666",
+      "limit": 0
+    },
+    "data": null,
+    "status": 200,
+    "response": {
+      "count": 1,
+      "next": null,
+      "previous": null,
+      "results": [
+        {
+          "id": 5634,
+          "url": "https://netbox.example.com/api/dcim/interfaces/5634/",
+          "display_url": "https://netbox.example.com/dcim/interfaces/5634/",
+          "display": "swp51.666",
+          "device": {
+            "id": 83,
+            "url": "https://netbox.example.com/api/dcim/devices/83/",
+            "display": "switch3.dostno.systems",
+            "name": "switch3.dostno.systems",
+            "description": ""
+          },
+          "vdcs": [],
+          "module": null,
+          "name": "swp51.666",
+          "label": "",
+          "type": {
+            "value": "virtual",
+            "label": "Virtual"
+          },
+          "enabled": true,
+          "parent": {
+            "id": 473,
+            "url": "https://netbox.example.com/api/dcim/interfaces/473/",
+            "display_url": "https://netbox.example.com/dcim/interfaces/473/",
+            "display": "swp51",
+            "device": {
+              "id": 83,
+              "url": "https://netbox.example.com/api/dcim/devices/83/",
+              "display_url": "https://netbox.example.com/dcim/devices/83/",
+              "display": "switch3.dostno.systems",
+              "name": "switch3.dostno.systems"
+            },
+            "name": "swp51",
+            "cable": 137,
+            "_occupied": true
+          },
+          "bridge": null,
+          "lag": null,
+          "mtu": null,
+          "mac_address": null,
+          "primary_mac_address": null,
+          "mac_addresses": [],
+          "speed": null,
+          "duplex": null,
+          "wwn": null,
+          "mgmt_only": false,
+          "description": "",
+          "mode": null,
+          "rf_role": null,
+          "rf_channel": null,
+          "poe_mode": null,
+          "poe_type": null,
+          "rf_channel_frequency": null,
+          "rf_channel_width": null,
+          "tx_power": null,
+          "untagged_vlan": null,
+          "tagged_vlans": [],
+          "qinq_svlan": null,
+          "vlan_translation_policy": null,
+          "mark_connected": false,
+          "cable": null,
+          "cable_end": null,
+          "wireless_link": null,
+          "link_peers": [],
+          "link_peers_type": null,
+          "wireless_lans": [],
+          "vrf": {
+            "id": 73,
+            "url": "https://netbox.example.com/api/ipam/vrfs/73/",
+            "display": "DOSTNO (0666-DOSTNO)",
+            "name": "DOSTNO",
+            "rd": "0666-DOSTNO",
+            "description": "DOSTNO_MGMT (semi equivalent)"
+          },
+          "l2vpn_termination": null,
+          "connected_endpoints": null,
+          "connected_endpoints_type": null,
+          "connected_endpoints_reachable": null,
+          "tags": [],
+          "custom_fields": {},
+          "created": "2026-02-19T16:57:35.389004Z",
+          "last_updated": "2026-02-19T16:57:35.389036Z",
+          "count_ipaddresses": 4,
+          "count_fhrp_groups": 0,
+          "_occupied": false
+        }
+      ]
+    }
+  },
+  {
+    "method": "PATCH",
+    "path": "/api/ipam/ip-addresses/",
+    "params": {},
+    "data": [
+      {
+        "assigned_object_type": "dcim.interface",
+        "assigned_object_id": 5634,
+        "id": 338
+      }
+    ],
+    "status": 200,
+    "response": [
+      {
+        "id": 338,
+        "url": "https://netbox.example.com/api/ipam/ip-addresses/338/",
+        "display_url": "https://netbox.example.com/ipam/ip-addresses/338/",
+        "display": "10.123.20.40/31",
+        "family": {
+          "value": 4,
+          "label": "IPv4"
+        },
+        "address": "10.123.20.40/31",
+        "vrf": {
+          "id": 73,
+          "url": "https://netbox.example.com/api/ipam/vrfs/73/",
+          "display": "DOSTNO (0666-DOSTNO)",
+          "name": "DOSTNO",
+          "rd": "0666-DOSTNO",
+          "description": "DOSTNO_MGMT (semi equivalent)"
+        },
+        "tenant": null,
+        "status": {
+          "value": "active",
+          "label": "Active"
+        },
+        "role": null,
+        "assigned_object_type": "dcim.interface",
+        "assigned_object_id": 5634,
+        "assigned_object": {
+          "id": 5634,
+          "url": "https://netbox.example.com/api/dcim/interfaces/5634/",
+          "display": "swp51.666",
+          "device": {
+            "id": 83,
+            "url": "https://netbox.example.com/api/dcim/devices/83/",
+            "display": "switch3.dostno.systems",
+            "name": "switch3.dostno.systems",
+            "description": ""
+          },
+          "name": "swp51.666",
+          "description": "",
+          "cable": null,
+          "_occupied": false
+        },
+        "nat_inside": null,
+        "nat_outside": [],
+        "dns_name": "",
+        "description": "",
+        "comments": "",
+        "tags": [],
+        "custom_fields": {},
+        "created": "2021-05-19T00:00:00Z",
+        "last_updated": "2026-02-19T16:57:37.896019Z"
+      }
+    ]
+  },
+  {
+    "method": "DELETE",
+    "path": "/api/dcim/interfaces/",
+    "params": {},
+    "data": [
+      {
+        "id": 596
+      }
+    ],
+    "status": 204,
+    "response": null
+  }
+]
