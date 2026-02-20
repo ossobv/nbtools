@@ -4,7 +4,7 @@ from nbtools.command import ProcessMode
 from ..nbtest import get_test_api, nb_responses_load
 
 
-@nb_responses_load('test_swap_cables_0.json', caller=__file__)
+@nb_responses_load('test_swap_cables.0.json', caller=__file__)
 def test_swap_cables_0():
     source_dev_name = 'switch3.dostno.systems'
     source_iface_name = 'swp52'
