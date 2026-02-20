@@ -45,11 +45,13 @@ def nb_responses_add(filename):
             assert actual_data == expected_data, (
                 f'{entry["method"]} data mismatch at {request.url}')
 
-            return (
-                entry['status'],                # status
-                {},                             # headers
-                json.dumps(entry['response']),  # response
-            )
+            status = entry['status']
+            headers = {}
+            response = ''
+            if entry['response']:
+                response = json.dumps(entry['response'])
+
+            return (status, headers, response)
 
         method = getattr(responses, entry['method'])
         url = f'{BASE_URL}{entry["path"]}'
