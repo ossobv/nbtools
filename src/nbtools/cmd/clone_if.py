@@ -1,5 +1,6 @@
 from collections import namedtuple
 from ipaddress import IPv4Interface
+from warnings import warn
 
 from ..command import Command
 from ..device import NetboxDevice
@@ -10,6 +11,9 @@ from ..work import (
     UnrecognisedItemOnSource, UnrecognisedItemOnTarget,
     find_elem, named_anon, named_id, named_lambda)
 
+
+# If any of the interface tags is one of these, we skip the cloning.
+NO_CLONE_TAGS = frozenset({'CLOSSO_ROTH'})
 
 CloneInterfaceInfo = namedtuple(
     'CloneInterfaceInfo', 'dev if_name if_parent if_children')
@@ -85,6 +89,13 @@ class CloneInterfaceCommand(Command):
 
         # For each source, check target.
         for srciface in src.if_children:
+            if srciface.tags and any(
+                    tag.name in NO_CLONE_TAGS for tag in srciface.tags):
+                warn(
+                    f'Skipping {srciface} because {srciface.tags} '
+                    f'in NO_CLONE_TAGS')
+                continue
+
             # From "ensrc1.1234" make "entgt2.1234".
             srcifacesuffix = srciface.name[len(src.if_name):]
             assert srcifacesuffix.startswith('.'), srcifacesuffix
