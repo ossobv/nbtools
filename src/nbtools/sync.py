@@ -13,6 +13,7 @@ from .recorder import NetboxRecorder
 # Interface commands
 from .cmd.clone_if import CloneInterfaceCommand
 from .cmd.migr_if import MigrateInterfaceCommand
+from .cmd.migr_vm import MigrateVmCommand
 from .cmd.zap_if import ZapInterfaceCommand
 
 # Other commands
@@ -41,6 +42,12 @@ def run_command(command, nbapi, args):
         cmd = MigrateInterfaceCommand(nbapi)
         cmd.set_source_interface(args.source[0], args.source[1])
         cmd.set_target_interface(args.target[0], args.target[1])
+        cmd.run(ProcessMode.INTERACTIVE)
+
+    elif command == 'migrate-vm':
+        cmd = MigrateVmCommand(nbapi)
+        cmd.set_source_vm(args.source)
+        cmd.set_target_hypervisor(args.target)
         cmd.run(ProcessMode.INTERACTIVE)
 
     elif command == 'zap-interface':
@@ -94,6 +101,15 @@ def main() -> None:
         'Source device and interface (e.g. leaf1:swp19)'))
     migr_if.add_argument('target', type=dev_iface, help=(
         'Target device and interface (e.g. leaf2:swp8'))
+
+    # migrate-vm command
+    migr_vm = command.add_parser('migrate-vm', help=(
+        'Migrate gateway IPs of a VM to a new hypervisor. Moves IPs on the '
+        'leaf switches, optionally creating new subinterfaces.'))
+    migr_vm.add_argument('source', type=str, help=(
+        'Source VM (e.g. vm.example.com)'))
+    migr_vm.add_argument('target', type=str, help=(
+        'Target hypervisor (e.g. pve2.example.internal'))
 
     # zap-interface command
     zap_if = command.add_parser('zap-interface', help=(
