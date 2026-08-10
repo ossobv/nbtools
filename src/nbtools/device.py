@@ -54,7 +54,7 @@ class NetboxDevice:
         "Find source IPs, but make sure that we're dealing with physical hosts"
         # Assert that the interface belongs to this device.
         assert iface.device.id == self.device.id, (
-            self.device, iface.device.id, iface, self.device.id)
+            self.device, self.device.id, iface, iface.device.id)
 
         # Useful? Or old crap?
         # #assert (
