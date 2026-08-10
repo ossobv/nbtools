@@ -62,9 +62,12 @@ class ZapInterfaceCommand(Command):
             # tgtifacename = f'{tgt.if_name}{srcifacesuffix}'
             # tgtiface = find_elem(
             #     tgt.if_children, (lambda x: x.name == tgtifacename))
-
             self._add_work(
                 work_to_do, tgt, tgtiface)
+
+        # Add work for the parent interface.
+        self._add_work(
+            work_to_do, tgt, tgt.if_parent)
 
         # Anything to do?
         if not work_to_do:
