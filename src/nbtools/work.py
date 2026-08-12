@@ -32,6 +32,18 @@ class named_lambda(namedtuple('named_lambda', 'placeholder_name func parent')):
         return self.placeholder_name
 
 
+class ItemExistsElsewhere(StateError):
+    "Something exists elsewhere already"
+    # Check arguments or force-delete/replace
+    pass
+
+
+class UnrecognisedItem(StateError):
+    "Something does not seem to exist"
+    # Check your (target) arguments.
+    pass
+
+
 class UnrecognisedItemOnSource(StateError):
     "Something expected in the source does not exist"
     # Check your arguments.
@@ -60,6 +72,16 @@ class FutureWork:
 
     def _do(self, nbapi):
         raise NotImplementedError
+
+
+class DummyWork(FutureWork):
+    def __init__(self, name_id: named_id):
+        assert isinstance(name_id, named_id), name_id
+        self.name_id = name_id
+        self.values = {}
+
+    def _do(self, nbapi):
+        pass
 
 
 class FutureCreate(FutureWork):
@@ -173,8 +195,35 @@ class AssignIPAddress(FutureCreate):
             f'add ip {self.name_id} vrf {v["vrf"]}')
 
     def _do(self, nbapi):
+        # TODO: Move these to a check _before_ work.
+        assert 'assigned_object_id' in self.values, self.values
+        assert 'assigned_object_type' in self.values, self.values
         log.debug('nbapi.ipam.ip_addresses.create %r', self.values)
         nbapi.ipam.ip_addresses.create(self.values)
+
+
+class DummyUnassignIPAddress(DummyWork):
+    def __str__(self):
+        return (
+            f'{self.name_id.parent.parent}:{self.name_id.parent} '
+            f'del ip {self.name_id}')
+
+
+class ReassignIPAddress(FutureModify):
+    def __str__(self):
+        v = self.values
+        return (
+            f'{self.name_id.parent.parent}:{self.name_id.parent} '
+            f'add ip {self.name_id} vrf {v["vrf"]}')
+
+    def _do(self, nbapi):
+        # TODO: Move these to a check _before_ work.
+        assert 'assigned_object_id' in self.values, self.values
+        assert 'assigned_object_type' in self.values, self.values
+        updates = [self.values.copy()]
+        updates[0]['id'] = self.name_id.id
+        log.debug('nbapi.ipam.ip_addresses.update %r', updates)
+        nbapi.ipam.ip_addresses.update(updates)
 
 
 class DeleteIPAddress(FutureDelete):
@@ -184,9 +233,9 @@ class DeleteIPAddress(FutureDelete):
             f'del ip {self.name_id}')
 
     def _do(self, nbapi):
-        deletes = [{'id': self.name_id.id}]
-        log.debug('nbapi.dcim.ip_addresses.delete %r', deletes)
-        nbapi.dcim.ip_addresses.delete(deletes)
+        deletes = [self.name_id.id]
+        log.debug('nbapi.ipam.ip_addresses.delete %r', deletes)
+        nbapi.ipam.ip_addresses.delete(deletes)
 
 
 class ModifyIPAddress(FutureModify):

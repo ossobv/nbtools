@@ -9,6 +9,17 @@ ProcessMode = Enum('ProcessMode', [('INTERACTIVE', -1), ('NO', 0), ('YES', 1)])
 class Command:
     def __init__(self, nbapi):
         self.nbapi = nbapi
+        self._verbose = True
+
+    def set_quiet(self):
+        self._verbose = False
+
+    def verbose(self, *args, **kwargs):
+        if self._verbose:
+            print(*args, **kwargs)
+
+    def print(self, *args, **kwargs):
+        print(*args, **kwargs)
 
     def run(self, process_mode: ProcessMode):
         self.process_mode = process_mode

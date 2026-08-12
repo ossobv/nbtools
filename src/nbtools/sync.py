@@ -9,10 +9,12 @@ from .command import ProcessMode
 from .config import CONF_FILE, Config
 from .exceptions import StartupError, StateError
 from .recorder import NetboxRecorder
+from .types import IPv4AddrWithMask, MacAddr
 
 # Interface commands
 from .cmd.clone_if import CloneInterfaceCommand
 from .cmd.migr_if import MigrateInterfaceCommand
+from .cmd.set_if_ip import SetInterfaceIpCommand
 from .cmd.zap_if import ZapInterfaceCommand
 
 # Other commands
@@ -35,27 +37,43 @@ def run_command(command, nbapi, args):
         cmd = CloneInterfaceCommand(nbapi)
         cmd.set_source_interface(args.source[0], args.source[1])
         cmd.set_target_interface(args.target[0], args.target[1])
-        cmd.run(ProcessMode.INTERACTIVE)
 
     elif command == 'migrate-interface':
         cmd = MigrateInterfaceCommand(nbapi)
         cmd.set_source_interface(args.source[0], args.source[1])
         cmd.set_target_interface(args.target[0], args.target[1])
-        cmd.run(ProcessMode.INTERACTIVE)
+
+    elif command == 'set-interface-ip':
+        cmd = SetInterfaceIpCommand(nbapi)
+        cmd.set_target_interface(args.target[0], args.target[1])
+        cmd.set_ip(
+            args.ip, force=args.force, single=args.single, status=args.status,
+            vrf=args.vrf)
+
+    elif command == 'set-interface-ip-by-mac':
+        cmd = SetInterfaceIpCommand(nbapi)
+        cmd.set_target_interface_by_mac(args.target)
+        cmd.set_ip(
+            args.ip, force=args.force, single=args.single, status=args.status,
+            vrf=args.vrf)
 
     elif command == 'zap-interface':
         cmd = ZapInterfaceCommand(nbapi)
         cmd.set_target_interface(args.target[0], args.target[1])
-        cmd.run(ProcessMode.INTERACTIVE)
 
     elif command == 'swap-cables':
         cmd = SwapCableCommand(nbapi)
         cmd.set_a_interface(args.iface1[0], args.iface1[1])
         cmd.set_b_interface(args.iface2[0], args.iface2[1])
-        cmd.run(ProcessMode.INTERACTIVE)
 
     else:
         raise NotImplementedError('unknown command: {command}')
+
+    if args.batch:
+        cmd.set_quiet()
+        cmd.run(ProcessMode.YES)
+    else:
+        cmd.run(ProcessMode.INTERACTIVE)
 
 
 def main() -> None:
@@ -63,6 +81,8 @@ def main() -> None:
     parser.add_argument(
         '-c', '--config', metavar='INIFILE',
         help=f'configuration INI location (default: {CONF_FILE})')
+    parser.add_argument('--batch', action='store_true', help=(
+        'Do it without asking for input. Reduce visual clutter.'))
     parser.add_argument('--debug', action='store_true', help=(
         'Enable debug output.'))
     parser.add_argument('--record', action='store', help=(
@@ -93,7 +113,41 @@ def main() -> None:
     migr_if.add_argument('source', type=dev_iface, help=(
         'Source device and interface (e.g. leaf1:swp19)'))
     migr_if.add_argument('target', type=dev_iface, help=(
-        'Target device and interface (e.g. leaf2:swp8'))
+        'Target device and interface (e.g. leaf2:swp8)'))
+
+    # set-interface-ip command
+    set_if_ip = command.add_parser('set-interface-ip', help=(
+        'Set IP on an interface.'))
+    set_if_ip.add_argument('--force', action='store_true', help=(
+        'Remove IP from elsewhere if needed'))
+    set_if_ip.add_argument('--single', action='store_true', help=(
+        'Delete any other IP found here'))
+    set_if_ip.add_argument('--status', default='active', choices=(
+        'active', 'reserved', 'deprecated', 'dhcp', 'lacp'), help=(
+            'Set status to one of the available choices'))
+    set_if_ip.add_argument('--vrf', default=None, help=(
+        'Set VRF'))
+    set_if_ip.add_argument('target', type=dev_iface, help=(
+        'Target device and interface (e.g. mynode.example:BMC)'))
+    set_if_ip.add_argument('ip', type=IPv4AddrWithMask, help=(
+        'IPv4 address'))  # FIXME: IPv4 only for now?
+
+    # set-interface-ip command
+    set_if_ip_by_mac = command.add_parser('set-interface-ip-by-mac', help=(
+        'Set IP on an interface.'))
+    set_if_ip_by_mac.add_argument('--force', action='store_true', help=(
+        'Remove IP from elsewhere if needed'))
+    set_if_ip_by_mac.add_argument('--single', action='store_true', help=(
+        'Delete any other IP found here'))
+    set_if_ip_by_mac.add_argument('--status', default='active', choices=(
+        'active', 'reserved', 'deprecated', 'dhcp', 'lacp'), help=(
+            'Set status to one of the available choices'))
+    set_if_ip_by_mac.add_argument('--vrf', default=None, help=(
+        'Set VRF'))
+    set_if_ip_by_mac.add_argument('target', type=MacAddr, help=(
+        'Target MAC address (e.g. 11:22:33:44:55:66)'))
+    set_if_ip_by_mac.add_argument('ip', type=IPv4AddrWithMask, help=(
+        'IPv4 address'))  # FIXME: IPv4 only for now?
 
     # zap-interface command
     zap_if = command.add_parser('zap-interface', help=(
