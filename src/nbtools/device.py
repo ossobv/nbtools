@@ -62,14 +62,10 @@ class NetboxDevice:
         # #    or iface.link_peers_type == 'dcim.interface'), (
         # #        iface, iface.link_peers_type)
 
+        # NOTE: Asserting hardware device here. We'd need vminterface_id for
+        # VMs.
         assert iface.__class__.__module__ == 'pynetbox.models.dcim', (
             iface, iface.__class__)
-        ipaddrs = list(self.nb.ipam.ip_addresses.filter(
-            # assigned_object_type='dcim.interface',
-            assigned_object_id=iface.id))
-        # This is a bit convoluted. We could also do: assigned_object_type=5
-        # in the search, but we don't know why it is '5'.
-        ipaddrs = [
-            i for i in ipaddrs if i.assigned_object_type == 'dcim.interface']
+        ipaddrs = list(self.nb.ipam.ip_addresses.filter(interface_id=iface.id))
 
         return ipaddrs

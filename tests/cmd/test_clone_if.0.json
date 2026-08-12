@@ -2168,7 +2168,7 @@
     "method": "GET",
     "path": "/api/ipam/ip-addresses/",
     "params": {
-      "assigned_object_id": 520,
+      "interface_id": 520,
       "limit": 0
     },
     "data": null,
@@ -2184,7 +2184,7 @@
     "method": "GET",
     "path": "/api/ipam/ip-addresses/",
     "params": {
-      "assigned_object_id": 532,
+      "interface_id": 532,
       "limit": 0
     },
     "data": null,
@@ -2200,7 +2200,7 @@
     "method": "GET",
     "path": "/api/ipam/ip-addresses/",
     "params": {
-      "assigned_object_id": 5615,
+      "interface_id": 5615,
       "limit": 0
     },
     "data": null,
@@ -2409,7 +2409,7 @@
     "method": "GET",
     "path": "/api/ipam/ip-addresses/",
     "params": {
-      "assigned_object_id": 5620,
+      "interface_id": 5620,
       "limit": 0
     },
     "data": null,
@@ -2481,7 +2481,7 @@
     "method": "GET",
     "path": "/api/ipam/ip-addresses/",
     "params": {
-      "assigned_object_id": 5616,
+      "interface_id": 5616,
       "limit": 0
     },
     "data": null,
@@ -2583,7 +2583,7 @@
     "method": "GET",
     "path": "/api/ipam/ip-addresses/",
     "params": {
-      "assigned_object_id": 5621,
+      "interface_id": 5621,
       "limit": 0
     },
     "data": null,
@@ -2599,7 +2599,7 @@
     "method": "GET",
     "path": "/api/ipam/ip-addresses/",
     "params": {
-      "assigned_object_id": 5617,
+      "interface_id": 5617,
       "limit": 0
     },
     "data": null,
@@ -2671,7 +2671,7 @@
     "method": "GET",
     "path": "/api/ipam/ip-addresses/",
     "params": {
-      "assigned_object_id": 5618,
+      "interface_id": 5618,
       "limit": 0
     },
     "data": null,
@@ -2743,7 +2743,7 @@
     "method": "GET",
     "path": "/api/ipam/ip-addresses/",
     "params": {
-      "assigned_object_id": 5619,
+      "interface_id": 5619,
       "limit": 0
     },
     "data": null,
