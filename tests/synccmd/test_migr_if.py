@@ -1,4 +1,4 @@
-from nbtools.cmd.migr_if import MigrateInterfaceCommand
+from nbtools.synccmd.migr_if import MigrateInterfaceCommand
 from nbtools.command import ProcessMode
 from nbtools.types import DevIface
 

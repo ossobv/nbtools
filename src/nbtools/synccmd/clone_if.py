@@ -1,7 +1,7 @@
 from ipaddress import IPv4Interface
 from warnings import warn
 
-from ..command import Command
+from ..command import SyncCommand
 from ..exceptions import (
     UnrecognisedItemOnSource, UnrecognisedItemOnTarget)
 from ..netbox import get_interface_tree, get_ip_addresses
@@ -16,7 +16,7 @@ from ..work import (
 NO_CLONE_TAGS = frozenset({'CLOSSO_ROTH'})
 
 
-class CloneInterfaceCommand(Command):
+class CloneInterfaceCommand(SyncCommand):
     name = 'clone-interface'
     help = (
         'Clone interface with subinterfaces from source to target. '

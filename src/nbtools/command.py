@@ -6,7 +6,7 @@ from enum import Enum
 ProcessMode = Enum('ProcessMode', [('INTERACTIVE', -1), ('NO', 0), ('YES', 1)])
 
 
-class Command:
+class SyncCommand:
     """
     Base for all nbsync subcommands.
 

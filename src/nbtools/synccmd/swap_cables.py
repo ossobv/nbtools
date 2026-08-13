@@ -1,4 +1,4 @@
-from ..command import Command
+from ..command import SyncCommand
 from ..exceptions import (
     UnrecognisedItemOnSource, UnrecognisedItemOnTarget)
 from ..netbox import get_interface_tree
@@ -8,7 +8,7 @@ from ..work import (
     named_id)
 
 
-class SwapCableCommand(Command):
+class SwapCableCommand(SyncCommand):
     name = 'swap-cables'
     help = (
         'Swap two connected cables. Changes A1<->B1 and A2<->B2 to '

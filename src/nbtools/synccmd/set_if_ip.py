@@ -1,4 +1,4 @@
-from ..command import Command
+from ..command import SyncCommand
 from ..exceptions import (
     ItemExistsElsewhere, UnrecognisedItem, UnrecognisedItemOnTarget)
 from ..netbox import get_interface_tree
@@ -12,7 +12,7 @@ from ..work import (
     ReassignIPAddress)
 
 
-class BaseSetInterfaceIpCommand(Command):
+class BaseSetInterfaceIpCommand(SyncCommand):
     """
     Shared by set-interface-ip and set-interface-ip-by-mac.
 

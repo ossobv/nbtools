@@ -1,4 +1,4 @@
-from ..command import Command
+from ..command import SyncCommand
 from ..exceptions import UnrecognisedItemOnTarget
 from ..netbox import get_interface_tree
 from ..types import DevIface
@@ -7,7 +7,7 @@ from ..work import (
     DeleteIPAddress)
 
 
-class ZapInterfaceCommand(Command):
+class ZapInterfaceCommand(SyncCommand):
     name = 'zap-interface'
     help = (
         'Zap (clean/wipe) properties from an interface. '

@@ -5,7 +5,7 @@ import sys
 
 import pynetbox
 
-from .cmd import COMMANDS, COMMANDS_BY_NAME
+from .synccmd import COMMANDS, COMMANDS_BY_NAME
 from .command import ProcessMode
 from .config import CONF_FILE, Config
 from .exceptions import StartupError, StateError

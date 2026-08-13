@@ -1,4 +1,4 @@
-from nbtools.cmd.clone_if import CloneInterfaceCommand
+from nbtools.synccmd.clone_if import CloneInterfaceCommand
 from nbtools.command import ProcessMode
 from nbtools.types import DevIface
 

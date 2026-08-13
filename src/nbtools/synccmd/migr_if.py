@@ -1,4 +1,4 @@
-from ..command import Command
+from ..command import SyncCommand
 from ..exceptions import (
     UnrecognisedItemOnSource, UnrecognisedItemOnTarget)
 from ..netbox import get_interface_tree, get_ip_addresses
@@ -10,7 +10,7 @@ from ..work import (
     find_elem, named_anon, named_id, named_lambda)
 
 
-class MigrateInterfaceCommand(Command):
+class MigrateInterfaceCommand(SyncCommand):
     name = 'migrate-interface'
     help = (
         'Migrate properties of an interface -- subinterfaces, IPs and cables '

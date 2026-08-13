@@ -1,4 +1,4 @@
-from nbtools.cmd.set_if_ip import (
+from nbtools.synccmd.set_if_ip import (
     SetInterfaceIpByMacCommand, SetInterfaceIpCommand)
 from nbtools.types import DevIface, IPv4AddrWithMask, MacAddr
 

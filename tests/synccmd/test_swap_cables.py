@@ -1,4 +1,4 @@
-from nbtools.cmd.swap_cables import SwapCableCommand
+from nbtools.synccmd.swap_cables import SwapCableCommand
 from nbtools.command import ProcessMode
 from nbtools.types import DevIface
 
