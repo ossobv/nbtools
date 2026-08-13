@@ -22,3 +22,15 @@ def test_dev_iface_allows_a_colon_in_the_device_name():
 def test_dev_iface_needs_a_colon():
     with pytest.raises(ValueError):
         DevIface('noseparator')
+
+
+def test_dev_iface_none_is_the_empty_interface():
+    assert DevIface.NONE == ('', '')
+    assert DevIface(':') == DevIface.NONE
+    assert str(DevIface.NONE) == ':'
+
+
+def test_dev_iface_none_is_not_spelled_empty():
+    "An unset shell variable must not become DevIface.NONE"
+    with pytest.raises(ValueError):
+        DevIface('')

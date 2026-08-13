@@ -15,6 +15,10 @@ class DevIface(namedtuple('DevIface', 'device interface')):
     Split on the *last* colon: device names are free-form and do hold
     colons, e.g. 'FREE (was-planned: node3.example.com):BMC'. Interface
     names do not.
+
+    DevIface.NONE is the interface that records assigned to nothing sit
+    on. It is spelled ':' -- an empty device and an empty interface --
+    and renders back as ':' in the work listing.
     """
     def __new__(cls, dev_iface_str):
         try:
@@ -26,6 +30,8 @@ class DevIface(namedtuple('DevIface', 'device interface')):
 
     def __str__(self):
         return f'{self.device}:{self.interface}'
+
+DevIface.NONE = DevIface(':')
 
 
 class MacAddr:
