@@ -202,6 +202,29 @@ class ReassignIPAddress(FutureModify):
         nbapi.ipam.ip_addresses.update(updates)
 
 
+class DeleteMacAddress(FutureDelete):
+    """
+    Delete one MAC address record.
+
+    An unassigned MAC has no device or interface to name it by, so the
+    line says which record is going and, for a duplicate, which copy is
+    being kept. That matters: this is the one place where the operator
+    confirms a delete with nothing else on screen to judge it by.
+    """
+    def __init__(self, name_id, kept_on=None):
+        super().__init__(name_id)
+        self.kept_on = kept_on
+
+    def __str__(self):
+        kept = f' (keeping {self.kept_on})' if self.kept_on else ''
+        return f'del mac {self.name_id} #{self.name_id.id}{kept}'
+
+    def _do(self, nbapi):
+        deletes = [self.name_id.id]
+        log.debug('nbapi.dcim.mac_addresses.delete %r', deletes)
+        nbapi.dcim.mac_addresses.delete(deletes)
+
+
 class DeleteIPAddress(FutureDelete):
     def __str__(self):
         return (

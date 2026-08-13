@@ -10,6 +10,10 @@ from .util import natsort_key
 InterfaceTree = namedtuple(
     'InterfaceTree', 'dev if_name if_parent if_children')
 
+# One MAC address value that NetBox holds more than once, split by
+# whether the record is attached to anything.
+DuplicateMacs = namedtuple('DuplicateMacs', 'mac assigned unassigned')
+
 
 def get_device(nbapi, name):
     "Get the device by name"
@@ -89,6 +93,51 @@ def get_interface_tree(
         if_parent=parent_iface,
         if_children=ifaces,
     )
+
+
+def get_mac_addresses(nbapi, mac):
+    """
+    Get every record NetBox holds for this exact MAC address
+
+    Filtering happens twice on purpose. pynetbox turns a q= into a
+    freeform search, which also returns neighbours, so the exact match
+    is redone here rather than trusted to the server.
+    """
+    wanted = str(mac).lower()
+
+    return [
+        rec for rec in nbapi.dcim.mac_addresses.filter(q=wanted)
+        if str(rec.mac_address).lower() == wanted]
+
+
+def get_duplicate_macs(nbapi):
+    """
+    Find MAC addresses that NetBox holds more than once
+
+    Returns a list of DuplicateMacs ordered by MAC address, each
+    holding the records that have an assigned_object and those that do
+    not. A MAC recorded only once is not returned at all.
+
+    The usual cause is someone creating the MAC twice and assigning
+    only the second one. Duplicates are a problem in their own right:
+    set-interface-ip-by-mac refuses to guess between them.
+    """
+    by_mac = {}
+    for mac in nbapi.dcim.mac_addresses.all():
+        by_mac.setdefault(str(mac.mac_address).lower(), []).append(mac)
+
+    duplicates = []
+    for value, records in sorted(by_mac.items()):
+        if len(records) < 2:
+            continue
+
+        duplicates.append(DuplicateMacs(
+            mac=value,
+            assigned=[rec for rec in records if rec.assigned_object],
+            unassigned=[rec for rec in records if not rec.assigned_object],
+        ))
+
+    return duplicates
 
 
 def get_ip_addresses(nbapi, iface):
