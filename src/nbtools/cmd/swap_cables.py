@@ -2,10 +2,10 @@ from collections import namedtuple
 
 from ..command import Command
 from ..device import NetboxDevice
-from ..exceptions import NotFound
+from ..exceptions import (
+    NotFound, UnrecognisedItemOnSource, UnrecognisedItemOnTarget)
 from ..work import (
     ModifyCable,
-    UnrecognisedItemOnSource, UnrecognisedItemOnTarget,
     named_id)
 
 

@@ -203,8 +203,10 @@ def main() -> None:
     except StateError as e:
         print(
             (f'{parser.prog}: Failure while processing: '
-             f'{e.__doc__}: {e}'),
+             f'{e.description}: {e}'),
             file=sys.stderr)
+        if e.hint:
+            print(f'{parser.prog}: {e.hint}', file=sys.stderr)
         sys.exit(3)
     finally:
         # Save recording.

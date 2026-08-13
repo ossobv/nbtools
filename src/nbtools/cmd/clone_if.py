@@ -4,11 +4,11 @@ from warnings import warn
 
 from ..command import Command
 from ..device import NetboxDevice
-from ..exceptions import NotFound
+from ..exceptions import (
+    NotFound, UnrecognisedItemOnSource, UnrecognisedItemOnTarget)
 from ..work import (
     CreateInterface, ModifyInterface,
     AssignIPAddress, ModifyIPAddress,
-    UnrecognisedItemOnSource, UnrecognisedItemOnTarget,
     find_elem, named_anon, named_id, named_lambda)
 
 

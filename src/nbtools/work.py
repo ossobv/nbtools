@@ -1,8 +1,6 @@
 from collections import namedtuple
 from logging import getLogger
 
-from .exceptions import StateError
-
 log = getLogger(__name__)
 
 
@@ -30,30 +28,6 @@ class named_lambda(namedtuple('named_lambda', 'placeholder_name func parent')):
 
     def __str__(self):
         return self.placeholder_name
-
-
-class ItemExistsElsewhere(StateError):
-    "Something exists elsewhere already"
-    # Check arguments or force-delete/replace
-    pass
-
-
-class UnrecognisedItem(StateError):
-    "Something does not seem to exist"
-    # Check your (target) arguments.
-    pass
-
-
-class UnrecognisedItemOnSource(StateError):
-    "Something expected in the source does not exist"
-    # Check your arguments.
-    pass
-
-
-class UnrecognisedItemOnTarget(StateError):
-    "Something exists on target that does not exist in the source"
-    # You should maybe remove it.
-    pass
 
 
 class FutureWork:

@@ -2,11 +2,10 @@ from collections import namedtuple
 
 from ..command import Command
 from ..device import NetboxDevice
-from ..exceptions import NotFound
+from ..exceptions import NotFound, UnrecognisedItemOnTarget
 from ..work import (
     DeleteInterface, ModifyInterface,
-    DeleteIPAddress,
-    UnrecognisedItemOnTarget)
+    DeleteIPAddress)
 
 
 ZapInterfaceInfo = namedtuple(

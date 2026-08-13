@@ -1,16 +1,15 @@
 from ..command import Command
 from ..device import NetboxDevice
-from ..exceptions import NotFound
+from ..exceptions import (
+    ItemExistsElsewhere, NotFound, UnrecognisedItem,
+    UnrecognisedItemOnTarget)
 from ..work import (
     named_anon, named_id,
     AssignIPAddress,
     DeleteIPAddress,
     DummyUnassignIPAddress,
     ModifyIPAddress,
-    ReassignIPAddress,
-    ItemExistsElsewhere,
-    UnrecognisedItem,
-    UnrecognisedItemOnTarget)
+    ReassignIPAddress)
 
 
 class SetInterfaceIpCommand(Command):
