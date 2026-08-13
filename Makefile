@@ -1,9 +1,9 @@
-.PHONY: all setup venv
+.PHONY: all setup test venv
 
 all: setup
 
 test: setup
-	. .venv/bin/activate && pytest -s
+	. .venv/bin/activate && pytest
 	python3 -m unittest contrib/redactr_poc.py
 
 setup: venv
