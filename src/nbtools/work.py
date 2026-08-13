@@ -202,6 +202,18 @@ class ReassignIPAddress(FutureModify):
         nbapi.ipam.ip_addresses.update(updates)
 
 
+class DeleteMacAddress(FutureDelete):
+    def __str__(self):
+        return (
+            f'{self.name_id.parent.parent}:{self.name_id.parent} '
+            f'del mac {self.name_id}')
+
+    def _do(self, nbapi):
+        deletes = [self.name_id.id]
+        log.debug('nbapi.dcim.mac_addresses.delete %r', deletes)
+        nbapi.dcim.mac_addresses.delete(deletes)
+
+
 class DeleteIPAddress(FutureDelete):
     def __str__(self):
         return (

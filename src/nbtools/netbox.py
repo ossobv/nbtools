@@ -91,6 +91,21 @@ def get_interface_tree(
     )
 
 
+def get_mac_addresses(nbapi, mac):
+    """
+    Get every record NetBox holds for this exact MAC address
+
+    Filtering happens twice on purpose. pynetbox turns a q= into a
+    freeform search, which also returns neighbours, so the exact match
+    is redone here rather than trusted to the server.
+    """
+    wanted = str(mac).lower()
+
+    return [
+        rec for rec in nbapi.dcim.mac_addresses.filter(q=wanted)
+        if str(rec.mac_address).lower() == wanted]
+
+
 def get_ip_addresses(nbapi, iface):
     "Get the IPs assigned to this interface"
     # NOTE: hardware only. For a VM this would be vminterface_id. The
