@@ -1,5 +1,6 @@
-from nbtools.cmd.set_if_ip import SetInterfaceIpByMacCommand
-from nbtools.types import IPv4AddrWithMask, MacAddr
+from nbtools.cmd.set_if_ip import (
+    SetInterfaceIpByMacCommand, SetInterfaceIpCommand)
+from nbtools.types import DevIface, IPv4AddrWithMask, MacAddr
 
 from ..nbtest import get_test_api, nb_responses_load
 
@@ -21,10 +22,41 @@ def make_command(mac, ip, **kwargs):
     return set_if_ip
 
 
+def make_dev_command(devif, ip, **kwargs):
+    "As make_command, but naming the target as DEV:IFACE"
+    set_if_ip = SetInterfaceIpCommand(get_test_api())
+    set_if_ip.set_target_interface(DevIface(devif))
+    set_if_ip.set_ip(IPv4AddrWithMask(ip), **kwargs)
+    return set_if_ip
+
+
 def do_work(set_if_ip, work):
     "Execute the plan, so the recording checks the request bodies"
     for future in work:
         future.do(set_if_ip.nbapi)
+
+
+@nb_responses_load('test_set_if_ip.simple-add.json', caller=__file__)
+def test_set_if_ip_simple_add():
+    """
+    nbsync set-interface-ip node1.zone-a.endor.example.com:BMC
+        10.103.1.64/24 --status=dhcp
+
+    The plain case: the IP is nowhere in NetBox yet, so it is created
+    on the named interface. This is also the only test that names its
+    target as DEV:IFACE rather than by MAC, and the only one without
+    --vrf, so the IP is created outside any VRF ('vrf -' below, null
+    on the wire).
+    """
+    set_if_ip = make_dev_command(
+        f'{NODE1_BMC}', '10.103.1.64/24', status='dhcp')
+
+    work = set_if_ip.plan()
+    assert [str(future) for future in work] == [
+        f'{NODE1_BMC} add ip 10.103.1.64/24 vrf -',
+    ]
+
+    do_work(set_if_ip, work)
 
 
 @nb_responses_load('test_set_if_ip.no-change.json', caller=__file__)
