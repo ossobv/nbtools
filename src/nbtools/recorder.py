@@ -1,6 +1,8 @@
 import json
 from urllib.parse import urlparse
 
+from . import types
+
 
 class NetboxRecorder:
     API_URL_REPLACEMENT = 'https://netbox.example.com/api'
@@ -67,6 +69,11 @@ class NetboxRecorder:
         if isinstance(data, (list, set, tuple)):
             return [
                 self.redacted(value) for value in data]
+
+        # Custom types which leak here through e.g. the command line args:
+        if isinstance(data, (types.IPv4AddrWithMask, types.MacAddr)):
+            return self.redacted(str(data))
+
         raise NotImplementedError(f'{type(data)}: {data}')
 
     def save(self, filename):
