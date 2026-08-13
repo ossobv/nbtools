@@ -11,15 +11,36 @@ def find_elem(items, matchfunc):
     return (candidates[0] if candidates else None)
 
 
+def quoted_name(name) -> str:
+    """
+    Single-quote a name if it needs it, doubling quotes like SQL does
+
+    NetBox device names are free-form, so this is a real one:
+
+        FREE (was-planned: node3.zl.backend1.prod.juno.cloud)
+
+    Unquoted, the "device:interface rest of the line" output cannot be
+    read: the device name runs into the rest of the sentence. So a name
+    holding a space gets quoted, and an embedded quote is doubled:
+
+        Bob's spare (old)  ->  'Bob''s spare (old)'
+    """
+    name = str(name)
+    if ' ' in name or "'" in name:
+        return "'{}'".format(name.replace("'", "''"))
+
+    return name
+
+
 class named_anon(namedtuple('named_anon', 'name parent')):
     def __str__(self):
-        return str(self.name)
+        return quoted_name(self.name)
 
 
 class named_id(namedtuple('named_id', 'name id parent')):
     def __str__(self):
         # return f'{self.name}(#{self.id})'
-        return str(self.name)
+        return quoted_name(self.name)
 
 
 class named_lambda(namedtuple('named_lambda', 'placeholder_name func parent')):
@@ -83,7 +104,7 @@ class ModifyCable(FutureModify):
     def __str__(self):
         kvs = ' '.join(f'{k}={v}' for k, v in self.values.items())
         return (
-            f'{self.name_id.parent.parent.name}:{self.name_id.parent.name} '
+            f'{self.name_id.parent.parent}:{self.name_id.parent} '
             f'cable {self.name_id} set {kvs}')
 
     def _do(self, nbapi):
