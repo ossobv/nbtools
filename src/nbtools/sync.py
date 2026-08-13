@@ -80,7 +80,7 @@ def main() -> None:
             (f'{parser.prog}: Failure while processing: '
              f'{e.description}: {e}'),
             file=sys.stderr)
-        if e.hint:
+        if e.hint and not args.batch:
             print(f'{parser.prog}: {e.hint}', file=sys.stderr)
         sys.exit(3)
     finally:
