@@ -1,17 +1,11 @@
-from collections import namedtuple
-
 from ..command import Command
-from ..device import NetboxDevice
 from ..exceptions import (
-    NotFound, UnrecognisedItemOnSource, UnrecognisedItemOnTarget)
+    UnrecognisedItemOnSource, UnrecognisedItemOnTarget)
+from ..netbox import get_interface_tree
 from ..types import DevIface
 from ..work import (
     ModifyCable,
     named_id)
-
-
-SwapCableInfo = namedtuple(
-    'SwapCableInfo', 'dev if_name if_dev')
 
 
 class SwapCableCommand(Command):
@@ -53,12 +47,11 @@ class SwapCableCommand(Command):
             return 'b_terminations'
         return None
 
-    def _make_swapcableinfo(self, devif: DevIface) -> SwapCableInfo:
-        dev = NetboxDevice.get_by_name(self.nbapi, devif.device)
-        ifaces = dev.get_interfaces_by_name(
-            devif.interface, with_subinterfaces=False)
-        if_dev = ifaces.pop(0)
-        assert not ifaces, ifaces
+    def _get_cabled_interface(self, devif: DevIface, raise_as):
+        "Get the interface, insisting that it has a cable on both ends"
+        tree = get_interface_tree(
+            self.nbapi, devif, with_subinterfaces=False, raise_as=raise_as)
+        if_dev = tree.if_parent
 
         assert len(if_dev.cable.a_terminations) < 2, if_dev
         assert len(if_dev.cable.b_terminations) < 2, if_dev
@@ -70,60 +63,52 @@ class SwapCableCommand(Command):
             raise UnrecognisedItemOnSource(
                 f'expected connected cable to swap on {devif}')
 
-        return SwapCableInfo(
-            dev=dev,
-            if_name=devif.interface,
-            if_dev=if_dev,
-        )
+        return tree
 
     def plan(self):
         # Get source.
-        try:
-            src = self._make_swapcableinfo(self._source)
-        except NotFound as e:
-            raise UnrecognisedItemOnSource(self._source) from e
+        src = self._get_cabled_interface(
+            self._source, raise_as=UnrecognisedItemOnSource)
 
         # Get target.
-        try:
-            tgt = self._make_swapcableinfo(self._target)
-        except NotFound as e:
-            raise UnrecognisedItemOnTarget(self._target) from e
+        tgt = self._get_cabled_interface(
+            self._target, raise_as=UnrecognisedItemOnTarget)
 
         # Build a list of future work.
-        assert src.if_dev.link_peers_type == 'dcim.interface', src.if_dev
-        assert tgt.if_dev.link_peers_type == 'dcim.interface', tgt.if_dev
+        assert src.if_parent.link_peers_type == 'dcim.interface', src.if_parent
+        assert tgt.if_parent.link_peers_type == 'dcim.interface', tgt.if_parent
 
         # NOTE: It does matter what we swap. We don't want to end up with
         # A1<->A2 and B1<->B2. So, find the a_terminations or b_terminations
         # through _cable_termination_key.
-        id1 = src.if_dev.cable.id
+        id1 = src.if_parent.cable.id
         values1detached = {
-            self._cable_termination_key(src.if_dev): []
+            self._cable_termination_key(src.if_parent): []
         }
         values1 = {
-            self._cable_termination_key(src.if_dev): [{
+            self._cable_termination_key(src.if_parent): [{
                 'object_type': 'dcim.interface',
                 # Yes! Here goes target, not source.
-                'object_id': tgt.if_dev.id,
+                'object_id': tgt.if_parent.id,
             }]
         }
-        id2 = tgt.if_dev.cable.id
+        id2 = tgt.if_parent.cable.id
         values2 = {
-            self._cable_termination_key(tgt.if_dev): [{
+            self._cable_termination_key(tgt.if_parent): [{
                 'object_type': 'dcim.interface',
                 # Yes! Here goes source, not target.
-                'object_id': src.if_dev.id,
+                'object_id': src.if_parent.id,
             }]
         }
 
         nd_srcdev = named_id(
-            src.dev.device.name, src.dev.device.id, parent=None)
+            src.dev.name, src.dev.id, parent=None)
         nd_srciface = named_id(
-            src.if_dev.name, src.if_dev.id, parent=nd_srcdev)
+            src.if_parent.name, src.if_parent.id, parent=nd_srcdev)
         nd_tgtdev = named_id(
-            tgt.dev.device.name, tgt.dev.device.id, parent=None)
+            tgt.dev.name, tgt.dev.id, parent=None)
         nd_tgtiface = named_id(
-            tgt.if_dev.name, tgt.if_dev.id, parent=nd_tgtdev)
+            tgt.if_parent.name, tgt.if_parent.id, parent=nd_tgtdev)
 
         work_to_do = [
             # Must detach first:

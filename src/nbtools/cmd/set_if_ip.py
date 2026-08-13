@@ -1,8 +1,7 @@
 from ..command import Command
-from ..device import NetboxDevice
 from ..exceptions import (
-    ItemExistsElsewhere, NotFound, UnrecognisedItem,
-    UnrecognisedItemOnTarget)
+    ItemExistsElsewhere, UnrecognisedItem, UnrecognisedItemOnTarget)
+from ..netbox import get_interface_tree
 from ..types import DevIface, IPv4AddrWithMask, MacAddr
 from ..work import (
     named_anon, named_id,
@@ -86,15 +85,13 @@ class BaseSetInterfaceIpCommand(Command):
         # Get target to wipe.
         if self._target:
             # XXX: For both hw and vm?
-            try:
-                dev = NetboxDevice.get_by_name(
-                    self.nbapi, self._target.device)
-                ifaces = dev.get_interfaces_by_name(self._target.interface)
-            except NotFound as e:
-                raise UnrecognisedItemOnTarget(self._target) from e
-            if len(ifaces) != 1:
-                raise UnrecognisedItemOnTarget((self._target, ifaces))
-            iface = ifaces[0]
+            tgt = get_interface_tree(
+                self.nbapi, self._target, raise_as=UnrecognisedItemOnTarget)
+            if tgt.if_children:
+                # We want the interface itself, not a whole subtree.
+                raise UnrecognisedItemOnTarget(
+                    (self._target, tgt.if_children))
+            iface = tgt.if_parent
 
         elif self._tgtmac:
             # XXX: For both hw and vm?
@@ -106,7 +103,6 @@ class BaseSetInterfaceIpCommand(Command):
                 raise UnrecognisedItemOnTarget(macs)
 
             iface = macs[0].assigned_object
-            dev = NetboxDevice(self.nbapi, iface.device)
         else:
             raise NotImplementedError
 

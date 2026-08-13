@@ -1,11 +1,10 @@
-from collections import namedtuple
 from ipaddress import IPv4Interface
 from warnings import warn
 
 from ..command import Command
-from ..device import NetboxDevice
 from ..exceptions import (
-    NotFound, UnrecognisedItemOnSource, UnrecognisedItemOnTarget)
+    UnrecognisedItemOnSource, UnrecognisedItemOnTarget)
+from ..netbox import get_interface_tree, get_ip_addresses
 from ..types import DevIface
 from ..work import (
     CreateInterface, ModifyInterface,
@@ -15,9 +14,6 @@ from ..work import (
 
 # If any of the interface tags is one of these, we skip the cloning.
 NO_CLONE_TAGS = frozenset({'CLOSSO_ROTH'})
-
-CloneInterfaceInfo = namedtuple(
-    'CloneInterfaceInfo', 'dev if_name if_parent if_children')
 
 
 class CloneInterfaceCommand(Command):
@@ -51,41 +47,14 @@ class CloneInterfaceCommand(Command):
     def set_target_interface(self, target: DevIface):
         self._target = target
 
-    @staticmethod
-    def _check_that_child_interface_names_start_with_interface(
-            ifaces, ifacename) -> None:
-        startswith = f'{ifacename}.'
-        for iface in ifaces:
-            if not iface.name.startswith(startswith):
-                raise NotImplementedError(
-                    f'expected "{iface}" to start with "{startswith}"')
-
-    def _make_cloneinterfaceinfo(self, devif: DevIface) -> CloneInterfaceInfo:
-        dev = NetboxDevice.get_by_name(self.nbapi, devif.device)
-        ifaces = dev.get_interfaces_by_name(devif.interface)
-        parentiface = ifaces.pop(0)
-        self._check_that_child_interface_names_start_with_interface(
-            ifaces, devif.interface)
-
-        return CloneInterfaceInfo(
-            dev=dev,
-            if_name=devif.interface,
-            if_parent=parentiface,
-            if_children=ifaces,
-        )
-
     def plan(self):
         # Get source.
-        try:
-            src = self._make_cloneinterfaceinfo(self._source)
-        except NotFound as e:
-            raise UnrecognisedItemOnSource(self._source) from e
+        src = get_interface_tree(
+            self.nbapi, self._source, raise_as=UnrecognisedItemOnSource)
 
         # Get target.
-        try:
-            tgt = self._make_cloneinterfaceinfo(self._target)
-        except NotFound as e:
-            raise UnrecognisedItemOnTarget(self._target) from e
+        tgt = get_interface_tree(
+            self.nbapi, self._target, raise_as=UnrecognisedItemOnTarget)
 
         # For each interface, check ip addresses.
         # Step one: check for excess target interfaces.
@@ -129,19 +98,19 @@ class CloneInterfaceCommand(Command):
     def _add_work(
             self, work_to_do, src, tgt, srciface, tgtiface, tgtifacename):
         # Get source IPs.
-        srcipaddrs = src.dev.get_ip_addresses_by_interface(srciface)
+        srcipaddrs = get_ip_addresses(self.nbapi, srciface)
 
         # Check source. We expect a VRF on it.
         if srcipaddrs and not srciface.vrf:
             raise UnrecognisedItemOnSource(
-                f'missing VRF on {src.dev.device.name}:{srciface}')
+                f'missing VRF on {src.dev.name}:{srciface}')
 
         nd_srcdev = named_id(
-            src.dev.device.name, src.dev.device.id, parent=None)
+            src.dev.name, src.dev.id, parent=None)
         nd_srciface = named_id(
             srciface.name, srciface.id, parent=nd_srcdev)
         nd_tgtdev = named_id(
-            tgt.dev.device.name, tgt.dev.device.id, parent=None)
+            tgt.dev.name, tgt.dev.id, parent=None)
 
         # Target interface does not exist yet?
         if not tgtiface:
@@ -153,7 +122,7 @@ class CloneInterfaceCommand(Command):
                     {
                         # New data.
                         'name': tgtifacename,
-                        'device': tgt.dev.device.id,
+                        'device': tgt.dev.id,
                         'parent': tgt.if_parent.id,
                         # Copied data.
                         'description': srciface.description,
@@ -196,7 +165,7 @@ class CloneInterfaceCommand(Command):
                                 named_lambda(f'&({tgtifacename})', (
                                     lambda nbapi: (
                                         nbapi.dcim.interfaces.get(
-                                            device_id=tgt.dev.device.id,
+                                            device_id=tgt.dev.id,
                                             name=tgtifacename).id)),
                                     parent=nd_tgtiface)),
                             # Copied data.
@@ -251,7 +220,7 @@ class CloneInterfaceCommand(Command):
                 work_to_do.append(ModifyInterface(nd_tgtiface, update_values))
 
             # Get target IPs.
-            tgtipaddrs = tgt.dev.get_ip_addresses_by_interface(tgtiface)
+            tgtipaddrs = get_ip_addresses(self.nbapi, tgtiface)
 
             # Check target IPs for excess entries.
             srcipaddrs_tst = {

@@ -1,16 +1,10 @@
-from collections import namedtuple
-
 from ..command import Command
-from ..device import NetboxDevice
-from ..exceptions import NotFound, UnrecognisedItemOnTarget
+from ..exceptions import UnrecognisedItemOnTarget
+from ..netbox import get_interface_tree
 from ..types import DevIface
 from ..work import (
     DeleteInterface, ModifyInterface,
     DeleteIPAddress)
-
-
-ZapInterfaceInfo = namedtuple(
-    'ZapInterfaceInfo', 'dev if_name if_parent if_children')
 
 
 class ZapInterfaceCommand(Command):
@@ -35,35 +29,10 @@ class ZapInterfaceCommand(Command):
     def set_target_interface(self, target: DevIface):
         self._target = target
 
-    @staticmethod
-    def _check_that_child_interface_names_start_with_interface(
-            ifaces, ifacename) -> None:
-        startswith = f'{ifacename}.'
-        for iface in ifaces:
-            if not iface.name.startswith(startswith):
-                raise NotImplementedError(
-                    f'expected "{iface}" to start with "{startswith}"')
-
-    def _make_zapinterfaceinfo(self, devif: DevIface) -> ZapInterfaceInfo:
-        dev = NetboxDevice.get_by_name(self.nbapi, devif.device)
-        ifaces = dev.get_interfaces_by_name(devif.interface)
-        parentiface = ifaces.pop(0)
-        self._check_that_child_interface_names_start_with_interface(
-            ifaces, devif.interface)
-
-        return ZapInterfaceInfo(
-            dev=dev,
-            if_name=devif.interface,
-            if_parent=parentiface,
-            if_children=ifaces,
-        )
-
     def plan(self):
         # Get target to wipe.
-        try:
-            tgt = self._make_zapinterfaceinfo(self._target)
-        except NotFound as e:
-            raise UnrecognisedItemOnTarget(self._target) from e
+        tgt = get_interface_tree(
+            self.nbapi, self._target, raise_as=UnrecognisedItemOnTarget)
 
         # Build a list of future work.
         work_to_do = []
@@ -104,4 +73,4 @@ class ZapInterfaceCommand(Command):
         # # Check source. We expect a VRF on it.
         # if not srciface.vrf:
         #     raise UnrecognisedItemOnSource(
-        #         f'missing VRF on {src.dev.device.name}:{srciface}')
+        #         f'missing VRF on {src.dev.name}:{srciface}')
