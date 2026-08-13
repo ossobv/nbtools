@@ -215,9 +215,11 @@ class BaseSetInterfaceIpCommand(Command):
             ))
 
         # Lastly, fix status or VRF.
+        # (Both the IP we found and the VRF we want can be VRF-less.)
         for good_ip in good_ips:
+            good_vrf_id = (good_ip.vrf.id if good_ip.vrf else None)
             if (good_ip.status.value != self._status
-                    or good_ip.vrf.id != nd_vrf.id):
+                    or good_vrf_id != nd_vrf.id):
                 work_to_do.append(ModifyIPAddress(
                     self._make_named_ip(
                         str(good_ip),
