@@ -9,10 +9,16 @@ IPv4AddrWithMask = IPv4Interface
 
 
 class DevIface(namedtuple('DevIface', 'device interface')):
-    "Takes 'leaf1:eth0', holds device='leaf1', interface='eth0'"
+    """
+    Takes 'leaf1:eth0', holds device='leaf1', interface='eth0'
+
+    Split on the *last* colon: device names are free-form and do hold
+    colons, e.g. 'FREE (was-planned: node3.example.com):BMC'. Interface
+    names do not.
+    """
     def __new__(cls, dev_iface_str):
         try:
-            device, interface = dev_iface_str.split(':')
+            device, interface = dev_iface_str.rsplit(':', 1)
         except ValueError as e:
             raise ValueError('argument must be DEV:IFACE') from e
 
