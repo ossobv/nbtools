@@ -1,4 +1,5 @@
-/.venv
+/.venv/
+/src/nbtools.egg-info/
 
 __pycache__
 *.pyc
