@@ -1,0 +1,231 @@
+[
+  {
+    "method": "GET",
+    "path": "/api/dcim/mac-addresses/",
+    "params": {
+      "q": "7c:c2:55:06:e7:61",
+      "limit": 0
+    },
+    "data": null,
+    "status": 200,
+    "response": {
+      "count": 1,
+      "next": null,
+      "previous": null,
+      "results": [
+        {
+          "id": 21,
+          "url": "https://netbox.example.com/api/dcim/mac-addresses/21/",
+          "display_url": "https://netbox.example.com/dcim/mac-addresses/21/",
+          "display": "7C:C2:55:06:E7:61",
+          "mac_address": "7C:C2:55:06:E7:61",
+          "assigned_object_type": "dcim.interface",
+          "assigned_object_id": 5319,
+          "assigned_object": {
+            "id": 5319,
+            "url": "https://netbox.example.com/api/dcim/interfaces/5319/",
+            "display": "BMC",
+            "device": {
+              "id": 538,
+              "url": "https://netbox.example.com/api/dcim/devices/538/",
+              "display": "node1.zone-a.endor.example.com (MBD-1)",
+              "name": "node1.zone-a.endor.example.com",
+              "description": ""
+            },
+            "name": "BMC",
+            "description": "somedescr..",
+            "cable": null,
+            "_occupied": false
+          },
+          "description": "",
+          "comments": "",
+          "tags": [],
+          "custom_fields": {},
+          "created": "2025-06-04T10:16:05.133705Z",
+          "last_updated": "2025-06-04T10:16:05.133710Z"
+        }
+      ]
+    }
+  },
+  {
+    "method": "GET",
+    "path": "/api/ipam/vrfs/",
+    "params": {
+      "name": "MGMT",
+      "limit": 0
+    },
+    "data": null,
+    "status": 200,
+    "response": {
+      "count": 1,
+      "next": null,
+      "previous": null,
+      "results": [
+        {
+          "id": 1,
+          "url": "https://netbox.example.com/api/ipam/vrfs/1/",
+          "display_url": "https://netbox.example.com/ipam/vrfs/1/",
+          "display": "MGMT (0000-MGMT)",
+          "name": "MGMT",
+          "rd": "0000-MGMT",
+          "tenant": null,
+          "enforce_unique": true,
+          "description": "OOB network",
+          "comments": "",
+          "import_targets": [],
+          "export_targets": [],
+          "tags": [],
+          "custom_fields": {
+            "traffic_shaping": "1Gbit",
+            "mpls_rd": null,
+            "status": "Enabled",
+            "subinterface": 0,
+            "use_closso_gateway": false
+          },
+          "created": "2020-03-09T00:00:00Z",
+          "last_updated": "2021-09-13T11:28:41.780251Z",
+          "ipaddress_count": 25,
+          "prefix_count": 3
+        }
+      ]
+    }
+  },
+  {
+    "method": "GET",
+    "path": "/api/ipam/ip-addresses/",
+    "params": {
+      "q": "10.103.1.64/24",
+      "limit": 0
+    },
+    "data": null,
+    "status": 200,
+    "response": {
+      "count": 1,
+      "next": null,
+      "previous": null,
+      "results": [
+        {
+          "id": 3763,
+          "url": "https://netbox.example.com/api/ipam/ip-addresses/3763/",
+          "display_url": "https://netbox.example.com/ipam/ip-addresses/3763/",
+          "display": "10.103.1.64/24",
+          "family": {
+            "value": 4,
+            "label": "IPv4"
+          },
+          "address": "10.103.1.64/24",
+          "vrf": {
+            "id": 1,
+            "url": "https://netbox.example.com/api/ipam/vrfs/1/",
+            "display": "MGMT (0000-MGMT)",
+            "name": "MGMT",
+            "rd": "0000-MGMT",
+            "description": "OOB network"
+          },
+          "tenant": null,
+          "status": {
+            "value": "dhcp",
+            "label": "DHCP"
+          },
+          "role": null,
+          "assigned_object_type": "dcim.interface",
+          "assigned_object_id": 5319,
+          "assigned_object": {
+            "id": 5319,
+            "url": "https://netbox.example.com/api/dcim/interfaces/5319/",
+            "display": "BMC",
+            "device": {
+              "id": 538,
+              "url": "https://netbox.example.com/api/dcim/devices/538/",
+              "display": "node1.zone-a.endor.example.com (MBD-1)",
+              "name": "node1.zone-a.endor.example.com",
+              "description": ""
+            },
+            "name": "BMC",
+            "description": "somedescr..",
+            "cable": null,
+            "_occupied": false
+          },
+          "nat_inside": null,
+          "nat_outside": [],
+          "dns_name": "",
+          "description": "",
+          "comments": "",
+          "tags": [],
+          "custom_fields": {},
+          "created": "2024-09-09T13:28:15.479916Z",
+          "last_updated": "2024-09-09T13:28:15.479946Z"
+        }
+      ]
+    }
+  },
+  {
+    "method": "GET",
+    "path": "/api/ipam/ip-addresses/",
+    "params": {
+      "interface_id": 5319,
+      "limit": 0
+    },
+    "data": null,
+    "status": 200,
+    "response": {
+      "count": 1,
+      "next": null,
+      "previous": null,
+      "results": [
+        {
+          "id": 3763,
+          "url": "https://netbox.example.com/api/ipam/ip-addresses/3763/",
+          "display_url": "https://netbox.example.com/ipam/ip-addresses/3763/",
+          "display": "10.103.1.64/24",
+          "family": {
+            "value": 4,
+            "label": "IPv4"
+          },
+          "address": "10.103.1.64/24",
+          "vrf": {
+            "id": 1,
+            "url": "https://netbox.example.com/api/ipam/vrfs/1/",
+            "display": "MGMT (0000-MGMT)",
+            "name": "MGMT",
+            "rd": "0000-MGMT",
+            "description": "OOB network"
+          },
+          "tenant": null,
+          "status": {
+            "value": "dhcp",
+            "label": "DHCP"
+          },
+          "role": null,
+          "assigned_object_type": "dcim.interface",
+          "assigned_object_id": 5319,
+          "assigned_object": {
+            "id": 5319,
+            "url": "https://netbox.example.com/api/dcim/interfaces/5319/",
+            "display": "BMC",
+            "device": {
+              "id": 538,
+              "url": "https://netbox.example.com/api/dcim/devices/538/",
+              "display": "node1.zone-a.endor.example.com (MBD-1)",
+              "name": "node1.zone-a.endor.example.com",
+              "description": ""
+            },
+            "name": "BMC",
+            "description": "somedescr..",
+            "cable": null,
+            "_occupied": false
+          },
+          "nat_inside": null,
+          "nat_outside": [],
+          "dns_name": "",
+          "description": "",
+          "comments": "",
+          "tags": [],
+          "custom_fields": {},
+          "created": "2024-09-09T13:28:15.479916Z",
+          "last_updated": "2024-09-09T13:28:15.479946Z"
+        }
+      ]
+    }
+  }
+]
