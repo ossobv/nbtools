@@ -1,10 +1,13 @@
 [build-system]
-requires = ["setuptools>=61.0"]  # XXX
+requires = [
+    "setuptools>=61.0",
+    "setuptools-scm>=8.0"
+]
 build-backend = "setuptools.build_meta"
 
 [project]
 name = "nbtools"
-version = "0.1.0"
+dynamic = ["version"]
 description = "Tooling for netbox, think lint/sync/dig"
 readme = "README.rst"
 requires-python = ">=3.8"       # XXX
@@ -32,3 +35,6 @@ package-dir = {"" = "src"}
 
 [tool.setuptools.packages.find]
 where = ["src"]
+
+[tool.setuptools_scm]  # activates setuptools_scm
+#version_file = "nbtools/_version.py"
