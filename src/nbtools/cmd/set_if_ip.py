@@ -54,15 +54,13 @@ class BaseSetInterfaceIpCommand(Command):
     def set_target_from_args(self, args):
         raise NotImplementedError
 
-    def set_target_interface(self, tgtdevname: str, tgtifacename: str):
+    def set_target_interface(self, target: DevIface):
         self._tgtmac = None
-        self._tgtdevname = tgtdevname
-        self._tgtifacename = tgtifacename
+        self._target = target
 
     def set_target_interface_by_mac(self, mac: str):
         self._tgtmac = mac
-        self._tgtdevname = None
-        self._tgtifacename = None
+        self._target = None
 
     def set_ip(self, ip, force=False, single=False, status='active', vrf=None):
         self._ip = ip
@@ -86,16 +84,16 @@ class BaseSetInterfaceIpCommand(Command):
 
     def plan(self):
         # Get target to wipe.
-        if self._tgtdevname:
+        if self._target:
             # XXX: For both hw and vm?
             try:
-                dev = NetboxDevice.get_by_name(self.nbapi, self._tgtdevname)
-                ifaces = dev.get_interfaces_by_name(self._tgtifacename)
+                dev = NetboxDevice.get_by_name(
+                    self.nbapi, self._target.device)
+                ifaces = dev.get_interfaces_by_name(self._target.interface)
             except NotFound as e:
-                raise UnrecognisedItemOnTarget(
-                    (self._tgtdevname, self._tgtifacename)) from e
+                raise UnrecognisedItemOnTarget(self._target) from e
             if len(ifaces) != 1:
-                raise UnrecognisedItemOnTarget((self._tgtdevname, ifaces))
+                raise UnrecognisedItemOnTarget((self._target, ifaces))
             iface = ifaces[0]
 
         elif self._tgtmac:
@@ -243,7 +241,7 @@ class SetInterfaceIpCommand(BaseSetInterfaceIpCommand):
             'Target device and interface (e.g. mynode.example:BMC)'))
 
     def set_target_from_args(self, args):
-        self.set_target_interface(args.target.device, args.target.interface)
+        self.set_target_interface(args.target)
 
 
 class SetInterfaceIpByMacCommand(BaseSetInterfaceIpCommand):

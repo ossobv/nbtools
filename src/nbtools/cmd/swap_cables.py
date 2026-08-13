@@ -30,17 +30,15 @@ class SwapCableCommand(Command):
     @classmethod
     def from_args(cls, nbapi, args):
         cmd = cls(nbapi)
-        cmd.set_a_interface(args.iface1.device, args.iface1.interface)
-        cmd.set_b_interface(args.iface2.device, args.iface2.interface)
+        cmd.set_a_interface(args.iface1)
+        cmd.set_b_interface(args.iface2)
         return cmd
 
-    def set_a_interface(self, srcdevname: str, srcifacename: str):
-        self._srcdevname = srcdevname
-        self._srcifacename = srcifacename
+    def set_a_interface(self, source: DevIface):
+        self._source = source
 
-    def set_b_interface(self, tgtdevname: str, tgtifacename: str):
-        self._tgtdevname = tgtdevname
-        self._tgtifacename = tgtifacename
+    def set_b_interface(self, target: DevIface):
+        self._target = target
 
     @staticmethod
     def _cable_termination_key(if_dev):
@@ -55,11 +53,10 @@ class SwapCableCommand(Command):
             return 'b_terminations'
         return None
 
-    def _make_swapcableinfo(
-            self, devname: str, ifacename: str) -> SwapCableInfo:
-        dev = NetboxDevice.get_by_name(self.nbapi, devname)
+    def _make_swapcableinfo(self, devif: DevIface) -> SwapCableInfo:
+        dev = NetboxDevice.get_by_name(self.nbapi, devif.device)
         ifaces = dev.get_interfaces_by_name(
-            ifacename, with_subinterfaces=False)
+            devif.interface, with_subinterfaces=False)
         if_dev = ifaces.pop(0)
         assert not ifaces, ifaces
 
@@ -68,33 +65,29 @@ class SwapCableCommand(Command):
 
         if len(if_dev.cable.a_terminations) != 1:
             raise UnrecognisedItemOnSource(
-                f'expected connected cable to swap on {devname}:{ifacename}')
+                f'expected connected cable to swap on {devif}')
         if len(if_dev.cable.b_terminations) != 1:
             raise UnrecognisedItemOnSource(
-                f'expected connected cable to swap on {devname}:{ifacename}')
+                f'expected connected cable to swap on {devif}')
 
         return SwapCableInfo(
             dev=dev,
-            if_name=ifacename,
+            if_name=devif.interface,
             if_dev=if_dev,
         )
 
     def plan(self):
         # Get source.
         try:
-            src = self._make_swapcableinfo(
-                self._srcdevname, self._srcifacename)
+            src = self._make_swapcableinfo(self._source)
         except NotFound as e:
-            raise UnrecognisedItemOnSource(
-                (self._srcdevname, self._srcifacename)) from e
+            raise UnrecognisedItemOnSource(self._source) from e
 
         # Get target.
         try:
-            tgt = self._make_swapcableinfo(
-                self._tgtdevname, self._tgtifacename)
+            tgt = self._make_swapcableinfo(self._target)
         except NotFound as e:
-            raise UnrecognisedItemOnTarget(
-                (self._tgtdevname, self._tgtifacename)) from e
+            raise UnrecognisedItemOnTarget(self._target) from e
 
         # Build a list of future work.
         assert src.if_dev.link_peers_type == 'dcim.interface', src.if_dev

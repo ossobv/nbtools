@@ -34,17 +34,15 @@ class MigrateInterfaceCommand(Command):
     @classmethod
     def from_args(cls, nbapi, args):
         cmd = cls(nbapi)
-        cmd.set_source_interface(args.source.device, args.source.interface)
-        cmd.set_target_interface(args.target.device, args.target.interface)
+        cmd.set_source_interface(args.source)
+        cmd.set_target_interface(args.target)
         return cmd
 
-    def set_source_interface(self, srcdevname: str, srcifacename: str):
-        self._srcdevname = srcdevname
-        self._srcifacename = srcifacename
+    def set_source_interface(self, source: DevIface):
+        self._source = source
 
-    def set_target_interface(self, tgtdevname: str, tgtifacename: str):
-        self._tgtdevname = tgtdevname
-        self._tgtifacename = tgtifacename
+    def set_target_interface(self, target: DevIface):
+        self._target = target
 
     @staticmethod
     def _check_that_child_interface_names_start_with_interface(
@@ -56,16 +54,16 @@ class MigrateInterfaceCommand(Command):
                     f'expected "{iface}" to start with "{startswith}"')
 
     def _make_migrateinterfaceinfo(
-            self, devname: str, ifacename: str) -> MigrateInterfaceInfo:
-        dev = NetboxDevice.get_by_name(self.nbapi, devname)
-        ifaces = dev.get_interfaces_by_name(ifacename)
+            self, devif: DevIface) -> MigrateInterfaceInfo:
+        dev = NetboxDevice.get_by_name(self.nbapi, devif.device)
+        ifaces = dev.get_interfaces_by_name(devif.interface)
         parentiface = ifaces.pop(0)
         self._check_that_child_interface_names_start_with_interface(
-            ifaces, ifacename)
+            ifaces, devif.interface)
 
         return MigrateInterfaceInfo(
             dev=dev,
-            if_name=ifacename,
+            if_name=devif.interface,
             if_parent=parentiface,
             if_children=ifaces,
         )
@@ -73,19 +71,15 @@ class MigrateInterfaceCommand(Command):
     def plan(self):
         # Get source.
         try:
-            src = self._make_migrateinterfaceinfo(
-                self._srcdevname, self._srcifacename)
+            src = self._make_migrateinterfaceinfo(self._source)
         except NotFound as e:
-            raise UnrecognisedItemOnSource(
-                (self._srcdevname, self._srcifacename)) from e
+            raise UnrecognisedItemOnSource(self._source) from e
 
         # Get target.
         try:
-            tgt = self._make_migrateinterfaceinfo(
-                self._tgtdevname, self._tgtifacename)
+            tgt = self._make_migrateinterfaceinfo(self._target)
         except NotFound as e:
-            raise UnrecognisedItemOnTarget(
-                (self._tgtdevname, self._tgtifacename)) from e
+            raise UnrecognisedItemOnTarget(self._target) from e
 
         # For each interface, check ip addresses.
         # Step one: check for excess target interfaces.

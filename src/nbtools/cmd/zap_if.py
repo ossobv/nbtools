@@ -29,12 +29,11 @@ class ZapInterfaceCommand(Command):
     @classmethod
     def from_args(cls, nbapi, args):
         cmd = cls(nbapi)
-        cmd.set_target_interface(args.target.device, args.target.interface)
+        cmd.set_target_interface(args.target)
         return cmd
 
-    def set_target_interface(self, tgtdevname: str, tgtifacename: str):
-        self._tgtdevname = tgtdevname
-        self._tgtifacename = tgtifacename
+    def set_target_interface(self, target: DevIface):
+        self._target = target
 
     @staticmethod
     def _check_that_child_interface_names_start_with_interface(
@@ -45,17 +44,16 @@ class ZapInterfaceCommand(Command):
                 raise NotImplementedError(
                     f'expected "{iface}" to start with "{startswith}"')
 
-    def _make_zapinterfaceinfo(
-            self, devname: str, ifacename: str) -> ZapInterfaceInfo:
-        dev = NetboxDevice.get_by_name(self.nbapi, devname)
-        ifaces = dev.get_interfaces_by_name(ifacename)
+    def _make_zapinterfaceinfo(self, devif: DevIface) -> ZapInterfaceInfo:
+        dev = NetboxDevice.get_by_name(self.nbapi, devif.device)
+        ifaces = dev.get_interfaces_by_name(devif.interface)
         parentiface = ifaces.pop(0)
         self._check_that_child_interface_names_start_with_interface(
-            ifaces, ifacename)
+            ifaces, devif.interface)
 
         return ZapInterfaceInfo(
             dev=dev,
-            if_name=ifacename,
+            if_name=devif.interface,
             if_parent=parentiface,
             if_children=ifaces,
         )
@@ -63,11 +61,9 @@ class ZapInterfaceCommand(Command):
     def plan(self):
         # Get target to wipe.
         try:
-            tgt = self._make_zapinterfaceinfo(
-                self._tgtdevname, self._tgtifacename)
+            tgt = self._make_zapinterfaceinfo(self._target)
         except NotFound as e:
-            raise UnrecognisedItemOnTarget(
-                (self._tgtdevname, self._tgtifacename)) from e
+            raise UnrecognisedItemOnTarget(self._target) from e
 
         # Build a list of future work.
         work_to_do = []
