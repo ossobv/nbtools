@@ -126,15 +126,15 @@ class SwapCableCommand(Command):
 
         # Anything to do?
         if not work_to_do:
-            print('Nothing to do')
+            self.verbose('Nothing to do')
             return
 
         # There is work.
-        print('-----------')
-        print('swap-cables')
-        print('-----------')
+        self.verbose('-----------')
+        self.verbose('swap-cables')
+        self.verbose('-----------')
         for work in work_to_do:
-            print('-', work)
+            self.print('-', work)
 
         self.confirm_or_die()
 

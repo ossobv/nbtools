@@ -14,4 +14,5 @@ def test_clone_iface_0():
     clone_iface = CloneInterfaceCommand(get_test_api())
     clone_iface.set_source_interface(source_dev_name, source_iface_name)
     clone_iface.set_target_interface(target_dev_name, target_iface_name)
+    clone_iface.set_quiet()
     clone_iface.run(ProcessMode.YES)

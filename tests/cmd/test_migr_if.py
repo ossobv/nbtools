@@ -14,4 +14,5 @@ def test_migr_iface_0():
     migr_iface = MigrateInterfaceCommand(get_test_api())
     migr_iface.set_source_interface(source_dev_name, source_iface_name)
     migr_iface.set_target_interface(target_dev_name, target_iface_name)
+    migr_iface.set_quiet()
     migr_iface.run(ProcessMode.YES)

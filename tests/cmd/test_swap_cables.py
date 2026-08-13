@@ -14,4 +14,5 @@ def test_swap_cables_0():
     swap_cables = SwapCableCommand(get_test_api())
     swap_cables.set_a_interface(source_dev_name, source_iface_name)
     swap_cables.set_b_interface(target_dev_name, target_iface_name)
+    swap_cables.set_quiet()
     swap_cables.run(ProcessMode.YES)
