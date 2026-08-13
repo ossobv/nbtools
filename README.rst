@@ -22,3 +22,15 @@ Setup and example
 
     $ nbsync swap-cables switch1:swp4 switch2:swp4
     (should unplug the cable from switch1 swp4 and plug it into switch2 swp4)
+
+
+----------------
+nblint vs nbsync
+----------------
+
+The nbtools suite contains two commands: nblint and nbsync. *nblint*
+should be able to work with readonly tokens and is focused on *finding*
+things. *nbsync* needs write tokens, and is used for deliberate changes.
+
+The two meet through the ``--porcelain`` argument and ``xargs`` command:
+*nblint* arguments can be passed to *nbsync* via the command line.
