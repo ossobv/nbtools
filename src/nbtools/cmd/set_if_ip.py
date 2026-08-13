@@ -1,4 +1,3 @@
-
 from ..command import Command
 from ..device import NetboxDevice
 from ..exceptions import NotFound
