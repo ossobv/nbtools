@@ -4,6 +4,7 @@ from ..command import Command
 from ..device import NetboxDevice
 from ..exceptions import (
     NotFound, UnrecognisedItemOnSource, UnrecognisedItemOnTarget)
+from ..types import DevIface
 from ..work import (
     CreateInterface, DeleteInterface, ModifyInterface,
     ModifyCable,
@@ -16,6 +17,27 @@ MigrateInterfaceInfo = namedtuple(
 
 
 class MigrateInterfaceCommand(Command):
+    name = 'migrate-interface'
+    help = (
+        'Migrate properties of an interface -- subinterfaces, IPs and cables '
+        '-- from source to target. '
+        'Target should start out empty. Source will be zapped. '
+        'Useful when moving a cable from one switch to another.')
+
+    @classmethod
+    def add_arguments(cls, parser):
+        parser.add_argument('source', type=DevIface, help=(
+            'Source device and interface (e.g. leaf1:swp19)'))
+        parser.add_argument('target', type=DevIface, help=(
+            'Target device and interface (e.g. leaf2:swp8)'))
+
+    @classmethod
+    def from_args(cls, nbapi, args):
+        cmd = cls(nbapi)
+        cmd.set_source_interface(args.source.device, args.source.interface)
+        cmd.set_target_interface(args.target.device, args.target.interface)
+        return cmd
+
     def set_source_interface(self, srcdevname: str, srcifacename: str):
         self._srcdevname = srcdevname
         self._srcifacename = srcifacename
@@ -48,7 +70,7 @@ class MigrateInterfaceCommand(Command):
             if_children=ifaces,
         )
 
-    def _process(self):
+    def plan(self):
         # Get source.
         try:
             src = self._make_migrateinterfaceinfo(
@@ -135,22 +157,7 @@ class MigrateInterfaceCommand(Command):
                 DeleteInterface(
                     named_id(srciface.name, srciface.id, parent=nd_srcdev)))
 
-        # Anything to do?
-        if not work_to_do:
-            self.verbose('Nothing to do')
-            return
-
-        # There is work.
-        self.verbose('-----------------')
-        self.verbose('migrate-interface')
-        self.verbose('-----------------')
-        for work in work_to_do:
-            self.print('-', work)
-
-        self.confirm_or_die()
-
-        for work in work_to_do:
-            work.do(self.nbapi)
+        return work_to_do
 
     def _add_work(
             self, work_to_do, src, tgt, srciface, tgtiface, tgtifacename):

@@ -6,6 +6,7 @@ from ..command import Command
 from ..device import NetboxDevice
 from ..exceptions import (
     NotFound, UnrecognisedItemOnSource, UnrecognisedItemOnTarget)
+from ..types import DevIface
 from ..work import (
     CreateInterface, ModifyInterface,
     AssignIPAddress, ModifyIPAddress,
@@ -20,6 +21,30 @@ CloneInterfaceInfo = namedtuple(
 
 
 class CloneInterfaceCommand(Command):
+    name = 'clone-interface'
+    help = (
+        'Clone interface with subinterfaces from source to target. '
+        'Useful when having a machine connected to multiple interfaces. '
+        'It will duplicate the virtual child interfaces. '
+        'It will copy the IPv4 addresses to the appropriate child (vlan) '
+        'interfaces. '
+        'It sets role=anycast on the IPs so they can be assigned to multiple '
+        'interfaces.')
+
+    @classmethod
+    def add_arguments(cls, parser):
+        parser.add_argument('source', type=DevIface, help=(
+            'Source device and interface (e.g. leaf1:swp19)'))
+        parser.add_argument('target', type=DevIface, help=(
+            'Target device and interface (e.g. leaf2:swp19)'))
+
+    @classmethod
+    def from_args(cls, nbapi, args):
+        cmd = cls(nbapi)
+        cmd.set_source_interface(args.source.device, args.source.interface)
+        cmd.set_target_interface(args.target.device, args.target.interface)
+        return cmd
+
     def set_source_interface(self, srcdevname: str, srcifacename: str):
         self._srcdevname = srcdevname
         self._srcifacename = srcifacename
@@ -52,7 +77,7 @@ class CloneInterfaceCommand(Command):
             if_children=ifaces,
         )
 
-    def _process(self):
+    def plan(self):
         # Get source.
         try:
             src = self._make_cloneinterfaceinfo(
@@ -106,22 +131,7 @@ class CloneInterfaceCommand(Command):
             self._add_work(
                 work_to_do, src, tgt, srciface, tgtiface, tgtifacename)
 
-        # Anything to do?
-        if not work_to_do:
-            self.verbose('Nothing to do')
-            return
-
-        # There is work.
-        self.verbose('---------------')
-        self.verbose('clone-interface')
-        self.verbose('---------------')
-        for work in work_to_do:
-            self.print('-', work)
-
-        self.confirm_or_die()
-
-        for work in work_to_do:
-            work.do(self.nbapi)
+        return work_to_do
 
     def _add_work(
             self, work_to_do, src, tgt, srciface, tgtiface, tgtifacename):

@@ -3,6 +3,7 @@ from ..device import NetboxDevice
 from ..exceptions import (
     ItemExistsElsewhere, NotFound, UnrecognisedItem,
     UnrecognisedItemOnTarget)
+from ..types import DevIface, IPv4AddrWithMask, MacAddr
 from ..work import (
     named_anon, named_id,
     AssignIPAddress,
@@ -12,7 +13,47 @@ from ..work import (
     ReassignIPAddress)
 
 
-class SetInterfaceIpCommand(Command):
+class BaseSetInterfaceIpCommand(Command):
+    """
+    Shared by set-interface-ip and set-interface-ip-by-mac.
+
+    The two differ only in how the target interface is named, so the
+    subclasses supply just the target argument and how to apply it.
+    """
+    help = 'Set IP on an interface.'
+
+    @classmethod
+    def add_arguments(cls, parser):
+        parser.add_argument('--force', action='store_true', help=(
+            'Remove IP from elsewhere if needed'))
+        parser.add_argument('--single', action='store_true', help=(
+            'Delete any other IP found here'))
+        parser.add_argument('--status', default='active', choices=(
+            'active', 'reserved', 'deprecated', 'dhcp', 'lacp'), help=(
+                'Set status to one of the available choices'))
+        parser.add_argument('--vrf', default=None, help=(
+            'Set VRF'))
+        cls.add_target_argument(parser)
+        parser.add_argument('ip', type=IPv4AddrWithMask, help=(
+            'IPv4 address'))  # FIXME: IPv4 only for now?
+
+    @classmethod
+    def add_target_argument(cls, parser):
+        "Add the positional 'target' argument, before the 'ip' one"
+        raise NotImplementedError
+
+    @classmethod
+    def from_args(cls, nbapi, args):
+        cmd = cls(nbapi)
+        cmd.set_target_from_args(args)
+        cmd.set_ip(
+            args.ip, force=args.force, single=args.single,
+            status=args.status, vrf=args.vrf)
+        return cmd
+
+    def set_target_from_args(self, args):
+        raise NotImplementedError
+
     def set_target_interface(self, tgtdevname: str, tgtifacename: str):
         self._tgtmac = None
         self._tgtdevname = tgtdevname
@@ -43,7 +84,7 @@ class SetInterfaceIpCommand(Command):
 
         return named_ip
 
-    def _process(self):
+    def plan(self):
         # Get target to wipe.
         if self._tgtdevname:
             # XXX: For both hw and vm?
@@ -188,19 +229,28 @@ class SetInterfaceIpCommand(Command):
                     }
                 ))
 
-        # Anything to do?
-        if not work_to_do:
-            self.verbose('Nothing to do')
-            return
+        return work_to_do
 
-        # There is work.
-        self.verbose('----------------')
-        self.verbose('set-interface-ip')
-        self.verbose('---------------')
-        for work in work_to_do:
-            self.print('-', work)
 
-        self.confirm_or_die()
+class SetInterfaceIpCommand(BaseSetInterfaceIpCommand):
+    name = 'set-interface-ip'
 
-        for work in work_to_do:
-            work.do(self.nbapi)
+    @classmethod
+    def add_target_argument(cls, parser):
+        parser.add_argument('target', type=DevIface, help=(
+            'Target device and interface (e.g. mynode.example:BMC)'))
+
+    def set_target_from_args(self, args):
+        self.set_target_interface(args.target.device, args.target.interface)
+
+
+class SetInterfaceIpByMacCommand(BaseSetInterfaceIpCommand):
+    name = 'set-interface-ip-by-mac'
+
+    @classmethod
+    def add_target_argument(cls, parser):
+        parser.add_argument('target', type=MacAddr, help=(
+            'Target MAC address (e.g. 11:22:33:44:55:66)'))
+
+    def set_target_from_args(self, args):
+        self.set_target_interface_by_mac(args.target)

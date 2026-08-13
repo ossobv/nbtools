@@ -3,6 +3,7 @@ from collections import namedtuple
 from ..command import Command
 from ..device import NetboxDevice
 from ..exceptions import NotFound, UnrecognisedItemOnTarget
+from ..types import DevIface
 from ..work import (
     DeleteInterface, ModifyInterface,
     DeleteIPAddress)
@@ -13,6 +14,24 @@ ZapInterfaceInfo = namedtuple(
 
 
 class ZapInterfaceCommand(Command):
+    name = 'zap-interface'
+    help = (
+        'Zap (clean/wipe) properties from an interface. '
+        'Keeps the interface, but wipes tags, descriptions, '
+        'subinterfaces and assigned IPs. '
+        'Useful to wipe target before calling migrate-interface.')
+
+    @classmethod
+    def add_arguments(cls, parser):
+        parser.add_argument('target', type=DevIface, help=(
+            'Target device and interface (e.g. leaf2:swp8)'))
+
+    @classmethod
+    def from_args(cls, nbapi, args):
+        cmd = cls(nbapi)
+        cmd.set_target_interface(args.target.device, args.target.interface)
+        return cmd
+
     def set_target_interface(self, tgtdevname: str, tgtifacename: str):
         self._tgtdevname = tgtdevname
         self._tgtifacename = tgtifacename
@@ -41,7 +60,7 @@ class ZapInterfaceCommand(Command):
             if_children=ifaces,
         )
 
-    def _process(self):
+    def plan(self):
         # Get target to wipe.
         try:
             tgt = self._make_zapinterfaceinfo(
@@ -68,22 +87,7 @@ class ZapInterfaceCommand(Command):
         self._add_work(
             work_to_do, tgt, tgt.if_parent)
 
-        # Anything to do?
-        if not work_to_do:
-            self.verbose('Nothing to do')
-            return
-
-        # There is work.
-        self.verbose('-------------')
-        self.verbose('zap-interface')
-        self.verbose('-------------')
-        for work in work_to_do:
-            self.print('-', work)
-
-        self.confirm_or_die()
-
-        for work in work_to_do:
-            work.do(self.nbapi)
+        return work_to_do
 
     def _add_work(
             self, work_to_do, tgt, tgtiface):

@@ -4,6 +4,7 @@ from ..command import Command
 from ..device import NetboxDevice
 from ..exceptions import (
     NotFound, UnrecognisedItemOnSource, UnrecognisedItemOnTarget)
+from ..types import DevIface
 from ..work import (
     ModifyCable,
     named_id)
@@ -14,6 +15,25 @@ SwapCableInfo = namedtuple(
 
 
 class SwapCableCommand(Command):
+    name = 'swap-cables'
+    help = (
+        'Swap two connected cables. Changes A1<->B1 and A2<->B2 to '
+        'A1<->B2 and A2<->B1.')
+
+    @classmethod
+    def add_arguments(cls, parser):
+        parser.add_argument('iface1', type=DevIface, help=(
+            'One connected device and interface (e.g. pve1:enmlx1)'))
+        parser.add_argument('iface2', type=DevIface, help=(
+            'Other connected device and interface (e.g. pve1:enmlx0)'))
+
+    @classmethod
+    def from_args(cls, nbapi, args):
+        cmd = cls(nbapi)
+        cmd.set_a_interface(args.iface1.device, args.iface1.interface)
+        cmd.set_b_interface(args.iface2.device, args.iface2.interface)
+        return cmd
+
     def set_a_interface(self, srcdevname: str, srcifacename: str):
         self._srcdevname = srcdevname
         self._srcifacename = srcifacename
@@ -59,7 +79,7 @@ class SwapCableCommand(Command):
             if_dev=if_dev,
         )
 
-    def _process(self):
+    def plan(self):
         # Get source.
         try:
             src = self._make_swapcableinfo(
@@ -124,19 +144,4 @@ class SwapCableCommand(Command):
                 named_id(f'#{id1}', id1, parent=nd_srciface), values1),
         ]
 
-        # Anything to do?
-        if not work_to_do:
-            self.verbose('Nothing to do')
-            return
-
-        # There is work.
-        self.verbose('-----------')
-        self.verbose('swap-cables')
-        self.verbose('-----------')
-        for work in work_to_do:
-            self.print('-', work)
-
-        self.confirm_or_die()
-
-        for work in work_to_do:
-            work.do(self.nbapi)
+        return work_to_do

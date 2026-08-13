@@ -1,10 +1,25 @@
+from collections import namedtuple
 from ipaddress import IPv4Interface
 
 
-__all__ = ('IPv4AddrWithMask', 'MacAddr')
+__all__ = ('DevIface', 'IPv4AddrWithMask', 'MacAddr')
 
 
 IPv4AddrWithMask = IPv4Interface
+
+
+class DevIface(namedtuple('DevIface', 'device interface')):
+    "Takes 'leaf1:eth0', holds device='leaf1', interface='eth0'"
+    def __new__(cls, dev_iface_str):
+        try:
+            device, interface = dev_iface_str.split(':')
+        except ValueError as e:
+            raise ValueError('argument must be DEV:IFACE') from e
+
+        return super().__new__(cls, device, interface)
+
+    def __str__(self):
+        return f'{self.device}:{self.interface}'
 
 
 class MacAddr:
