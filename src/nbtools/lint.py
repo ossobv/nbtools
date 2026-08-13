@@ -20,7 +20,9 @@ def main() -> None:
         epilog=(
             'Without a COMMAND it runs them all. Exits 0 when everything is '
             'clean and 1 when there are findings, so it can be run from '
-            'cron.'))
+            'cron. Feed the findings of one COMMAND to nbsync with '
+            '--porcelain, e.g. "nblint --porcelain duplicate-macs | xargs '
+            'nbsync unset-interface-mac :".'))
     parser.add_argument(
         '-c', '--config', metavar='INIFILE',
         help=f'configuration INI location (default: {CONF_FILE})')
@@ -28,7 +30,7 @@ def main() -> None:
         'Enable debug output.'))
     parser.add_argument('--porcelain', action='store_true', help=(
         'Print one value per line and no banners, for feeding into '
-        'nbsync. Needs a COMMAND.'))
+        'nbsync. Needs a COMMAND: see the example below.'))
 
     command = parser.add_subparsers(dest='command')
     for cmdcls in COMMANDS:

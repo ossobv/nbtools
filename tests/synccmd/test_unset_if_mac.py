@@ -4,7 +4,7 @@ from nbtools.exceptions import UnrecognisedItem, UnrecognisedItemOnTarget
 from nbtools.synccmd.unset_if_mac import UnsetInterfaceMacCommand
 from nbtools.types import DevIface, MacAddr
 
-from ..nbstub import a_mac, an_iface, an_nbapi
+from ..nbstub import a_mac, a_vm_iface, an_iface, an_nbapi
 
 
 BMC = an_iface('BMC', 'node1.example.com')
@@ -67,6 +67,21 @@ def test_a_copy_on_another_interface_is_left_alone():
     assert [str(work) for work in plan_for(
         nbapi, 'node1.example.com:BMC', MAC)] == [
         'node1.example.com:BMC del mac aa:bb:cc:00:00:01']
+
+
+def test_a_vm_interface_with_the_same_id_is_not_the_target():
+    "vminterface ids come from another table than dcim interface ids"
+    same_id = a_vm_iface('eth0', 'vm1.example.com', id_=BMC.id)
+    nbapi = an_nbapi(a_mac(1, MAC, same_id), iface=BMC)
+
+    assert plan_for(nbapi, 'node1.example.com:BMC', MAC) == []
+
+
+def test_a_vm_interface_does_not_count_as_unassigned_either():
+    vm_iface = a_vm_iface('eth0', 'vm1.example.com')
+    nbapi = an_nbapi(a_mac(1, MAC, vm_iface))
+
+    assert plan_for(nbapi, ':', MAC) == []
 
 
 def test_takes_several_macs_at_once():

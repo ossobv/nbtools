@@ -14,9 +14,28 @@ def an_iface(name, devname, id_=5319, devid=538):
     return NS(id=id_, name=name, device=NS(id=devid, name=devname))
 
 
+def a_vm_iface(name, vmname, id_=100, vmid=7):
+    """
+    Stand in for a virtualization.vminterface
+
+    It has .virtual_machine and no .device at all, and its id comes
+    from a different table than a dcim.interface id.
+    """
+    return NS(id=id_, name=name, virtual_machine=NS(id=vmid, name=vmname))
+
+
 def a_mac(id_, value, iface=None):
     "Stand in for a pynetbox dcim.mac_addresses record"
-    return NS(id=id_, mac_address=value, assigned_object=iface)
+    if iface is None:
+        kind = None
+    elif getattr(iface, 'virtual_machine', None) is not None:
+        kind = 'virtualization.vminterface'
+    else:
+        kind = 'dcim.interface'
+
+    return NS(
+        id=id_, mac_address=value, assigned_object=iface,
+        assigned_object_type=kind)
 
 
 def an_nbapi(*macs, iface=None):

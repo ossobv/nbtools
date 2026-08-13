@@ -60,10 +60,29 @@ class UnsetInterfaceMacCommand(SyncCommand):
         nd_dev = named_id(iface.device.name, iface.device.id, parent=None)
         return named_id(iface.name, iface.id, parent=nd_dev)
 
+    @staticmethod
+    def _sits_on(record, iface):
+        """
+        Is this MAC record on that interface, or on none at all?
+
+        Compare the type as well as the id. A MAC search returns
+        virtualization.vminterface records beside dcim.interface ones,
+        and their ids come from different tables, so vminterface #5319
+        is not dcim interface #5319. Getting that wrong here deletes
+        the wrong record.
+        """
+        assigned = record.assigned_object
+        if iface is None:
+            return assigned is None
+
+        return (
+            assigned is not None
+            and assigned.id == iface.id
+            and record.assigned_object_type == 'dcim.interface')
+
     def plan(self):
         iface = self._get_target_interface()
         nd_iface = self._named_interface(iface)
-        wanted_id = (iface.id if iface else None)
 
         work_to_do = []
 
@@ -73,8 +92,7 @@ class UnsetInterfaceMacCommand(SyncCommand):
                 raise UnrecognisedItem(mac)
 
             for record in records:
-                assigned = record.assigned_object
-                if (assigned.id if assigned else None) != wanted_id:
+                if not self._sits_on(record, iface):
                     continue
 
                 work_to_do.append(DeleteMacAddress(
