@@ -13,7 +13,15 @@ from .recorder import NetboxRecorder
 
 
 def main() -> None:
-    parser = ArgumentParser(prog='nbsync', description='FIXME nbtools utils')
+    parser = ArgumentParser(
+        prog='nbsync',
+        description=(
+            'Editor for NetBox source of truth data. Automates common tasks '
+            'like moving cables between devices/interfaces, duplicating '
+            'interfaces, updating IPs.'),
+        epilog=(
+            'Each subcommand has its own options; '
+            'see "nbsync SUBCOMMAND --help".'))
     parser.add_argument(
         '-c', '--config', metavar='INIFILE',
         help=f'configuration INI location (default: {CONF_FILE})')
