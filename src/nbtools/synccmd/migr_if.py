@@ -6,7 +6,7 @@ from ..types import DevIface
 from ..work import (
     CreateInterface, DeleteInterface, ModifyInterface,
     ModifyCable,
-    ModifyIPAddress,
+    DummyUnassignIPAddress, ReassignIPAddress,
     find_elem, named_anon, named_id, named_lambda)
 
 
@@ -204,10 +204,20 @@ class MigrateInterfaceCommand(SyncCommand):
 
         for srcipaddr in srcipaddrs:
             # Do we assert that both source and dest are dcim.interface?
+            # One write, two lines: taking the IP off the source is
+            # what putting it on the target does, but the source and
+            # the target are different switches and both deserve a
+            # mention.
             work_to_do.append(
-                ModifyIPAddress(
+                DummyUnassignIPAddress(
                     named_id(srcipaddr.address, srcipaddr.id, parent=(
-                        nd_srciface)),
+                        nd_srciface))
+                )
+            )
+            work_to_do.append(
+                ReassignIPAddress(
+                    named_id(srcipaddr.address, srcipaddr.id, parent=(
+                        nd_tgtiface)),
                     {
                         'assigned_object_type': 'dcim.interface',
                         'assigned_object_id': (

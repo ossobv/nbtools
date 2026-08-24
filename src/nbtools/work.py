@@ -187,10 +187,14 @@ class DummyUnassignIPAddress(DummyWork):
 
 class ReassignIPAddress(FutureModify):
     def __str__(self):
-        v = self.values
+        # The vrf is optional: an IP that only changes owner keeps the
+        # one it is routed in, and then there is nothing to say about
+        # it. Pair this with a DummyUnassignIPAddress so the listing
+        # shows where the IP leaves as well as where it lands.
+        vrf = (f' vrf {self.values["vrf"]}' if 'vrf' in self.values else '')
         return (
             f'{self.name_id.parent.parent}:{self.name_id.parent} '
-            f'add ip {self.name_id} vrf {v["vrf"]}')
+            f'add ip {self.name_id}{vrf}')
 
     def _do(self, nbapi):
         # TODO: Move these to a check _before_ work.
