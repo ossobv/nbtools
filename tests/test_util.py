@@ -1,4 +1,8 @@
-from nbtools.util import natsort_key, quoted_name
+from ipaddress import IPv4Interface
+
+import pytest
+
+from nbtools.util import natsort_key, peer_address, quoted_name
 
 
 # A real NetBox device name, shortened.
@@ -29,3 +33,41 @@ def test_quoted_name_quotes_on_a_quote_alone():
 def test_quoted_name_leaves_backslash_alone():
     "Only the quote is special; a backslash needs no second rule"
     assert quoted_name('c:\\some path') == "'c:\\some path'"
+
+
+def test_peer_address_of_the_lower_half_is_the_upper_one():
+    assert str(peer_address('10.0.0.0/31')) == '10.0.0.1/31'
+
+
+def test_peer_address_of_the_upper_half_is_the_lower_one():
+    assert str(peer_address('10.0.0.1/31')) == '10.0.0.0/31'
+
+
+def test_peer_address_crosses_the_octet_boundary():
+    assert str(peer_address('10.0.0.255/31')) == '10.0.0.254/31'
+
+
+def test_peer_address_does_ipv6_on_a_127():
+    assert str(peer_address('2001:db8::1/127')) == '2001:db8::/127'
+
+
+def test_peer_address_takes_whatever_renders_as_an_address():
+    "NetBox hands back a str, argparse an IPv4Interface"
+    assert str(peer_address(IPv4Interface('10.0.0.1/31'))) == '10.0.0.0/31'
+
+
+def test_peer_address_refuses_a_wider_ipv4_subnet():
+    "On a /24 there is no single other address to mean"
+    with pytest.raises(ValueError):
+        peer_address('10.0.0.1/24')
+
+
+def test_peer_address_refuses_a_single_host():
+    with pytest.raises(ValueError):
+        peer_address('10.0.0.1/32')
+
+
+def test_peer_address_refuses_a_64_for_ipv6():
+    "The IPv6 point-to-point prefix is the /127, not the /31"
+    with pytest.raises(ValueError):
+        peer_address('2001:db8::1/64')
