@@ -2,7 +2,7 @@ from collections import namedtuple
 from ipaddress import IPv4Interface
 
 
-__all__ = ('DevIface', 'IPv4AddrWithMask', 'MacAddr')
+__all__ = ('DevIface', 'Hostname', 'IPv4AddrWithMask', 'MacAddr')
 
 
 IPv4AddrWithMask = IPv4Interface
@@ -32,6 +32,22 @@ class DevIface(namedtuple('DevIface', 'device interface')):
         return f'{self.device}:{self.interface}'
 
 DevIface.NONE = DevIface(':')
+
+
+class Hostname(str):
+    """
+    A host name as typed on the command line, e.g. 'vm1.example.com'
+
+    Thin on purpose. It is a str, so it goes into an API filter and
+    into the recorder unchanged; what it adds is a place for argparse
+    to reject the obviously wrong, and a name in --help that says what
+    the argument is.
+    """
+    def __new__(cls, name):
+        if not name or any(ch.isspace() for ch in name):
+            raise ValueError(f'{name!r} does not look like a host name')
+
+        return super().__new__(cls, name)
 
 
 class MacAddr:
