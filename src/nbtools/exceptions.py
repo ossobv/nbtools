@@ -39,3 +39,8 @@ class UnrecognisedItemOnTarget(StateError):
     description = (
         'Something exists on target that does not exist in the source')
     hint = 'You should maybe remove it.'
+
+
+class TargetCountMismatch(StateError):
+    description = 'There is not one target for every source'
+    hint = 'Pass one --target for each switch port the gateways sit on.'

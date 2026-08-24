@@ -112,3 +112,62 @@ def get_ip_addresses(nbapi, iface):
     # old code asserted on iface.__class__.__module__ to catch that,
     # which only ever documented the missing feature.
     return list(nbapi.ipam.ip_addresses.filter(interface_id=iface.id))
+
+
+def get_interface_by_id(nbapi, iface_id):
+    """
+    Get a whole dcim.interface by id
+
+    The interface nested in an IP address record is the brief one: id,
+    name, device and no more. Ask for VRF or parent and you get an
+    AttributeError, so anything that starts from an IP has to fetch the
+    interface itself.
+    """
+    iface = nbapi.dcim.interfaces.get(iface_id)
+    if not iface:
+        raise NotFound(iface_id)
+
+    return iface
+
+
+def get_ip_addresses_by_address(nbapi, address):
+    """
+    Get every record NetBox holds for this exact address
+
+    As in get_mac_addresses(), the match is redone here: the
+    server-side filter is trusted to narrow the set down, not to be
+    exact about it.
+    """
+    wanted = str(address)
+
+    return [
+        rec for rec in nbapi.ipam.ip_addresses.filter(address=wanted)
+        if str(rec.address) == wanted]
+
+
+def get_vm(nbapi, name):
+    "Get the virtual machine by name"
+    vm = nbapi.virtualization.virtual_machines.get(name=name)
+    if not vm:
+        raise NotFound(name)
+
+    return vm
+
+
+def get_vm_interfaces(nbapi, vm):
+    "Get the interfaces of a virtual machine, in natural name order"
+    return sorted(
+        nbapi.virtualization.interfaces.filter(virtual_machine_id=vm.id),
+        key=(lambda x: natsort_key(x.name)))
+
+
+def get_vm_ip_addresses(nbapi, vmiface):
+    """
+    Get the IPs assigned to this VM interface
+
+    The hardware twin of this is get_ip_addresses() above. They are two
+    functions rather than one that guesses, because a dcim.interface id
+    and a virtualization.vminterface id come from different tables: an
+    id alone does not say which kind it is, so the caller has to.
+    """
+    return list(nbapi.ipam.ip_addresses.filter(vminterface_id=vmiface.id))

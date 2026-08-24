@@ -1,4 +1,5 @@
 from .clone_if import CloneInterfaceCommand
+from .migr_gw import MigrateGatewayCommand
 from .migr_if import MigrateInterfaceCommand
 from .set_if_ip import SetInterfaceIpByMacCommand, SetInterfaceIpCommand
 from .swap_cables import SwapCableCommand
@@ -11,6 +12,7 @@ from .zap_if import ZapInterfaceCommand
 COMMANDS = (
     # Interface commands
     CloneInterfaceCommand,
+    MigrateGatewayCommand,
     MigrateInterfaceCommand,
     SetInterfaceIpCommand,
     SetInterfaceIpByMacCommand,
