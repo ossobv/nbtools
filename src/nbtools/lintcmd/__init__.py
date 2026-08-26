@@ -8,6 +8,7 @@ from .iface_tags import InterfaceTagsCommand
 from .iface_vlans import InterfaceVlansCommand
 from .parent_if_vrfs import ParentInterfaceVrfsCommand
 from .subif_labels import SubinterfaceLabelsCommand
+from .subif_parents import SubinterfaceParentsCommand
 from .tenant_names import TenantNamesCommand
 from .unassigned_ips import UnassignedIpsCommand
 from .unparented_ips import UnparentedIpsCommand
@@ -24,6 +25,7 @@ COMMANDS = (
     UnparentedIpsCommand,
 
     DuplicateMacsCommand,
+    SubinterfaceParentsCommand,
     SubinterfaceLabelsCommand,
     ParentInterfaceVrfsCommand,
     BmcMacsCommand,
