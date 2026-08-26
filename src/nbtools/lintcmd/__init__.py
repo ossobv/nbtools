@@ -1,3 +1,4 @@
+from .bmc_macs import BmcMacsCommand
 from .dup_macs import DuplicateMacsCommand
 from .dup_vrfs import DuplicateIpsCommand, DuplicatePrefixesCommand
 from .empty_prefixes import EmptyPrefixesCommand
@@ -18,6 +19,7 @@ COMMANDS = (
     DuplicateMacsCommand,
     SubinterfaceLabelsCommand,
     ParentInterfaceVrfsCommand,
+    BmcMacsCommand,
 )
 
 COMMANDS_BY_NAME = {cmdcls.name: cmdcls for cmdcls in COMMANDS}
