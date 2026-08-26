@@ -1,6 +1,8 @@
 from .dup_macs import DuplicateMacsCommand
 from .dup_vrfs import DuplicateIpsCommand, DuplicatePrefixesCommand
 from .empty_prefixes import EmptyPrefixesCommand
+from .parent_if_vrfs import ParentInterfaceVrfsCommand
+from .subif_labels import SubinterfaceLabelsCommand
 from .unassigned_ips import UnassignedIpsCommand
 from .unparented_ips import UnparentedIpsCommand
 
@@ -14,6 +16,8 @@ COMMANDS = (
     DuplicateIpsCommand,
     UnparentedIpsCommand,
     DuplicateMacsCommand,
+    SubinterfaceLabelsCommand,
+    ParentInterfaceVrfsCommand,
 )
 
 COMMANDS_BY_NAME = {cmdcls.name: cmdcls for cmdcls in COMMANDS}
