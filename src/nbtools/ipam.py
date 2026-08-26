@@ -72,6 +72,20 @@ def _network_key(net):
     return (net.version, int(net.network_address), net.prefixlen)
 
 
+def sort_key(value):
+    """
+    Order a network or a bare address, across families
+
+    int('::') and int('0.0.0.0') are both 0, so the family has to come
+    first or the two families interleave. Networks and addresses both
+    go through here so that a caller holding either can sort it.
+    """
+    if hasattr(value, 'network_address'):
+        return _network_key(value)
+
+    return _address_key(value)
+
+
 def prefix_sort_key(prefix):
     "Sort ipam.prefix records into reading order: v4 first, then by network"
     return _network_key(network_of(prefix))
@@ -238,3 +252,31 @@ class IpamIndex:
             return []
 
         return index.covering_prefixlens(address_of(ipaddr), down_to=down_to)
+
+
+def find_in_multiple_vrfs(records, value_of):
+    """
+    The values that exist in more than one VRF
+
+    Returns [(value, records)] in reading order, records by id. "All
+    VRFs have unique IPs in our setup" is the rule this checks: a
+    value routed in two of them is either a leak or a copy-paste, and
+    either way nothing downstream can tell which one it meant.
+
+    More than one VRF, not more than one record: the same address
+    twice inside one VRF is what an anycast gateway looks like, and
+    clone-interface creates those on purpose.
+    """
+    by_value = {}
+    for record in records:
+        by_value.setdefault(value_of(record), []).append(record)
+
+    groups = []
+    for value, found in by_value.items():
+        if len({vrf_id(record) for record in found}) < 2:
+            continue
+
+        groups.append(
+            (value, sorted(found, key=(lambda record: record.id))))
+
+    return sorted(groups, key=(lambda group: sort_key(group[0])))

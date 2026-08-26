@@ -45,3 +45,25 @@ class IpFinding(RecordFinding):
 class PrefixFinding(RecordFinding):
     "One ipam.prefix worth reporting"
     field = 'prefix'
+
+
+class MultipleVrfsFinding:
+    """
+    One value that exists in more than one VRF.
+
+    Rendered the way duplicate-macs renders its groups: the value, how
+    many of them there are, then where each one sits -- here the VRF
+    rather than the device, because the VRF is the thing that differs.
+    """
+    def __init__(self, value, records):
+        self.value = value
+        self.records = records
+
+    def porcelain(self):
+        return str(self.value)
+
+    def __str__(self):
+        detail = ', '.join(
+            f'#{record.id} {vrf_name(record)}' for record in self.records)
+
+        return f'{self.value} x{len(self.records)}: {detail}'

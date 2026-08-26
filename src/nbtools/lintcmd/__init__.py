@@ -1,4 +1,5 @@
 from .dup_macs import DuplicateMacsCommand
+from .dup_vrfs import DuplicateIpsCommand, DuplicatePrefixesCommand
 from .empty_prefixes import EmptyPrefixesCommand
 from .unassigned_ips import UnassignedIpsCommand
 
@@ -8,6 +9,8 @@ from .unassigned_ips import UnassignedIpsCommand
 COMMANDS = (
     UnassignedIpsCommand,
     EmptyPrefixesCommand,
+    DuplicatePrefixesCommand,
+    DuplicateIpsCommand,
     DuplicateMacsCommand,
 )
 
