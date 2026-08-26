@@ -2,6 +2,7 @@ from .dup_macs import DuplicateMacsCommand
 from .dup_vrfs import DuplicateIpsCommand, DuplicatePrefixesCommand
 from .empty_prefixes import EmptyPrefixesCommand
 from .unassigned_ips import UnassignedIpsCommand
+from .unparented_ips import UnparentedIpsCommand
 
 
 # The subcommands nblint offers, in --help order. Registration is kept
@@ -11,6 +12,7 @@ COMMANDS = (
     EmptyPrefixesCommand,
     DuplicatePrefixesCommand,
     DuplicateIpsCommand,
+    UnparentedIpsCommand,
     DuplicateMacsCommand,
 )
 
