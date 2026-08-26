@@ -1,7 +1,9 @@
 from .dev_bmcs import DeviceBmcsCommand
 from .dup_in_vrfs import DuplicateIpsCommand, DuplicatePrefixesCommand
+from .cables import UnattachedCablesCommand
 from .dup_macs import DuplicateMacsCommand
 from .empty_prefixes import EmptyPrefixesCommand
+from .iface_tags import InterfaceTagsCommand
 from .subif_labels import SubinterfaceLabelsCommand
 from .subif_parents import SubinterfaceParentsCommand
 from .unassigned_ips import UnassignedIpsCommand
@@ -20,6 +22,8 @@ COMMANDS = (
     DeviceBmcsCommand,
     SubinterfaceParentsCommand,
     SubinterfaceLabelsCommand,
+    InterfaceTagsCommand,
+    UnattachedCablesCommand,
 )
 
 COMMANDS_BY_NAME = {cmdcls.name: cmdcls for cmdcls in COMMANDS}
