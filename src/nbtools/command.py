@@ -2,8 +2,37 @@ import sys
 
 from enum import Enum
 
+from .exceptions import InvalidInput
+
 
 ProcessMode = Enum('ProcessMode', [('INTERACTIVE', -1), ('NO', 0), ('YES', 1)])
+
+# The argument that means "this value is on stdin" rather than being a
+# value itself. One spelling for every command, so that a reader who
+# has seen it once knows it everywhere.
+STDIN_ARG = '-'
+
+
+def stdin_or(type_func):
+    """
+    Wrap an argparse type so that '-' comes through untouched
+
+    argparse applies type= to every value, and '-' is not one:
+
+        parser.add_argument('ip', type=stdin_or(IPv4AddrWithMask), ...)
+
+    SyncCommand.set_input_rows() takes it from there.
+    """
+    def parse(text):
+        if text == STDIN_ARG:
+            return STDIN_ARG
+
+        return type_func(text)
+
+    parse.__name__ = '{}_or_stdin'.format(
+        getattr(type_func, '__name__', 'value'))
+
+    return parse
 
 
 class Command:
@@ -57,12 +86,113 @@ class SyncCommand(Command):
     plan() does the work of figuring out *what* to change and returns
     the FutureWork items; run() below owns the listing, the
     confirmation and the execution, so no subcommand repeats it.
+
+    A command that works through a list of input values takes them
+    through set_input() and implements plan_one() instead of plan().
     """
+    def __init__(self, nbapi):
+        super().__init__(nbapi)
+
+        # The input rows, one per item to plan; None for a command
+        # that plans no items but overrides plan() outright, and None
+        # too when they are coming off stdin -- _run_streaming() then
+        # reads them a line at a time and this never holds them all.
+        self._input = None
+
+        # How a line of stdin becomes a row: (row_type, slots,
+        # dashes), set by set_input_rows() when an argument was '-'.
+        self._row_slots = None
+
+        # Set once this command's input is coming off stdin.
+        self._stdin_is_input = False
+
     def set_quiet(self):
         self._verbose = False
 
+    def set_input(self, values):
+        """
+        The values to plan an item apiece from; see plan_one()
+        """
+        # Stored as handed over, not materialised: set_input_rows()
+        # may have given us a stream that run() is to pull lazily.
+        self._input = values
+
+    def set_input_rows(self, row_type, slots):
+        """
+        Take the input as rows of values, a '-' argument off stdin
+
+        Example:
+
+            TargetIp = namedtuple('TargetIp', 'target ip')
+
+            SyncCommand.set_input_rows(TargetIp, [
+                (args.target, MacAddr),
+                (args.ip, IPv4AddrWithMask)])
+
+        slots is one (value, type_func) pair per argument the command
+        takes, in the order they are typed, each value being what
+        argparse parsed -- or STDIN_ARG for an argument given as '-'.
+        With no '-' among them the input is the single row typed.
+
+        With a '-' it is a row per line of stdin, and the line is
+        split into as many fields as there are dashes. So a command
+        taking two arguments is fed by two-field lines:
+
+            $ nbsync --batch set-interface-ip-by-mac - - --vrf=MGMT
+            11:22:33:44:55:66 10.20.30.4/24
+            ...
+
+        The fields fill the dashes left to right.
+        """
+        dashes = [
+            index for index, (value, _) in enumerate(slots)
+            if value == STDIN_ARG]
+
+        if not dashes:
+            self.set_input([row_type(*(value for value, _ in slots))])
+            return
+
+        self._stdin_is_input = True
+        self._row_slots = (row_type, slots, dashes)
+
+    @staticmethod
+    def _stdin_lines():
+        "The lines of stdin, stripped, as they arrive"
+        for line in sys.stdin:
+            line = line.strip()
+            yield line
+
+    def _parse_row(self, line):
+        """
+        One row from one line of stdin, or raise InvalidInput
+
+        Converts the input lines per the slots set in set_input_rows().
+
+        A line that does not hold the fields the dashes asked for is
+        refused with InvalidInput.
+        """
+        row_type, slots, dashes = self._row_slots
+
+        fields = line.rsplit(None, len(dashes) - 1)
+        if len(fields) != len(dashes):
+            raise InvalidInput(
+                f'{line!r}: wanted {len(dashes)} values, found '
+                f'{len(fields)}')
+
+        values = [value for value, _ in slots]
+        for index, field in zip(dashes, fields):
+            try:
+                values[index] = slots[index][1](field)
+            except ValueError as e:
+                raise InvalidInput(f'{line!r}: {e}') from e
+
+        return row_type(*values)
+
     def run(self, process_mode: ProcessMode):
         self.process_mode = process_mode
+
+        if self._stdin_is_input:
+            return self._run_streaming()
 
         work_to_do = self.plan()
 
@@ -81,9 +211,47 @@ class SyncCommand(Command):
         for work in work_to_do:
             work.do(self.nbapi)
 
+    def _run_streaming(self):
+        """
+        Plan, list and do each item as it arrives, not in one go
+
+        The trade-off the caller chose by piping: an error partway
+        along leaves the earlier items done, where the batch path
+        above plans everything first and so fails having changed
+        nothing.
+        """
+        # No listing to confirm yet -- and none is coming, since
+        # streaming requires --batch. This is only the guard.
+        self.confirm_or_die()
+        self.prepare()
+
+        banner_shown = False
+        for line in self._stdin_lines():
+            value = self._parse_row(line)
+
+            for work in self.plan_one(value):
+                if not banner_shown:
+                    self.print_banner()
+                    banner_shown = True
+
+                # Make sure we flush, so log readers pick this up
+                # immediately.
+                self.print('-', work, flush=True)
+                work.do(self.nbapi)
+
+        if not banner_shown:
+            self.verbose('Nothing to do')
+
     def confirm_or_die(self):
         "Depending on the process_mode, continue, ask or die"
         if self.process_mode == ProcessMode.INTERACTIVE:
+            # An answer read off stdin would just be an input line.
+            if self._stdin_is_input:
+                print(
+                    'stdin holds the input, so the answer cannot come '
+                    'from there: use --batch', file=sys.stderr)
+                sys.exit(3)
+
             while True:
                 print("Type 'yes' to continue: ", end='', file=sys.stderr)
                 try:
@@ -105,9 +273,44 @@ class SyncCommand(Command):
         else:
             raise NotImplementedError(self.process_mode)
 
-    def plan(self) -> list:
-        "Return the FutureWork items this command wants to perform"
+    def prepare(self):
+        """
+        Read whatever every item is going to need, once
+
+        Called before the first plan_one(), by both paths through
+        run(). A lookup that does not depend on the item belongs
+        here: on a stream the items keep coming, and one left in
+        plan_one() is another API call for every line.
+        """
+        pass
+
+    def plan_one(self, value) -> list:
+        """
+        Return the FutureWork items for one input value
+
+        A command with input values implements this instead of
+        plan(); run() calls it an item at a time when the values are
+        streaming in off stdin, and plan() below joins them up when
+        they are not.
+        """
         raise NotImplementedError
+
+    def plan(self) -> list:
+        """
+        Return the FutureWork items this command wants to perform
+
+        A command either overrides this, or takes input values and
+        implements plan_one().
+        """
+        if self._input is None:
+            raise NotImplementedError(
+                'a sync command implements plan(), or takes input '
+                'values and implements plan_one()')
+
+        self.prepare()
+
+        return [
+            work for value in self._input for work in self.plan_one(value)]
 
 
 class LintCommand(Command):

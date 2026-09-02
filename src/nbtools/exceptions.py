@@ -45,6 +45,20 @@ class ApiError(StateError):
             f'{response.status_code} {response.reason}')
 
 
+class InvalidInput(StateError):
+    """
+    An input line did not hold the values it should.
+
+    Not a state error either -- see ApiError -- but it travels the
+    same path, so that a bad line arriving on stdin is one line of
+    complaint instead of a traceback out of the middle of a stream.
+    It is the rejection argparse does for the values that come in as
+    arguments, in the place where there is no argparse to do it.
+    """
+    description = 'Input could not be read'
+    hint = 'One item per line, its values separated by whitespace.'
+
+
 class NotFound(StateError):
     description = 'Something does not seem to exist'
     hint = 'Check your arguments.'
