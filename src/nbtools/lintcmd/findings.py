@@ -4,7 +4,7 @@ How the IPAM lint commands render one record.
 For now, we include id, ip, status vrf for a prefix or for an IP. We may
 revisit this later.
 """
-from ..ipam import status_name, vrf_name
+from ..ipam import network_of, status_name, vrf_arg, vrf_name
 from ..util import quoted_name
 
 
@@ -46,6 +46,16 @@ class IpFinding(RecordFinding):
 class PrefixFinding(RecordFinding):
     "One ipam.prefix worth reporting"
     field = 'prefix'
+
+    def porcelain(self):
+        """
+        'PREFIX@VRF', which is what nbsync delete-prefix takes
+
+        The prefix on its own would not be enough to act on: NetBox
+        lets the same prefix exist in several VRFs, so a value going
+        down a pipe has to carry both halves. See types.VrfPrefix.
+        """
+        return f'{network_of(self.record)}@{vrf_arg(self.record)}'
 
 
 class MultipleVrfsFinding:

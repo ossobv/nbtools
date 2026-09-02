@@ -1,8 +1,9 @@
 from collections import namedtuple
-from ipaddress import IPv4Interface
+from ipaddress import IPv4Interface, ip_network
 
 
-__all__ = ('DevIface', 'Hostname', 'IPv4AddrWithMask', 'MacAddr')
+__all__ = (
+    'DevIface', 'Hostname', 'IPv4AddrWithMask', 'MacAddr', 'VrfPrefix')
 
 
 IPv4AddrWithMask = IPv4Interface
@@ -48,6 +49,39 @@ class Hostname(str):
             raise ValueError(f'{name!r} does not look like a host name')
 
         return super().__new__(cls, name)
+
+
+class VrfPrefix(namedtuple('VrfPrefix', 'prefix vrf')):
+    """
+    Takes '10.1.2.0/24@vrf-red', holds prefix and vrf='vrf-red'
+
+    One token on purpose. A prefix on its own does not name a record
+    -- NetBox lets the same prefix exist in several VRFs, which is
+    what nblint duplicate-prefixes is about -- and the nblint pipeline
+    is "--porcelain | xargs", where xargs hands over one argument per
+    line. So both halves have to fit in one word.
+
+    Split on the *first* '@': a prefix never holds one and a VRF name
+    might. No '@' at all, or nothing after it, is the global routing
+    table, so '10.1.2.0/24' and '10.1.2.0/24@' are the same thing --
+    the empty half spelling the absent one, as DevIface.NONE does.
+
+    The prefix is normalised. NetBox stores what it was given, so
+    10.1.2.1/24 is a prefix that exists; it names the same record as
+    10.1.2.0/24 and this renders it that way.
+    """
+    def __new__(cls, vrf_prefix_str):
+        prefix, _at, vrf = str(vrf_prefix_str).partition('@')
+        try:
+            network = ip_network(prefix, strict=False)
+        except ValueError as e:
+            raise ValueError(
+                f'{prefix!r} is not a prefix: expected PREFIX@VRF') from e
+
+        return super().__new__(cls, network, vrf)
+
+    def __str__(self):
+        return f'{self.prefix}@{self.vrf}'
 
 
 class MacAddr:

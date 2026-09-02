@@ -30,6 +30,20 @@ def vrf_name(record):
     return (str(vrf.name) if vrf is not None else GLOBAL_VRF)
 
 
+def vrf_arg(record):
+    """
+    The VRF of a record the way nbsync takes it: the name, or ''
+
+    vrf_name() above says 'global' for the table with no VRF, which
+    reads better in a column but would collide with a VRF actually
+    named that. An argument cannot afford the ambiguity, so here the
+    absent VRF is the empty string.
+    """
+    vrf = getattr(record, 'vrf', None)
+
+    return (str(vrf.name) if vrf is not None else '')
+
+
 def status_name(record):
     """
     The status of a record as a bare word, e.g. 'active'

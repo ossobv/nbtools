@@ -1,6 +1,8 @@
+from ipaddress import IPv4Network, IPv6Network
+
 import pytest
 
-from nbtools.types import DevIface, Hostname
+from nbtools.types import DevIface, Hostname, VrfPrefix
 
 
 def test_dev_iface_splits_device_from_interface():
@@ -53,3 +55,45 @@ def test_hostname_refuses_a_name_with_whitespace():
     "A shell quoting mistake, not a host"
     with pytest.raises(ValueError):
         Hostname('vm1.example.com vm2.example.com')
+
+
+def test_vrf_prefix_splits_the_prefix_from_the_vrf():
+    assert VrfPrefix('10.1.2.0/24@vrf-red') == (
+        IPv4Network('10.1.2.0/24'), 'vrf-red')
+
+
+def test_vrf_prefix_without_a_vrf_is_the_global_table():
+    "'10.1.2.0/24' and '10.1.2.0/24@' are the same thing"
+    assert VrfPrefix('10.1.2.0/24').vrf == ''
+    assert VrfPrefix('10.1.2.0/24@').vrf == ''
+
+
+def test_vrf_prefix_renders_back_as_it_was_argued():
+    for text in ('10.1.2.0/24@vrf-red', '10.1.2.0/24@', '2001:db8::/64@a'):
+        assert str(VrfPrefix(text)) == text
+
+
+def test_vrf_prefix_renders_a_bare_prefix_with_the_empty_vrf():
+    assert str(VrfPrefix('10.1.2.0/24')) == '10.1.2.0/24@'
+
+
+def test_vrf_prefix_normalises_a_prefix_off_its_own_boundary():
+    "NetBox stores what it was given; 10.1.2.1/24 is that same record"
+    assert str(VrfPrefix('10.1.2.1/24@vrf-red')) == '10.1.2.0/24@vrf-red'
+
+
+def test_vrf_prefix_splits_on_the_first_at():
+    "A prefix never holds one; a VRF name might"
+    assert VrfPrefix('10.1.2.0/24@odd@name').vrf == 'odd@name'
+
+
+def test_vrf_prefix_takes_ipv6():
+    assert VrfPrefix('2001:db8::/64@vrf-red').prefix == (
+        IPv6Network('2001:db8::/64'))
+
+
+def test_vrf_prefix_refuses_something_that_is_not_a_prefix():
+    for text in ('', 'nonsense', 'nonsense@vrf-red', '@vrf-red',
+                 '10.1.2.0/99@vrf-red'):
+        with pytest.raises(ValueError):
+            VrfPrefix(text)

@@ -1,4 +1,5 @@
 from .clone_if import CloneInterfaceCommand
+from .del_prefix import DeletePrefixCommand
 from .migr_gw import MigrateGatewayCommand
 from .migr_if import MigrateInterfaceCommand
 from .set_if_ip import SetInterfaceIpByMacCommand, SetInterfaceIpCommand
@@ -18,6 +19,8 @@ COMMANDS = (
     SetInterfaceIpByMacCommand,
     UnsetInterfaceMacCommand,
     ZapInterfaceCommand,
+    # IPAM commands
+    DeletePrefixCommand,
     # Other commands
     SwapCableCommand,
 )

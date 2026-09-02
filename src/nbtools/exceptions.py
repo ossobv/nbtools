@@ -88,3 +88,17 @@ class UnrecognisedItemOnTarget(StateError):
 class TargetCountMismatch(StateError):
     description = 'There is not one target for every source'
     hint = 'Pass one --target for each switch port the gateways sit on.'
+
+
+class AmbiguousItem(StateError):
+    description = 'Something matches more than one record'
+    hint = (
+        'NetBox holds it twice. See "nblint duplicate-prefixes", and '
+        'clean the copy up by id before deleting by name.')
+
+
+class ItemNotEmpty(StateError):
+    description = 'Something still holds records'
+    hint = (
+        'It has gained contents since the linter ran. Re-run '
+        '"nblint empty-prefixes", or pass --force to delete it anyway.')

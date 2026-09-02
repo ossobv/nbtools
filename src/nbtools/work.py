@@ -230,6 +230,16 @@ class DeleteIPAddress(FutureDelete):
         nbapi.ipam.ip_addresses.delete(deletes)
 
 
+class DeletePrefix(FutureDelete):
+    def __str__(self):
+        return f'{self.name_id.parent} del prefix {self.name_id}'
+
+    def _do(self, nbapi):
+        deletes = [self.name_id.id]
+        log.debug('nbapi.ipam.prefixes.delete %r', deletes)
+        nbapi.ipam.prefixes.delete(deletes)
+
+
 class ModifyIPAddress(FutureModify):
     def __str__(self):
         kvs = ' '.join(f'{k}={v}' for k, v in self.values.items())

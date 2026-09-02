@@ -35,6 +35,35 @@ things. *nbsync* needs write tokens, and is used for deliberate changes.
 The two meet through the ``--porcelain`` argument and ``xargs`` (or stdin).
 *nblint* arguments can be passed to *nbsync* via the command line.
 
+.. code-block:: console
+
+    $ nblint --porcelain empty-prefixes
+    10.1.3.0/24@vrf-red
+    10.1.4.0/24@
+
+    $ nblint --porcelain empty-prefixes | xargs nbsync delete-prefix
+    -------------
+    delete-prefix
+    -------------
+    - vrf-red del prefix 10.1.3.0/24
+    - global del prefix 10.1.4.0/24
+    Type 'yes' to continue:
+
+Each value is one token, so ``xargs`` hands one argument per finding.
+Where a prefix alone would be ambiguous -- NetBox allows the same one
+in several VRFs -- the value carries the VRF after an ``@``, empty for
+the global table.
+
+*nbsync* re-checks before it writes: ``delete-prefix`` refuses a prefix
+that has gained contents since the listing was made.
+
+Where ``xargs`` waits for the whole list before it starts, a ``-``
+argument streams it -- each line acted on as it arrives:
+
+.. code-block:: console
+
+    $ nblint --porcelain empty-prefixes | nbsync --batch delete-prefix -
+
 
 ------------------
 Arguments or stdin

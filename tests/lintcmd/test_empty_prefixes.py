@@ -1,4 +1,5 @@
 from nbtools.lintcmd.empty_prefixes import EmptyPrefixesCommand
+from nbtools.types import VrfPrefix
 
 from ..nbstub import FakeNetbox
 
@@ -26,7 +27,7 @@ def a_netbox():
 def test_only_the_prefixes_holding_nothing_are_reported():
     findings = EmptyPrefixesCommand(a_netbox()).find()
 
-    assert [finding.porcelain() for finding in findings] == [
+    assert [finding.value for finding in findings] == [
         '10.1.3.0/24', '2001:db8::/64']
 
 
@@ -120,7 +121,7 @@ def test_status_reports_only_the_kinds_named():
     cmd = EmptyPrefixesCommand(nb)
     cmd.set_statuses(['active'])
 
-    assert [finding.porcelain() for finding in cmd.find()] == ['10.1.3.0/24']
+    assert [finding.value for finding in cmd.find()] == ['10.1.3.0/24']
 
 
 def test_a_reserved_prefix_is_skipped_without_being_asked():
@@ -154,7 +155,7 @@ def test_several_statuses_are_reported_together():
     cmd = EmptyPrefixesCommand(nb)
     cmd.set_statuses(['container', 'reserved'])
 
-    assert [finding.porcelain() for finding in cmd.find()] == [
+    assert [finding.value for finding in cmd.find()] == [
         '10.1.3.0/24', '192.168.0.0/16']
 
 
@@ -166,7 +167,7 @@ def test_status_all_reports_every_status():
     cmd = EmptyPrefixesCommand(nb)
     cmd.set_statuses(['all'])
 
-    assert [finding.porcelain() for finding in cmd.find()] == [
+    assert [finding.value for finding in cmd.find()] == [
         '10.1.3.0/24', '10.1.4.0/24']
 
 
@@ -180,8 +181,7 @@ def test_no_status_leaves_the_default_in_place():
         cmd = EmptyPrefixesCommand(nb)
         cmd.set_statuses(statuses)
 
-        assert [finding.porcelain() for finding in cmd.find()] == [
-            '10.1.4.0/24']
+        assert [finding.value for finding in cmd.find()] == ['10.1.4.0/24']
 
 
 def test_an_empty_container_is_still_a_finding():
@@ -189,7 +189,7 @@ def test_an_empty_container_is_still_a_finding():
     nb = FakeNetbox()
     nb.add_prefix('10.0.0.0/8', status='container')
 
-    assert [finding.porcelain() for finding in
+    assert [finding.value for finding in
             EmptyPrefixesCommand(nb).find()] == ['10.0.0.0/8']
 
 
@@ -200,7 +200,7 @@ def test_findings_come_out_in_reading_order():
     nb.add_prefix('10.2.0.0/24')
     nb.add_prefix('10.1.0.0/24')
 
-    assert [finding.porcelain() for finding in
+    assert [finding.value for finding in
             EmptyPrefixesCommand(nb).find()] == [
         '10.1.0.0/24', '10.2.0.0/24', '2001:db8::/64']
 
@@ -222,3 +222,48 @@ def test_command_reports_and_counts(capsys):
         '--------------\n'
         '- 10.1.3.0/24 #202 status=active vrf=global\n'
         '- 2001:db8::/64 #203 status=active vrf=global\n')
+
+
+# -- what --porcelain has to say for itself --
+
+def test_porcelain_carries_the_vrf_with_the_prefix():
+    "The prefix alone would not name a record for nbsync to act on"
+    nb = FakeNetbox()
+    red = nb.add_vrf('vrf-red')
+    nb.add_prefix('10.1.3.0/24', vrf=red)
+
+    assert [finding.porcelain() for finding in
+            EmptyPrefixesCommand(nb).find()] == ['10.1.3.0/24@vrf-red']
+
+
+def test_porcelain_leaves_the_vrf_empty_for_the_global_table():
+    "An empty half spells the absent one, the way DevIface.NONE does"
+    nb = FakeNetbox()
+    nb.add_prefix('10.1.3.0/24')
+
+    assert [finding.porcelain() for finding in
+            EmptyPrefixesCommand(nb).find()] == ['10.1.3.0/24@']
+
+
+def test_porcelain_normalises_a_prefix_off_its_own_boundary():
+    nb = FakeNetbox()
+    nb.add_prefix('10.1.3.1/24')
+
+    assert [finding.porcelain() for finding in
+            EmptyPrefixesCommand(nb).find()] == ['10.1.3.0/24@']
+
+
+def test_porcelain_output_is_what_delete_prefix_takes(capsys):
+    "One token per line, so xargs hands each over as one argument"
+    nb = FakeNetbox()
+    red = nb.add_vrf('vrf-red')
+    nb.add_prefix('10.1.3.0/24', vrf=red)
+    nb.add_prefix('10.1.4.0/24')
+
+    cmd = EmptyPrefixesCommand(nb)
+    cmd.set_porcelain()
+    assert cmd.run() == 2
+
+    lines = capsys.readouterr().out.split()
+    assert lines == ['10.1.3.0/24@vrf-red', '10.1.4.0/24@']
+    assert [str(VrfPrefix(line)) for line in lines] == lines
