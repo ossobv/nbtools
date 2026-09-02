@@ -26,6 +26,11 @@ def main() -> None:
         help=f'configuration INI location (default: {CONF_FILE})')
     parser.add_argument('--batch', action='store_true', help=(
         'Do it without asking for input. Reduce visual clutter.'))
+    parser.add_argument('--keep-going', action='store_true', help=(
+        'Report an item that fails and carry on with the next one, '
+        'instead of stopping. Only items read from stdin come one at '
+        'a time, so this does nothing without them. Exits nonzero if '
+        'anything failed.'))
     parser.add_argument('--debug', action='store_true', help=(
         'Enable debug output.'))
     parser.add_argument('--record', action='store', help=(
@@ -70,11 +75,13 @@ def main() -> None:
     try:
         with translated_errors():
             cmd = COMMANDS_BY_NAME[args.command].from_args(nbapi, args)
+            if args.keep_going:
+                cmd.set_keep_going()
             if args.batch:
                 cmd.set_quiet()
-                cmd.run(ProcessMode.YES)
+                failed = cmd.run(ProcessMode.YES)
             else:
-                cmd.run(ProcessMode.INTERACTIVE)
+                failed = cmd.run(ProcessMode.INTERACTIVE)
     except StateError as e:
         print(
             (f'{parser.prog}: Failure while processing: '
@@ -87,6 +94,10 @@ def main() -> None:
         # Save recording.
         if args.record:
             recorder.save(args.record)
+
+    # Nothing raised, but --keep-going may have swallowed something.
+    if failed:
+        sys.exit(3)
 
 
 if __name__ == '__main__':

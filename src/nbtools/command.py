@@ -2,7 +2,7 @@ import sys
 
 from enum import Enum
 
-from .exceptions import InvalidInput
+from .exceptions import InvalidInput, StateError
 
 
 ProcessMode = Enum('ProcessMode', [('INTERACTIVE', -1), ('NO', 0), ('YES', 1)])
@@ -105,9 +105,25 @@ class SyncCommand(Command):
 
         # Set once this command's input is coming off stdin.
         self._stdin_is_input = False
+        # Set to carry on past an item that fails; see run().
+        self._keep_going = False
 
     def set_quiet(self):
         self._verbose = False
+
+    def set_keep_going(self):
+        """
+        Report an item that fails and go on to the next one
+
+        Only the streaming path has items to go on to, and only there
+        is stopping the wrong answer: the input is a feed somebody
+        left running, and an item NetBox cannot place -- a MAC it has
+        never heard of -- is an ordinary event in it, not a reason to
+        stop reading. The batch path plans everything before it
+        writes, so a failure there still costs nothing and still
+        stops.
+        """
+        self._keep_going = True
 
     def set_input(self, values):
         """
@@ -188,7 +204,8 @@ class SyncCommand(Command):
 
         return row_type(*values)
 
-    def run(self, process_mode: ProcessMode):
+    def run(self, process_mode: ProcessMode) -> int:
+        "See _run_streaming(); returns how many items failed"
         self.process_mode = process_mode
 
         if self._stdin_is_input:
@@ -199,7 +216,7 @@ class SyncCommand(Command):
         # Anything to do?
         if not work_to_do:
             self.verbose('Nothing to do')
-            return
+            return 0
 
         # There is work.
         self.print_banner()
@@ -211,36 +228,49 @@ class SyncCommand(Command):
         for work in work_to_do:
             work.do(self.nbapi)
 
+        return 0
+
     def _run_streaming(self):
         """
         Plan, list and do each item as it arrives, not in one go
 
+        Returns how many items failed, which is none unless
+        set_keep_going() said to carry on past them.
+
         The trade-off the caller chose by piping: an error partway
         along leaves the earlier items done, where the batch path
         above plans everything first and so fails having changed
-        nothing.
+        nothing. Under --keep-going that goes for the failed item
+        too: it is reported where it stopped, and what it had already
+        written stays written.
         """
         # No listing to confirm yet -- and none is coming, since
         # streaming requires --batch. This is only the guard.
         self.confirm_or_die()
         self.prepare()
 
-        banner_shown = False
+        seen = failed = 0
+
+        # Stream over stdin, one line at a time.
         for line in self._stdin_lines():
-            value = self._parse_row(line)
+            seen += 1
+            try:
+                for work in self.plan_one(self._parse_row(line)):
+                    # Make sure we flush, so log readers pick this up
+                    # immediately.
+                    self.print('-', work, flush=True)
+                    work.do(self.nbapi)
+            except StateError as e:
+                if not self._keep_going:
+                    raise
 
-            for work in self.plan_one(value):
-                if not banner_shown:
-                    self.print_banner()
-                    banner_shown = True
+                failed += 1
+                print(f'{line}: {e.description}: {e}', file=sys.stderr)
 
-                # Make sure we flush, so log readers pick this up
-                # immediately.
-                self.print('-', work, flush=True)
-                work.do(self.nbapi)
+        if failed:
+            print(f'Failed on {failed} of {seen} items', file=sys.stderr)
 
-        if not banner_shown:
-            self.verbose('Nothing to do')
+        return failed
 
     def confirm_or_die(self):
         "Depending on the process_mode, continue, ask or die"
