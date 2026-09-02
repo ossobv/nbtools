@@ -3,7 +3,7 @@ from types import SimpleNamespace as NS
 from nbtools.lintcmd.dup_macs import (
     DuplicateMacFinding, DuplicateMacsCommand, get_duplicate_macs)
 
-from .nbstub import a_mac, a_vm_iface, an_iface, an_nbapi
+from ..nbstub import a_mac, a_vm_iface, an_iface, an_nbapi
 
 
 BMC = an_iface('BMC', 'node1.example.com')
