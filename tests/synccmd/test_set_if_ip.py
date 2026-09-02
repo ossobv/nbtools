@@ -1,5 +1,13 @@
+import io
+import sys
+
+from argparse import ArgumentParser
+
+import responses
+
+from nbtools.command import ProcessMode, STDIN_ARG
 from nbtools.synccmd.set_if_ip import (
-    SetInterfaceIpByMacCommand, SetInterfaceIpCommand)
+    SetInterfaceIpByMacCommand, SetInterfaceIpCommand, TargetIp)
 from nbtools.types import DevIface, IPv4AddrWithMask, MacAddr
 
 from ..nbtest import get_test_api, nb_responses_load
@@ -17,16 +25,26 @@ MBD7_BMC = 'MBD-7:BMC'
 
 def make_command(mac, ip, **kwargs):
     set_if_ip = SetInterfaceIpByMacCommand(get_test_api())
-    set_if_ip.set_target_interface_by_mac(MacAddr(mac))
-    set_if_ip.set_ip(IPv4AddrWithMask(ip), **kwargs)
+    set_if_ip.set_input([TargetIp(MacAddr(mac), IPv4AddrWithMask(ip))])
+    set_if_ip.set_options(**kwargs)
     return set_if_ip
 
 
 def make_dev_command(devif, ip, **kwargs):
     "As make_command, but naming the target as DEV:IFACE"
     set_if_ip = SetInterfaceIpCommand(get_test_api())
-    set_if_ip.set_target_interface(DevIface(devif))
-    set_if_ip.set_ip(IPv4AddrWithMask(ip), **kwargs)
+    set_if_ip.set_input([TargetIp(DevIface(devif), IPv4AddrWithMask(ip))])
+    set_if_ip.set_options(**kwargs)
+    return set_if_ip
+
+
+def make_streaming_command(lines, monkeypatch, **kwargs):
+    "As make_command, but with the pairs arriving on stdin"
+    monkeypatch.setattr(sys, 'stdin', io.StringIO(lines))
+    set_if_ip = SetInterfaceIpByMacCommand(get_test_api())
+    set_if_ip.set_input_rows(TargetIp, [
+        (STDIN_ARG, MacAddr), (STDIN_ARG, IPv4AddrWithMask)])
+    set_if_ip.set_options(**kwargs)
     return set_if_ip
 
 
@@ -128,3 +146,94 @@ def test_set_if_ip_by_mac_force_single():
     ]
 
     do_work(set_if_ip, work)
+
+
+# -- the pairs arriving on stdin --
+
+TWO_LINES = f'{NODE1_MAC} 10.103.1.64/24\n' * 2
+
+
+@nb_responses_load('test_set_if_ip.no-change.json', caller=__file__)
+def test_set_if_ip_by_mac_takes_the_pair_off_a_line(monkeypatch):
+    r"""
+    ... | nbsync --batch set-interface-ip-by-mac - - \
+        --vrf=MGMT --status=dhcp
+
+    The no-change item above, twice, arriving a line at a time
+    instead of as arguments. Nothing to do, either way.
+    """
+    set_if_ip = make_streaming_command(
+        TWO_LINES, monkeypatch, status='dhcp', vrf='MGMT')
+
+    assert set_if_ip.run(ProcessMode.YES) == 0
+
+
+@nb_responses_load('test_set_if_ip.no-change.json', caller=__file__)
+def test_the_vrf_is_looked_up_once_for_the_whole_stream(monkeypatch):
+    "It is an option, so it cannot change from line to line"
+    set_if_ip = make_streaming_command(
+        TWO_LINES, monkeypatch, status='dhcp', vrf='MGMT')
+    set_if_ip.run(ProcessMode.YES)
+
+    assert len([
+        call for call in responses.calls
+        if '/ipam/vrfs/' in call.request.url]) == 1
+
+
+@nb_responses_load('test_set_if_ip.no-change.json', caller=__file__)
+def test_the_mac_is_looked_up_per_line(monkeypatch):
+    "That one does vary, so it cannot be hoisted the same way"
+    set_if_ip = make_streaming_command(
+        TWO_LINES, monkeypatch, status='dhcp', vrf='MGMT')
+    set_if_ip.run(ProcessMode.YES)
+
+    assert len([
+        call for call in responses.calls
+        if '/dcim/mac-addresses/' in call.request.url]) == 2
+
+
+def parse_args(argv):
+    "What nbsync's parser makes of these arguments"
+    parser = ArgumentParser()
+    SetInterfaceIpByMacCommand.add_arguments(parser)
+    return parser.parse_args(argv)
+
+
+def test_a_dash_per_argument_gets_past_argparse():
+    "'-' is not a MAC and not an IP, so stdin_or() has to let it by"
+    args = parse_args([STDIN_ARG, STDIN_ARG, '--vrf=MGMT'])
+
+    assert (args.target, args.ip) == (STDIN_ARG, STDIN_ARG)
+
+
+def test_a_line_holds_the_target_then_the_ip(monkeypatch):
+    "The order they are typed in, which is the order argparse has"
+    set_if_ip = make_streaming_command('', monkeypatch)
+    row = set_if_ip._parse_row(f'{NODE1_MAC} 10.103.1.64/24')
+
+    assert (str(row.target), str(row.ip)) == (
+        NODE1_MAC.lower(), '10.103.1.64/24')
+
+
+def test_the_pair_can_still_be_typed_as_arguments():
+    args = parse_args([NODE1_MAC, '10.103.1.64/24', '--vrf=MGMT'])
+    set_if_ip = SetInterfaceIpByMacCommand.from_args(None, args)
+
+    assert [(str(row.target), str(row.ip)) for row in set_if_ip._input] == [
+        (NODE1_MAC.lower(), '10.103.1.64/24')]
+
+
+def test_typed_arguments_leave_stdin_alone():
+    "So the confirmation can still ask, as it always could"
+    args = parse_args([NODE1_MAC, '10.103.1.64/24'])
+    set_if_ip = SetInterfaceIpByMacCommand.from_args(None, args)
+
+    assert not set_if_ip._stdin_is_input
+
+
+def test_a_dash_per_argument_takes_stdin(monkeypatch):
+    monkeypatch.setattr(sys, 'stdin', io.StringIO(TWO_LINES))
+    args = parse_args([STDIN_ARG, STDIN_ARG, '--vrf=MGMT'])
+    set_if_ip = SetInterfaceIpByMacCommand.from_args(None, args)
+
+    assert set_if_ip._stdin_is_input
