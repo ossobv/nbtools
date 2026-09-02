@@ -77,6 +77,25 @@ class AFussyCommand(ACommand):
         return super().plan_one(value)
 
 
+class OneValue:
+    """
+    plan_one() taking the value itself, as set_input_values() hands it
+
+    Wrapped back into a row of one so that the row-shaped commands
+    above can be reused for the list-shaped input.
+    """
+    def plan_one(self, value):
+        return super().plan_one((value,))
+
+
+class AListCommand(OneValue, ACommand):
+    "The smallest command taking a list of values rather than a row"
+
+
+class AFussyListCommand(OneValue, AFussyCommand):
+    "The same, still refusing 13"
+
+
 def a_command(monkeypatch, arg_slots, stdin='', cls=ACommand):
     "A command whose input came from these slots, stdin holding that"
     on_stdin(monkeypatch, stdin)
@@ -199,6 +218,100 @@ def test_an_empty_stdin_takes_it_all_the_same(monkeypatch):
     cmd = a_command(monkeypatch, slots(STDIN_ARG), '')
 
     assert cmd._stdin_is_input
+
+
+# -- set_input_values --
+
+def a_list_command(monkeypatch, values, stdin='', cls=AListCommand):
+    "A command whose input is a list of values, stdin holding that"
+    on_stdin(monkeypatch, stdin)
+    cmd = cls()
+    cmd.set_input_values(values, as_int)
+    return cmd
+
+
+def test_values_without_a_dash_are_the_input():
+    cmd = ACommand()
+    cmd.set_input_values([1, 2], as_int)
+
+    assert list(cmd._input) == [1, 2]
+
+
+def test_values_without_a_dash_leave_stdin_alone():
+    cmd = ACommand()
+    cmd.set_input_values([1, 2], as_int)
+
+    assert not cmd._stdin_is_input
+
+
+def test_a_dash_among_the_values_takes_stdin():
+    cmd = ACommand()
+    cmd.set_input_values([STDIN_ARG], as_int)
+
+    assert cmd._stdin_is_input
+
+
+def test_a_value_is_a_whole_line_spaces_and_all():
+    "A list takes one value per line, so there is nothing to split"
+    cmd = ACommand()
+    cmd.set_input_values([STDIN_ARG], str)
+
+    assert cmd._parse_row('FREE (was: node3):BMC') == 'FREE (was: node3):BMC'
+
+
+def test_the_value_arrives_as_itself_not_as_a_row(monkeypatch):
+    "plan_one() sees the value, not a tuple of one"
+    cmd = a_list_command(monkeypatch, [STDIN_ARG], '1\n')
+    cmd.plan_one = lambda value: [NoteWork(repr(value), cmd.log)]
+    cmd.run(ProcessMode.YES)
+
+    assert cmd.log == ['prepared', 'did 1']
+
+
+def test_a_bad_value_in_the_stream_is_refused(monkeypatch):
+    cmd = a_list_command(monkeypatch, [STDIN_ARG], 'nonsense\n')
+
+    with pytest.raises(InvalidInput):
+        cmd.run(ProcessMode.YES)
+
+
+def test_a_blank_line_is_no_item(monkeypatch):
+    "A feed may space its output out; that is not a bad line"
+    cmd = a_list_command(monkeypatch, [STDIN_ARG], '\n1\n\n2\n')
+    cmd.run(ProcessMode.YES)
+
+    assert cmd.log == [
+        'prepared', 'planned 1', 'did 1', 'planned 2', 'did 2']
+
+
+def test_values_typed_beside_a_dash_are_items_too(monkeypatch):
+    "Where a row's other slots are constants, a list's are items"
+    cmd = a_list_command(monkeypatch, [1, STDIN_ARG], '2\n3\n')
+    cmd.run(ProcessMode.YES)
+
+    assert cmd.log == [
+        'prepared',
+        'planned 1', 'did 1',
+        'planned 2', 'did 2',
+        'planned 3', 'did 3']
+
+
+def test_a_second_dash_stands_for_nothing(monkeypatch):
+    "The first one took stdin; there is no second stream to read"
+    cmd = a_list_command(monkeypatch, [STDIN_ARG, STDIN_ARG], '1\n')
+    cmd.run(ProcessMode.YES)
+
+    assert cmd.log == ['prepared', 'planned 1', 'did 1']
+
+
+def test_a_typed_value_that_fails_is_counted_and_named(monkeypatch, capsys):
+    cmd = a_list_command(
+        monkeypatch, [13, STDIN_ARG], '1\n', cls=AFussyListCommand)
+    cmd.set_keep_going()
+
+    assert cmd.run(ProcessMode.YES) == 1
+    assert capsys.readouterr().err.startswith(
+        '13: Something does not seem to exist')
 
 
 # -- plan(), and what a command has to implement --
