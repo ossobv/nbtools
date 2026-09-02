@@ -13,7 +13,7 @@ import sys
 import pytest
 
 from nbtools.command import ProcessMode, STDIN_ARG, SyncCommand, stdin_or
-from nbtools.exceptions import InvalidInput
+from nbtools.exceptions import InvalidInput, UnrecognisedItem
 
 
 class NoteWork:
@@ -67,10 +67,20 @@ def slots(*values, type_func=as_int):
     return [(value, type_func) for value in values]
 
 
-def a_command(monkeypatch, arg_slots, stdin=''):
+class AFussyCommand(ACommand):
+    "Refuses the value 13, the way a command refuses an unknown MAC"
+
+    def plan_one(self, value):
+        if 13 in value:
+            raise UnrecognisedItem(value[0])
+
+        return super().plan_one(value)
+
+
+def a_command(monkeypatch, arg_slots, stdin='', cls=ACommand):
     "A command whose input came from these slots, stdin holding that"
     on_stdin(monkeypatch, stdin)
-    cmd = ACommand()
+    cmd = cls()
     cmd.set_input_rows(row, arg_slots)
     return cmd
 
@@ -309,6 +319,85 @@ def test_the_batch_path_would_have_changed_nothing(monkeypatch):
         cmd.run(ProcessMode.YES)
 
     assert cmd.log == ['prepared']
+
+
+# -- keep going --
+
+def a_fussy_command(monkeypatch, stdin, keep_going=True, values=None):
+    "One that refuses 13, its input on stdin unless values says not"
+    arg_slots = slots(STDIN_ARG) if values is None else slots(*values)
+    cmd = a_command(monkeypatch, arg_slots, stdin, cls=AFussyCommand)
+    if keep_going:
+        cmd.set_keep_going()
+    return cmd
+
+
+def test_an_item_that_fails_stops_the_run(monkeypatch):
+    "The default: what is done is done, and the rest is not tried"
+    cmd = a_fussy_command(monkeypatch, '1\n13\n2\n', keep_going=False)
+
+    with pytest.raises(UnrecognisedItem):
+        cmd.run(ProcessMode.YES)
+
+    assert cmd.log == ['prepared', 'planned 1', 'did 1']
+
+
+def test_keep_going_carries_on_to_the_next_item(monkeypatch):
+    cmd = a_fussy_command(monkeypatch, '1\n13\n2\n')
+    cmd.run(ProcessMode.YES)
+
+    assert cmd.log == [
+        'prepared', 'planned 1', 'did 1', 'planned 2', 'did 2']
+
+
+def test_keep_going_survives_a_line_it_cannot_read(monkeypatch):
+    "A malformed line is an item failing, not the end of the input"
+    cmd = a_fussy_command(monkeypatch, '1\nnonsense\n2\n')
+    cmd.run(ProcessMode.YES)
+
+    assert cmd.log == [
+        'prepared', 'planned 1', 'did 1', 'planned 2', 'did 2']
+
+
+def test_keep_going_returns_how_many_failed(monkeypatch):
+    cmd = a_fussy_command(monkeypatch, '1\n13\nnonsense\n2\n')
+
+    assert cmd.run(ProcessMode.YES) == 2
+
+
+def test_nothing_failing_returns_zero(monkeypatch):
+    cmd = a_fussy_command(monkeypatch, '1\n2\n')
+
+    assert cmd.run(ProcessMode.YES) == 0
+
+
+def test_the_batch_path_returns_zero_too(monkeypatch):
+    cmd = a_command(monkeypatch, slots(1))
+
+    assert cmd.run(ProcessMode.YES) == 0
+
+
+def test_a_failed_item_says_which_line_it_was(monkeypatch, capsys):
+    cmd = a_fussy_command(monkeypatch, '13\n')
+    cmd.run(ProcessMode.YES)
+
+    assert capsys.readouterr().err.startswith(
+        '13: Something does not seem to exist')
+
+
+def test_the_failures_are_counted_up_at_the_end(monkeypatch, capsys):
+    cmd = a_fussy_command(monkeypatch, '1\n13\n2\n')
+    cmd.run(ProcessMode.YES)
+
+    assert 'Failed on 1 of 3 items' in capsys.readouterr().err
+
+
+def test_keep_going_leaves_the_batch_path_alone(monkeypatch):
+    "There the plan is made before anything is written, so it stops"
+    cmd = a_fussy_command(monkeypatch, '', values=(13,))
+
+    with pytest.raises(UnrecognisedItem):
+        cmd.run(ProcessMode.YES)
 
 
 # -- confirm_or_die --
