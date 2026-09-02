@@ -1,7 +1,8 @@
 from ..command import SyncCommand
 from ..exceptions import (
     ItemExistsElsewhere, UnrecognisedItem, UnrecognisedItemOnTarget)
-from ..netbox import get_interface_tree
+from ..netbox import (
+    get_interface_tree, get_ip_addresses_by_address, get_mac_addresses)
 from ..types import DevIface, IPv4AddrWithMask, MacAddr
 from ..work import (
     named_anon, named_id,
@@ -95,8 +96,10 @@ class BaseSetInterfaceIpCommand(SyncCommand):
 
         elif self._tgtmac:
             # XXX: For both hw and vm?
-            macs = [mac for mac in self.nbapi.dcim.mac_addresses.filter(
-                self._tgtmac)]
+            # Through the helper rather than filter(self._tgtmac): that
+            # is a freeform q= search, and it was trusted here to be
+            # exact. get_mac_addresses() re-checks the match itself.
+            macs = get_mac_addresses(self.nbapi, self._tgtmac)
             if len(macs) == 0:
                 raise UnrecognisedItem(self._tgtmac)
             if len(macs) > 1:
@@ -118,8 +121,11 @@ class BaseSetInterfaceIpCommand(SyncCommand):
         # Build a list of future work.
         work_to_do = []
 
-        # Check where the IP is already used.
-        ips = list(self.nbapi.ipam.ip_addresses.filter(self._ip))
+        # Check where the IP is already used. Through the helper, which
+        # asks address= rather than the q= freeform search this used to
+        # send: an indexed lookup instead of a walk over the table, and
+        # the slowest of the reads this command makes is gone.
+        ips = get_ip_addresses_by_address(self.nbapi, self._ip)
         # NOTE: for non-hardware, we'd do vminterface=iface
         cur_ips = set(self.nbapi.ipam.ip_addresses.filter(
             interface_id=iface.id))

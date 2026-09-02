@@ -94,7 +94,7 @@
     "method": "GET",
     "path": "/api/ipam/ip-addresses/",
     "params": {
-      "q": "10.103.1.65/24",
+      "address": "10.103.1.65/24",
       "limit": 0
     },
     "data": null,

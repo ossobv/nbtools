@@ -1,8 +1,166 @@
-from collections import namedtuple
+"""
+Talking to NetBox: the connection, and the reads everything shares.
 
-from .exceptions import NotFound
+connect() is where both tools get their nbapi, and it is the only
+place that knows the session is allowed to try a read again. The rest
+of the module is the lookups the commands have in common.
+"""
+import logging
+
+from collections import namedtuple
+from contextlib import contextmanager
+
+import pynetbox
+import requests
+
+from requests.adapters import HTTPAdapter
+from urllib3.util.retry import Retry
+
+from .exceptions import ApiError, NotFound
 from .types import DevIface
 from .util import natsort_key
+
+
+log = logging.getLogger(__name__)
+
+# How often a read is tried again, and how long it may take. pynetbox
+# passes no timeout at all, and requests has no session-wide default,
+# so without the second one a connection that hangs instead of
+# answering hangs forever -- and then no retry ever fires, because
+# nothing ever fails.
+DEFAULT_RETRIES = 3
+DEFAULT_TIMEOUT = (5, 60)       # (connect, read), in seconds
+
+# The statuses worth a second try. 408 is the one seen here daily, 429
+# is the rate limiter asking politely, and 502/503/504 are the proxy
+# in front of NetBox. Not 500: that is NetBox raising on this
+# particular request, and it will raise again.
+RETRY_STATUSES = (408, 429, 502, 503, 504)
+
+# Spelled out, because urllib3's default is the *idempotent* methods,
+# which is not the same question as the safe ones: it includes PUT and
+# DELETE. nbsync writes with POST, PATCH and DELETE, and a DELETE that
+# timed out at the proxy may well have landed -- replaying it would
+# delete whatever holds that id by then.
+RETRY_METHODS = frozenset({'GET', 'HEAD', 'OPTIONS'})
+
+# Sleeps of about 0s, 1s and 2s, jittered. The jitter is for cron:
+# a batch of runs that all back off by the same amount reconverges on
+# the server that was already too busy.
+BACKOFF_FACTOR = 0.5
+BACKOFF_MAX = 10
+BACKOFF_JITTER = 0.5
+
+
+class LoggingRetry(Retry):
+    """
+    A urllib3.util.Retry that says it retried.
+
+    A NetBox needing three tries for every call is a fault report, not
+    a detail, and both tools configure logging at INFO, so a WARNING
+    lands in cron mail without --debug.
+
+    (Only the answered-with-a-status half is logged here. When urllib3
+    retries a broken connection or a timeout it warns about that
+    itself.)
+    """
+    def increment(self, method=None, url=None, response=None, **kwargs):
+        retry = super().increment(
+            method=method, url=url, response=response, **kwargs)
+
+        if response is not None:
+            log.warning(
+                'retrying %s %s after HTTP %s (%s left)',
+                method, url, response.status, retry.total)
+
+        return retry
+
+
+class TimeoutAdapter(HTTPAdapter):
+    """
+    An adapter that supplies the timeout requests would not.
+
+    Session.send() always passes a timeout, so this fills in the
+    default rather than overriding what a caller asked for.
+    """
+    def __init__(self, *args, timeout=None, **kwargs):
+        self._timeout = timeout
+        super().__init__(*args, **kwargs)
+
+    def send(self, request, **kwargs):
+        if kwargs.get('timeout') is None:
+            kwargs['timeout'] = self._timeout
+
+        return super().send(request, **kwargs)
+
+
+def _retrying_adapter(retries=None, timeout=None):
+    "The adapter connect() mounts; see the constants above for why"
+    if retries is None:
+        retries = DEFAULT_RETRIES
+    if timeout is None:
+        timeout = DEFAULT_TIMEOUT
+
+    retry = LoggingRetry(
+        total=retries, connect=retries, read=retries, status=retries,
+        status_forcelist=RETRY_STATUSES, allowed_methods=RETRY_METHODS,
+        backoff_factor=BACKOFF_FACTOR, backoff_max=BACKOFF_MAX,
+        backoff_jitter=BACKOFF_JITTER, respect_retry_after_header=True,
+        # Hand the last response back rather than raising RetryError,
+        # so a run that is out of tries fails the way it always did:
+        # with the pynetbox RequestError naming the status.
+        raise_on_status=False)
+
+    return TimeoutAdapter(max_retries=retry, timeout=timeout)
+
+
+def _mount_retries(nbapi, retries=None, timeout=None):
+    """
+    Give an existing pynetbox api the retrying session
+
+    Mounted on the session pynetbox made rather than replacing it,
+    which leaves alone whatever pynetbox keeps on there itself.
+    """
+    adapter = _retrying_adapter(retries=retries, timeout=timeout)
+    nbapi.http_session.mount('http://', adapter)
+    nbapi.http_session.mount('https://', adapter)
+
+    return nbapi
+
+
+def connect(config):
+    """
+    The nbapi both tools run on: reads retried, writes never
+
+    Retrying reads is safe because of how a command is built. A sync
+    command reads everything in plan() and writes nothing until run()
+    has the finished list, so a read that has to be repeated cannot
+    double a change -- there is not one yet. A lint command only ever
+    reads. What must not be repeated is the writing half, and
+    RETRY_METHODS is what keeps it out.
+    """
+    nbapi = pynetbox.api(config.api_url_base, token=config.api_token)
+
+    return _mount_retries(
+        nbapi, retries=config.api_retries, timeout=config.api_timeout)
+
+
+@contextmanager
+def translated_errors():
+    """
+    Report a NetBox that failed to answer like any other failure
+
+    pynetbox raises RequestError for a status it did not want, and
+    requests raises its own for a connection that never got that far.
+    Neither is a StateError, so without this both tools answer a 408
+    with a traceback where everything else gets one line.
+    """
+    try:
+        yield
+    except pynetbox.RequestError as e:
+        raise ApiError.from_request_error(e) from e
+    except requests.RequestException as e:
+        raise ApiError(f'{type(e).__name__}: {e}') from e
 
 
 # The interface we were asked about, plus its subinterfaces. Shared by

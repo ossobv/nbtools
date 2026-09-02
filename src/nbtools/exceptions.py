@@ -15,6 +15,36 @@ class StateError(Exception):
     hint = None
 
 
+class ApiError(StateError):
+    """
+    NetBox did not answer, or answered with a failure.
+
+    Not a state error in spirit -- nothing is wrong with the data --
+    but it travels the same path so that both tools report it in one
+    line instead of a traceback. See netbox.translated_errors().
+    """
+    description = 'NetBox did not answer'
+    hint = 'Transient: check the NetBox and proxy logs, then retry.'
+
+    @classmethod
+    def from_request_error(cls, error):
+        """
+        Build one from a pynetbox RequestError
+
+        Says which request failed and how, and leaves out the response
+        body that pynetbox pastes into its own message: a 408 from the
+        proxy carries an HTML error page, not something to print.
+        """
+        response = getattr(error, 'req', None)
+        if response is None:
+            return cls(str(error))
+
+        method = getattr(response.request, 'method', '?')
+        return cls(
+            f'{method} {response.url}: '
+            f'{response.status_code} {response.reason}')
+
+
 class NotFound(StateError):
     description = 'Something does not seem to exist'
     hint = 'Check your arguments.'

@@ -3,11 +3,10 @@ from argparse import ArgumentParser
 import logging
 import sys
 
-import pynetbox
-
 from .config import CONF_FILE, Config
 from .exceptions import StartupError, StateError
 from .lintcmd import COMMANDS, COMMANDS_BY_NAME
+from .netbox import connect, translated_errors
 
 
 def main() -> None:
@@ -61,8 +60,8 @@ def main() -> None:
     except StartupError as e:
         parser.error(str(e))
 
-    # Connect API.
-    nbapi = pynetbox.api(config.api_url_base, token=config.api_token)
+    # Connect netbox API.
+    nbapi = connect(config)
 
     # No COMMAND given means all of them.
     if args.command is None:
@@ -77,8 +76,9 @@ def main() -> None:
     # Run commands.
     findings = 0
     try:
-        for cmd in cmds:
-            findings += cmd.run()
+        with translated_errors():
+            for cmd in cmds:
+                findings += cmd.run()
     except StateError as e:
         print(
             (f'{parser.prog}: Failure while checking: '

@@ -18,6 +18,11 @@ authors = [
 
 dependencies = [
   "pynetbox",
+  # Both come in with pynetbox, but netbox.py imports them itself: the
+  # retrying session is a requests adapter around a urllib3 Retry, and
+  # backoff_jitter is urllib3 2.x only.
+  "requests",
+  "urllib3>=2",
 ]
 
 [project.optional-dependencies]

@@ -3,12 +3,11 @@ from argparse import ArgumentParser
 import logging
 import sys
 
-import pynetbox
-
 from .synccmd import COMMANDS, COMMANDS_BY_NAME
 from .command import ProcessMode
 from .config import CONF_FILE, Config
 from .exceptions import StartupError, StateError
+from .netbox import connect, translated_errors
 from .recorder import NetboxRecorder
 
 
@@ -60,8 +59,8 @@ def main() -> None:
         parser.print_usage()
         sys.exit(1)
 
-    # Connect API.
-    nbapi = pynetbox.api(config.api_url_base, token=config.api_token)
+    # Connect netbox API.
+    nbapi = connect(config)
 
     # Start recording all netbox API calls, if requested.
     if args.record:
@@ -69,12 +68,13 @@ def main() -> None:
 
     # Run command.
     try:
-        cmd = COMMANDS_BY_NAME[args.command].from_args(nbapi, args)
-        if args.batch:
-            cmd.set_quiet()
-            cmd.run(ProcessMode.YES)
-        else:
-            cmd.run(ProcessMode.INTERACTIVE)
+        with translated_errors():
+            cmd = COMMANDS_BY_NAME[args.command].from_args(nbapi, args)
+            if args.batch:
+                cmd.set_quiet()
+                cmd.run(ProcessMode.YES)
+            else:
+                cmd.run(ProcessMode.INTERACTIVE)
     except StateError as e:
         print(
             (f'{parser.prog}: Failure while processing: '
