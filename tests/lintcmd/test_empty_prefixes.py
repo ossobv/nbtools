@@ -56,6 +56,61 @@ def test_a_prefix_is_only_filled_from_its_own_vrf():
         '10.1.2.0/24 #200 status=active vrf=vrf-red']
 
 
+def test_family_limits_the_report_to_one_family():
+    nb = FakeNetbox()
+    nb.add_prefix('10.1.3.0/24')
+    nb.add_prefix('2001:db8::/64')
+
+    cmd = EmptyPrefixesCommand(nb)
+    cmd.set_family('4')
+
+    assert [finding.value for finding in cmd.find()] == ['10.1.3.0/24']
+
+
+def test_no_family_reports_both_of_them():
+    nb = FakeNetbox()
+    nb.add_prefix('10.1.3.0/24')
+    nb.add_prefix('2001:db8::/64')
+
+    cmd = EmptyPrefixesCommand(nb)
+    cmd.set_family(None)
+
+    assert [finding.value for finding in cmd.find()] == [
+        '10.1.3.0/24', '2001:db8::/64']
+
+
+def test_the_family_narrows_the_address_table_as_well():
+    """
+    Both reads take the family, and emptiness still comes out right.
+
+    A prefix is only ever filled from its own family, so dropping the
+    other one from the address table cannot change the answer -- and
+    that table is the expensive half of the two requests.
+    """
+    nb = FakeNetbox()
+    nb.add_prefix('2001:db8::/64')
+    nb.add_prefix('2001:db8:1::/64')
+    nb.add_ip('2001:db8::7/64')
+    nb.add_ip('10.1.3.7/24')
+
+    cmd = EmptyPrefixesCommand(nb)
+    cmd.set_family('6')
+
+    assert [finding.value for finding in cmd.find()] == ['2001:db8:1::/64']
+
+
+def test_a_container_filled_from_the_other_family_cannot_happen():
+    "Nothing v4 fills a v6 container, so the filtered read loses nothing"
+    nb = FakeNetbox()
+    nb.add_prefix('2001:db8::/32', status='container')
+    nb.add_prefix('10.0.0.0/8')
+
+    cmd = EmptyPrefixesCommand(nb)
+    cmd.set_family('6')
+
+    assert [finding.value for finding in cmd.find()] == ['2001:db8::/32']
+
+
 def test_status_reports_only_the_kinds_named():
     "An empty container is still empty, but not everyone wants to hear it"
     nb = FakeNetbox()
