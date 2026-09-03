@@ -17,6 +17,25 @@ def natsort_key(name: str) -> tuple[str | int]:
 natsort_key.re = re_compile(r'(\d+)')  # noqa
 
 
+def split_subinterface(name):
+    """
+    Split 'swp1.2107' into ('swp1', 2107), or return None
+
+    Base-10 numeric suffixes only. 'swp1.foo' is a name that happens
+    to hold a dot, not a subinterface, and 'swp1' is not one either.
+    That restriction is deliberate: the number is the VLAN or VRF tag
+    the switch config generates, and a non-numeric suffix does not
+    carry one.
+    """
+    match = split_subinterface.re.match(str(name))
+    if not match:
+        return None
+
+    return (match.group('parent'), int(match.group('number')))
+split_subinterface.re = re_compile(  # noqa
+    r'^(?P<parent>.+)\.(?P<number>[0-9]+)$')
+
+
 def quoted_name(name) -> str:
     """
     Single-quote a name if it needs it, doubling quotes like SQL does

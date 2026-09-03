@@ -70,6 +70,7 @@ def an_nbapi(*macs, iface=None):
 # device #5 and virtual machine #5 are not the same machine, and a test
 # that mixes the two up should say so rather than pass.
 FIRST_ID = {
+    'cables': 100,
     'prefixes': 200,
     'vrfs': 300,
     'devices': 400,
@@ -77,6 +78,10 @@ FIRST_ID = {
     'virtual_machines': 700,
     'vminterfaces': 800,
     'ip_addresses': 900,
+    'mac_addresses': 1000,
+    'clusters': 1100,
+    'tenants': 1200,
+    'tenant_groups': 1300,
 }
 
 
@@ -92,6 +97,20 @@ class Named(NS):
 
     def __hash__(self):
         return hash(self.id)
+
+
+def a_tag(tag):
+    "Turn 'corelink' into the tag object NetBox nests in a record"
+    if isinstance(tag, str):
+        return Named(id=None, name=tag, slug=tag)
+
+    return tag
+
+
+def a_termination(iface):
+    "One end of a cable, shaped the way the cable serializer nests it"
+    return NS(
+        object_type='dcim.interface', object_id=iface.id, object=iface)
 
 
 def _rel_id(record, name):
@@ -118,8 +137,15 @@ def _family(record):
     return ip_interface(str(record.address)).version
 
 
+def _slugs(record):
+    return [tag.slug for tag in getattr(record, 'tags', [])]
+
+
 FILTERS = {
     'id': (lambda rec, val: rec.id == val),
+    'tag': (lambda rec, val: val in _slugs(rec)),
+    'cluster_id': (lambda rec, val: _rel_id(rec, 'cluster') == val),
+    'q': (lambda rec, val: val.lower() in str(rec.name).lower()),
     'family': (lambda rec, val: _family(rec) == int(val)),
     'assigned_object_id__empty': (
         lambda rec, val: (rec.assigned_object is None) == bool(val)),
@@ -224,11 +250,17 @@ class FakeNetbox:
             vrfs=FakeEndpoint(),
             ip_addresses=FakeEndpoint(on_update=self._update_ip))
         self.dcim = NS(
+            cables=FakeEndpoint(),
             devices=FakeEndpoint(),
-            interfaces=FakeEndpoint(on_create=self._create_interface))
+            interfaces=FakeEndpoint(on_create=self._create_interface),
+            mac_addresses=FakeEndpoint())
         self.virtualization = NS(
+            clusters=FakeEndpoint(),
             virtual_machines=FakeEndpoint(),
             interfaces=FakeEndpoint())
+        self.tenancy = NS(
+            tenants=FakeEndpoint(),
+            tenant_groups=FakeEndpoint())
 
     def _take_id(self, kind):
         id_ = self._next_id[kind]
@@ -251,33 +283,100 @@ class FakeNetbox:
         self.ipam.vrfs.records.append(vrf)
         return vrf
 
-    def add_device(self, name):
-        device = Named(id=self._take_id('devices'), name=name)
+    def add_device(self, name, cluster=None):
+        device = Named(
+            id=self._take_id('devices'), name=name, cluster=cluster)
         self.dcim.devices.records.append(device)
         return device
 
-    def add_interface(self, device, name, parent=None, vrf=None, type_=None):
+    def add_cluster(self, name):
+        cluster = Named(id=self._take_id('clusters'), name=name)
+        self.virtualization.clusters.records.append(cluster)
+        return cluster
+
+    def add_tenant(self, name, description='', group=False):
+        "A tenancy.tenant, or a tenancy.tenant_group when group is set"
+        kind = ('tenant_groups' if group else 'tenants')
+        record = Named(
+            id=self._take_id(kind), name=name, slug=name,
+            description=description)
+        getattr(self.tenancy, kind).records.append(record)
+        return record
+
+    def add_interface(
+            self, device, name, parent=None, vrf=None, type_=None,
+            label='', tags=(), mode=None, tagged_vlans=(),
+            untagged_vlan=None):
         "A dcim.interface, with the fields the interface commands copy"
         iface = self.make_interface(
-            device, name, parent=parent, vrf=vrf, type_=type_)
+            device, name, parent=parent, vrf=vrf, type_=type_, label=label,
+            tags=tags, mode=mode, tagged_vlans=tagged_vlans,
+            untagged_vlan=untagged_vlan)
         self.dcim.interfaces.records.append(iface)
         return iface
 
-    def make_interface(self, device, name, parent=None, vrf=None, type_=None):
+    def make_interface(
+            self, device, name, parent=None, vrf=None, type_=None,
+            label='', tags=(), mode=None, tagged_vlans=(),
+            untagged_vlan=None):
         "Build the record without filing it; create() does the filing"
         if type_ is None:
             type_ = ('virtual' if parent else '1000base-t')
 
         iface = Named(
             id=self._take_id('interfaces'), name=name, device=device,
-            parent=parent, vrf=vrf, description='', enabled=True, label='',
-            mode=None, tags=[], tagged_vlans=[], untagged_vlan=None,
-            type=NS(value=type_, label=type_), cable=None)
+            parent=parent, vrf=vrf, description='', enabled=True,
+            label=label,
+            mode=(NS(value=mode, label=mode.title()) if mode else None),
+            tags=[a_tag(tag) for tag in tags],
+            tagged_vlans=list(tagged_vlans), untagged_vlan=untagged_vlan,
+            type=NS(value=type_, label=type_), cable=None,
+            link_peers=[], link_peers_type=None)
         return iface
 
-    def add_vm(self, name):
+    def add_cable(self, a_end=None, b_end=None, status='connected'):
+        """
+        A dcim.cable, and the link_peers it puts on each end.
+
+        Either end may be left out, which is what an unattached cable
+        looks like. NetBox keeps the far end of a cable on the
+        interface as link_peers, so this sets both sides of that too:
+        the tag check reads them rather than walking back through the
+        cable.
+        """
+        cable = Named(
+            id=self._take_id('cables'), name='', label='',
+            status=NS(value=status, label=status.title()),
+            a_terminations=[a_termination(a_end)] if a_end else [],
+            b_terminations=[a_termination(b_end)] if b_end else [])
+        self.dcim.cables.records.append(cable)
+
+        for near, far in ((a_end, b_end), (b_end, a_end)):
+            if near is None:
+                continue
+            near.cable = cable
+            if far is not None:
+                near.link_peers = [far]
+                near.link_peers_type = self._object_type(far)
+
+        return cable
+
+    def add_vlan(self, vid, name=None):
+        return Named(id=vid, vid=vid, name=(name or f'vlan{vid}'))
+
+    def add_mac(self, value, iface=None):
+        "A dcim.mac_address, on an interface or on nothing"
+        record = Named(
+            id=self._take_id('mac_addresses'), mac_address=value,
+            name=value, description='', tags=[],
+            assigned_object=iface,
+            assigned_object_type=self._object_type(iface))
+        self.dcim.mac_addresses.records.append(record)
+        return record
+
+    def add_vm(self, name, cluster=None):
         vm = Named(
-            id=self._take_id('virtual_machines'), name=name)
+            id=self._take_id('virtual_machines'), name=name, cluster=cluster)
         self.virtualization.virtual_machines.records.append(vm)
         return vm
 

@@ -2,7 +2,8 @@ from ipaddress import IPv4Interface
 
 import pytest
 
-from nbtools.util import natsort_key, peer_address, quoted_name
+from nbtools.util import (
+    natsort_key, peer_address, quoted_name, split_subinterface)
 
 
 # A real NetBox device name, shortened.
@@ -71,3 +72,37 @@ def test_peer_address_refuses_a_64_for_ipv6():
     "The IPv6 point-to-point prefix is the /127, not the /31"
     with pytest.raises(ValueError):
         peer_address('2001:db8::1/64')
+
+
+def test_split_subinterface_splits_a_numeric_suffix():
+    assert split_subinterface('swp1.2107') == ('swp1', 2107)
+
+
+def test_split_subinterface_returns_none_for_a_plain_interface():
+    assert split_subinterface('swp1') is None
+    assert split_subinterface('BMC') is None
+
+
+def test_split_subinterface_wants_the_suffix_to_be_a_number():
+    "'swp1.mgmt' is a name that happens to hold a dot"
+    assert split_subinterface('swp1.mgmt') is None
+    assert split_subinterface('swp1.') is None
+
+
+def test_split_subinterface_splits_on_the_last_dot():
+    "A dotted parent name is still a parent name"
+    assert split_subinterface('swp1.2.3') == ('swp1.2', 3)
+
+
+def test_split_subinterface_reads_the_number_as_base_ten():
+    assert split_subinterface('swp1.007') == ('swp1', 7)
+    assert split_subinterface('swp1.0x10') is None
+
+
+def test_split_subinterface_takes_whatever_renders_as_a_name():
+    "NetBox record names render through __str__, not always as str"
+    class Name:
+        def __str__(self):
+            return 'swp1.2107'
+
+    assert split_subinterface(Name()) == ('swp1', 2107)
