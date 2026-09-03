@@ -61,7 +61,7 @@ def main() -> None:
         parser.error(str(e))
 
     # Connect netbox API.
-    nbapi = connect(config)
+    nbapi = connect(config, parser.prog)
 
     # No COMMAND given means all of them.
     if args.command is None:

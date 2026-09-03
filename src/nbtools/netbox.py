@@ -9,6 +9,7 @@ import logging
 
 from collections import namedtuple
 from contextlib import contextmanager
+from importlib.metadata import PackageNotFoundError, version
 
 import pynetbox
 import requests
@@ -50,6 +51,9 @@ RETRY_METHODS = frozenset({'GET', 'HEAD', 'OPTIONS'})
 BACKOFF_FACTOR = 0.5
 BACKOFF_MAX = 10
 BACKOFF_JITTER = 0.5
+
+# The distribution the version comes from. Both nblint and nbsync ship in it.
+DIST_NAME = 'nbtools'
 
 
 class LoggingRetry(Retry):
@@ -94,6 +98,37 @@ class TimeoutAdapter(HTTPAdapter):
         return super().send(request, **kwargs)
 
 
+def _version():
+    """
+    Our version, or "unknown" when there is no installed distribution
+
+    setuptools-scm writes no version file, so this is the only place
+    the number exists at runtime -- and running from a source tree
+    that was never installed is a thing people do.
+    """
+    try:
+        return version(DIST_NAME)
+    except PackageNotFoundError:
+        return 'unknown'
+
+
+def user_agent(tool):
+    """
+    Who is calling, for the other end's access log
+
+    pynetbox sets no User-Agent, so without this every tool built on it
+    would be an indistinguishable "python-requests/2.x" in NetBox's log.
+    """
+    return f'{tool}/{_version()}'
+
+
+def _set_user_agent(nbapi, tool):
+    "Name ourselves on every request this api makes"
+    nbapi.http_session.headers['User-Agent'] = user_agent(tool)
+
+    return nbapi
+
+
 def _retrying_adapter(retries=None, timeout=None):
     "The adapter connect() mounts; see the constants above for why"
     if retries is None:
@@ -128,7 +163,7 @@ def _mount_retries(nbapi, retries=None, timeout=None):
     return nbapi
 
 
-def connect(config):
+def connect(config, tool):
     """
     The nbapi both tools run on: reads retried, writes never
 
@@ -138,8 +173,12 @@ def connect(config):
     double a change -- there is not one yet. A lint command only ever
     reads. What must not be repeated is the writing half, and
     RETRY_METHODS is what keeps it out.
+
+    tool is the name that goes in the User-Agent, "nbsync" or
+    "nblint".
     """
     nbapi = pynetbox.api(config.api_url_base, token=config.api_token)
+    _set_user_agent(nbapi, tool)
 
     return _mount_retries(
         nbapi, retries=config.api_retries, timeout=config.api_timeout)

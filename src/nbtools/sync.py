@@ -65,7 +65,7 @@ def main() -> None:
         sys.exit(1)
 
     # Connect netbox API.
-    nbapi = connect(config)
+    nbapi = connect(config, parser.prog)
 
     # Start recording all netbox API calls, if requested.
     if args.record:

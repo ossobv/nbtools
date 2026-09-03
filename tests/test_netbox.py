@@ -6,7 +6,8 @@ set-interface-ip-by-mac died on one of its four GETs. netbox.connect()
 mounts a session that tries a read again, and these tests pin the
 three properties that make that safe to do: a read comes back, a write
 is never repeated, and a run that is out of tries fails the way it
-always did.
+always did. The other thing connect() puts on that session is the
+User-Agent naming which of the two tools is calling.
 
 responses emulates urllib3's retry loop off the adapter's max_retries,
 and does not sleep while doing it, so this needs no server and takes
@@ -16,6 +17,7 @@ import json
 import logging
 
 from http.server import BaseHTTPRequestHandler, HTTPServer
+from importlib.metadata import PackageNotFoundError, version
 from threading import Thread
 
 import pynetbox
@@ -25,10 +27,12 @@ import responses
 
 from responses.registries import OrderedRegistry
 
+from nbtools.config import Config
 from nbtools.exceptions import ApiError
 from nbtools.netbox import (
-    DEFAULT_RETRIES, DEFAULT_TIMEOUT, RETRY_METHODS, RETRY_STATUSES,
-    _mount_retries, _retrying_adapter, translated_errors)
+    DEFAULT_RETRIES, DEFAULT_TIMEOUT, DIST_NAME, RETRY_METHODS,
+    RETRY_STATUSES, _mount_retries, _retrying_adapter, _set_user_agent,
+    connect, translated_errors, user_agent)
 
 from .nbtest import BASE_URL, TOKEN
 
@@ -142,6 +146,65 @@ def test_a_retry_is_logged(caplog):
 def test_the_methods_are_the_safe_ones_only():
     "Not urllib3's default, which is the idempotent ones"
     assert RETRY_METHODS == frozenset({'GET', 'HEAD', 'OPTIONS'})
+
+
+@responses.activate
+def test_the_user_agent_is_sent():
+    """
+    NetBox's access log gets a name, not "python-requests"
+
+    pynetbox sets no User-Agent, so this is the only thing that tells
+    the far end which tool of ours is calling.
+    """
+    responses.get(IP_URL, json=ONE_IP, status=200)
+
+    a_read(_set_user_agent(an_api(), 'nbsync'))
+
+    sent_agent = responses.calls[0].request.headers['User-Agent']
+    assert sent_agent == f'nbsync/{version(DIST_NAME)}'
+
+
+def test_the_user_agent_says_which_tool_and_which_version():
+    "The two things worth knowing about a caller that misbehaves"
+    assert user_agent('nblint') == f'nblint/{version(DIST_NAME)}'
+    assert user_agent('nbsync') != user_agent('nblint')
+
+
+def test_an_uninstalled_source_tree_still_has_one(monkeypatch):
+    "Running from a checkout is a thing people do; it must not raise"
+    def no_such_package(name):
+        raise PackageNotFoundError(name)
+
+    monkeypatch.setattr('nbtools.netbox.version', no_such_package)
+
+    assert user_agent('nbsync') == 'nbsync/unknown'
+
+
+def test_a_dev_version_goes_out_whole(monkeypatch):
+    """
+    What setuptools-scm produces between tags, unsanitised
+
+    The local segment is the useful half of such a version -- it names
+    the commit -- and '+', '.' and '-' are all valid in the token half
+    of a User-Agent product, so there is nothing to strip.
+    """
+    monkeypatch.setattr(
+        'nbtools.netbox.version', lambda name: '0.1.dev13+g792a308')
+
+    assert user_agent('nbsync') == 'nbsync/0.1.dev13+g792a308'
+
+
+@responses.activate
+def test_connect_puts_it_on_the_session():
+    "The wiring: the tool name main() passes is the one that goes out"
+    responses.get(IP_URL, json=ONE_IP, status=200)
+    config = Config(
+        api_url=f'{BASE_URL}/api', api_url_base=BASE_URL, api_token=TOKEN)
+
+    a_read(connect(config, 'nblint'))
+
+    assert responses.calls[0].request.headers['User-Agent'].startswith(
+        'nblint/')
 
 
 class Sent(Exception):
