@@ -360,7 +360,7 @@ def get_vm_interfaces(nbapi, vm):
 
 def get_vm_ip_addresses(nbapi, vmiface):
     """
-    Get the IPs assigned to this VM interface
+    Get the IPs assigned to this VM interface.
 
     The hardware twin of this is get_ip_addresses() above. They are two
     functions rather than one that guesses, because a dcim.interface id
@@ -368,3 +368,40 @@ def get_vm_ip_addresses(nbapi, vmiface):
     id alone does not say which kind it is, so the caller has to.
     """
     return list(nbapi.ipam.ip_addresses.filter(vminterface_id=vmiface.id))
+
+
+def get_all_prefixes(nbapi, family=None):
+    """
+    Every prefix NetBox holds.
+    """
+    if family is not None:
+        return list(nbapi.ipam.prefixes.filter(family=family))
+    return list(nbapi.ipam.prefixes.all())
+
+
+def get_all_ip_addresses(nbapi, family=None):
+    """
+    Every address NetBox holds.
+
+    The expensive read of the two. Same reason it is not brief=1: the
+    checks want the VRF, and the listings want the status too.
+    """
+    if family is not None:
+        return list(nbapi.ipam.ip_addresses.filter(family=family))
+    return list(nbapi.ipam.ip_addresses.all())
+
+
+def get_unassigned_ip_addresses(nbapi, family=None):
+    """
+    The addresses that sit on no interface at all.
+
+    assigned_object_id__empty is the filter that says it directly.
+    The older assigned_to_interface=False means the same thing for a
+    device interface but not for a VM one, so this asks the question
+    the general way.
+    """
+    filters = {'assigned_object_id__empty': True}
+    if family is not None:
+        filters['family'] = family
+
+    return list(nbapi.ipam.ip_addresses.filter(**filters))

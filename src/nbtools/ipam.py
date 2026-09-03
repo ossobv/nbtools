@@ -72,6 +72,16 @@ def _network_key(net):
     return (net.version, int(net.network_address), net.prefixlen)
 
 
+def prefix_sort_key(prefix):
+    "Sort ipam.prefix records into reading order: v4 first, then by network"
+    return _network_key(network_of(prefix))
+
+
+def address_sort_key(ipaddr):
+    "Sort ipam.ip_address records into reading order"
+    return _address_key(address_of(ipaddr))
+
+
 def _address_key(addr):
     return (addr.version, int(addr))
 

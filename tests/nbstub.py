@@ -7,6 +7,7 @@ they were cheap to make because a real run produced them. These stubs
 suit the other kind, where the logic is small and a recording would
 bury it.
 """
+from ipaddress import ip_interface, ip_network
 from types import SimpleNamespace as NS
 
 
@@ -69,6 +70,7 @@ def an_nbapi(*macs, iface=None):
 # device #5 and virtual machine #5 are not the same machine, and a test
 # that mixes the two up should say so rather than pass.
 FIRST_ID = {
+    'prefixes': 200,
     'vrfs': 300,
     'devices': 400,
     'interfaces': 500,
@@ -108,8 +110,19 @@ def _assigned_id(record, kind):
 # How a filter keyword picks its records. NetBox has one of these per
 # relation; only the ones the commands actually pass are listed, so an
 # unknown keyword raises instead of quietly matching everything.
+def _family(record):
+    "The address family of a prefix or an address record"
+    if hasattr(record, 'prefix'):
+        return ip_network(str(record.prefix), strict=False).version
+
+    return ip_interface(str(record.address)).version
+
+
 FILTERS = {
     'id': (lambda rec, val: rec.id == val),
+    'family': (lambda rec, val: _family(rec) == int(val)),
+    'assigned_object_id__empty': (
+        lambda rec, val: (rec.assigned_object is None) == bool(val)),
     'name': (lambda rec, val: rec.name == val),
     'name__isw': (lambda rec, val: rec.name.lower().startswith(val.lower())),
     'address': (lambda rec, val: str(rec.address) == str(val)),
@@ -207,6 +220,7 @@ class FakeNetbox:
         self._next_id = dict(FIRST_ID)
 
         self.ipam = NS(
+            prefixes=FakeEndpoint(),
             vrfs=FakeEndpoint(),
             ip_addresses=FakeEndpoint(on_update=self._update_ip))
         self.dcim = NS(
@@ -222,6 +236,15 @@ class FakeNetbox:
         return id_
 
     # -- reading side: build the world --
+
+    def add_prefix(self, prefix, vrf=None, status='active'):
+        "An ipam.prefix, in a VRF or in the global table"
+        record = Named(
+            id=self._take_id('prefixes'), prefix=prefix, vrf=vrf,
+            name=prefix, description='', tags=[], tenant=None,
+            status=NS(value=status, label=status.title()))
+        self.ipam.prefixes.records.append(record)
+        return record
 
     def add_vrf(self, name):
         vrf = Named(id=self._take_id('vrfs'), name=name)
@@ -265,13 +288,13 @@ class FakeNetbox:
         self.virtualization.interfaces.records.append(iface)
         return iface
 
-    def add_ip(self, address, iface=None, vrf=None):
+    def add_ip(self, address, iface=None, vrf=None, status='active'):
         "An ipam.ip_address, on a device interface, a VM interface or neither"
         ipaddr = Named(
             id=self._take_id('ip_addresses'), address=address, vrf=vrf,
             name=address,
             description='', dns_name='', role=None, tags=[], tenant=None,
-            status=NS(value='active', label='Active'),
+            status=NS(value=status, label=status.title()),
             assigned_object=iface,
             assigned_object_type=self._object_type(iface))
         self.ipam.ip_addresses.records.append(ipaddr)
