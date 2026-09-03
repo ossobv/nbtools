@@ -3,7 +3,8 @@ from ipaddress import IPv4Interface
 import pytest
 
 from nbtools.util import (
-    natsort_key, peer_address, quoted_name, split_subinterface)
+    mac_from_interface_name, natsort_key, peer_address, quoted_name,
+    split_subinterface)
 
 
 # A real NetBox device name, shortened.
@@ -106,3 +107,28 @@ def test_split_subinterface_takes_whatever_renders_as_a_name():
             return 'swp1.2107'
 
     assert split_subinterface(Name()) == ('swp1', 2107)
+
+
+def test_mac_from_interface_name_reads_a_udev_name():
+    "systemd builds the name out of the address"
+    assert mac_from_interface_name('enxbe3af2b6059f') == 'be:3a:f2:b6:05:9f'
+
+
+def test_mac_from_interface_name_reads_the_wireless_spelling():
+    assert mac_from_interface_name('wlxb03af2b6059f') == 'b0:3a:f2:b6:05:9f'
+
+
+def test_mac_from_interface_name_returns_none_for_an_ordinary_name():
+    for name in ('eth0', 'swp1', 'swp1.2107', 'BMC', 'enp3s0'):
+        assert mac_from_interface_name(name) is None, name
+
+
+def test_mac_from_interface_name_wants_twelve_hex_digits():
+    assert mac_from_interface_name('enxbe3af2b6059') is None
+    assert mac_from_interface_name('enxbe3af2b6059ff') is None
+    assert mac_from_interface_name('enxbe3af2b6059g') is None
+
+
+def test_mac_from_interface_name_ignores_case():
+    "udev writes lower case, but NetBox stores what it was given"
+    assert mac_from_interface_name('ENXBE3AF2B6059F') == 'be:3a:f2:b6:05:9f'

@@ -1,12 +1,13 @@
 from collections import namedtuple
 
 from ..command import LintCommand
-from ..util import quoted_name
+from ..util import (
+    mac_from_interface_name, quoted_name, split_subinterface)
 
 
-# Values that are placeholders rather than identities. NetBox fills
-# these in when something is unknown, so holding one twice says
-# nothing about anything.
+# Values that are placeholders rather than identities. Some sources
+# show one of these (especially the NUL one), so it's not uncommon
+# to see duplicates of those.
 NOT_REAL_MACS = frozenset((
     '00:00:00:00:00:00',
     'ff:ff:ff:ff:ff:ff',
@@ -42,9 +43,100 @@ def holder(iface):
     return (None, None)
 
 
+def family_of(iface):
+    """
+    The key of the group of interfaces this one shares a MAC with
+
+    swp1 and swp1.2107 on one device are one family: a subinterface
+    carries its parent's MAC, and is supposed to. So both map to
+    ('device', 400, 'swp1') and a listing can show the parent once
+    instead of the port and each of its VLANs.
+
+    An interface that is shaped like neither a device nor a VM one
+    gets a family of its own, keyed by id: we cannot place it, so we
+    do not fold anything into it.
+    """
+    kind, machine = holder(iface)
+    if machine is None:
+        return (None, None, iface.id)
+
+    split = split_subinterface(iface.name)
+    base = (split[0] if split else str(iface.name))
+
+    return (kind, machine.id, base)
+
+
+def collapse_subinterfaces(records):
+    """
+    Fold each family's subinterface records into the parent's entry
+
+    Returns [(record, folded)] where record is the one to show and
+    folded is how many subinterface records it stands for. Ordered by
+    record id.
+
+    Within a family the entry shown is the record on the interface
+    named like the family -- the parent -- and the rest are counted.
+    With no such record, the interface with the lowest id stands in;
+    its name still says which port the family is on.
+
+    Records that sit on the *same* interface are all kept. Two MAC
+    records on one interface is a finding in its own right, and
+    counting one of them as a subinterface would hide it.
+    """
+    families = {}
+    for record in records:
+        families.setdefault(
+            family_of(record.assigned_object), []).append(record)
+
+    entries = []
+    for family, found in families.items():
+        _kind, _machine_id, base = family
+        by_iface = {}
+        for record in found:
+            by_iface.setdefault(record.assigned_object.id, []).append(record)
+
+        shown_id = None
+        for iface_id, on_it in by_iface.items():
+            if str(on_it[0].assigned_object.name) == base:
+                shown_id = iface_id
+                break
+        else:
+            shown_id = min(by_iface)
+
+        folded = sum(
+            len(on_it) for iface_id, on_it in by_iface.items()
+            if iface_id != shown_id)
+
+        for record in by_iface[shown_id]:
+            entries.append((record, folded))
+            folded = 0  # only the first entry carries the count
+
+    return sorted(entries, key=(lambda entry: entry[0].id))
+
+
 class DuplicateMacs(
         namedtuple('DuplicateMacs', 'mac assigned unassigned')):
     "One MAC value NetBox holds more than once, split by attachment"
+
+    @property
+    def is_self_named(self):
+        """
+        True when every copy sits on an interface named after this MAC.
+
+        systemd names a NIC with no stable bus path after its own
+        address -- enxbe3af2b6059f is be:3a:f2:b6:05:9f -- so a record
+        on such an interface cannot be a mistaken copy of something
+        else: the name only exists because the address does.
+
+        Certain machines have a builtin NIC with a non-unique MAC.
+        Ignore those.
+        """
+        if not self.assigned:
+            return False
+
+        return all(
+            mac_from_interface_name(rec.assigned_object.name) == self.mac
+            for rec in self.assigned)
 
     @property
     def is_explained(self):
@@ -64,9 +156,17 @@ class DuplicateMacs(
         in a MAC record is a brief one -- id, name, device -- so asking
         which interface a copy hangs off would cost a GET apiece across
         the whole MAC table. Hence --all, for when this guesses wrong.
+
+        is_self_named above is the one case where the brief record
+        does say it exactly, because there the answer is in the name.
         """
         if self.unassigned:
             return False
+
+        # A copy on no interface is garbage whatever the others look
+        # like, which is why this comes after the check above.
+        if self.is_self_named:
+            return True
 
         ifaces = [rec.assigned_object for rec in self.assigned]
 
@@ -135,6 +235,14 @@ def where(record):
     return f'{quoted_name(name)}:{iface.name}'
 
 
+def folded_as(folded):
+    "Account for the subinterface records that are not listed"
+    if not folded:
+        return ''
+
+    return f' +{folded} sub'
+
+
 class DuplicateMacFinding:
     "One MAC address that NetBox holds more than once"
 
@@ -146,8 +254,15 @@ class DuplicateMacFinding:
         return self.duplicate.mac
 
     def _note(self):
+        # Reachable under --all, and also without it when an
+        # unassigned copy drags the group into the report anyway --
+        # where it is the useful half of the line, since it says the
+        # assigned copies are fine and the loose one is the finding.
+        if self.duplicate.is_self_named:
+            return ' (interfaces named after this mac)'
+
+        # This one is only reachable under --all.
         if self.duplicate.is_explained:
-            # Only reachable under --all.
             return ' (shared within one device)'
 
         # Worth calling out: there is no copy here to keep, so cleaning
@@ -158,21 +273,38 @@ class DuplicateMacFinding:
         return ''
 
     def __str__(self):
-        dup = self.duplicate
-        records = dup.assigned + dup.unassigned
-        detail = ', '.join(
-            f'#{rec.id} {where(rec)}'
-            for rec in sorted(records, key=(lambda rec: rec.id)))
+        """
+        The MAC, how many records hold it, and where each one sits.
 
-        return f'{dup.mac} x{len(records)}: {detail}{self._note()}'
+        Subinterfaces are folded into their parent: they are supposed
+        to carry the parent's MAC, so listing swp1 and each of its
+        VLANs separately buries whatever the real conflict is. The
+        count at the front is still every record, and the '+N sub'
+        markers account for the ones not listed.
+        """
+        dup = self.duplicate
+        parts = [
+            f'#{rec.id} {where(rec)}{folded_as(folded)}'
+            for rec, folded in collapse_subinterfaces(dup.assigned)]
+        parts.extend(
+            f'#{rec.id} {where(rec)}'
+            for rec in sorted(dup.unassigned, key=(lambda rec: rec.id)))
+
+        total = len(dup.assigned) + len(dup.unassigned)
+
+        return f'{dup.mac} x{total}: {", ".join(parts)}{self._note()}'
 
 
 class DuplicateMacsCommand(LintCommand):
     name = 'duplicate-macs'
     help = (
-        'Find MAC addresses that exist more than once. Usually someone '
-        'created the MAC twice and assigned only the second one, which '
-        'leaves set-interface-ip-by-mac unable to pick between them.')
+        'Find MAC addresses that exist more than once. Could be someone '
+        'who created the MAC twice and assigned only the second one. Or '
+        'the device was renamed and then rediscovered. Generally you '
+        'expect only unique MAC addresses in your entire NetBox. '
+        'NOTE: Some devices have a enxbe3af2b6059f device which is '
+        'non-unique. We ignore the enx<MAC> devices, unless --all '
+        'is specified.')
 
     @classmethod
     def add_arguments(cls, parser):
@@ -180,9 +312,8 @@ class DuplicateMacsCommand(LintCommand):
             'Report the duplicates that are explained too: bridges, '
             'subinterfaces and LAG members share a MAC on purpose.'))
         parser.add_argument('--limit', choices=LIMITS, help=(
-            'Report only one kind of duplicate. "unassigned" is the ones '
-            'holding a copy that is on no interface, which is what '
-            'unset-interface-mac can clear out.'))
+            'Report only one kind of duplicate. "unassigned" reports the '
+            'ones holding a copy that is on no interface.'))
 
     @classmethod
     def from_args(cls, nbapi, args):

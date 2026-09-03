@@ -36,6 +36,30 @@ split_subinterface.re = re_compile(  # noqa
     r'^(?P<parent>.+)\.(?P<number>[0-9]+)$')
 
 
+def mac_from_interface_name(name):
+    """
+    The MAC address a udev-generated interface name encodes, or None
+
+    systemd's predictable naming gives a NIC with no stable bus path a
+    name built out of its own MAC: 'enxbe3af2b6059f' is
+    be:3a:f2:b6:05:9f, and 'wlx...' is the wireless spelling of the
+    same thing. The name is therefore *derived* from the address, not
+    recorded next to it -- which is what makes it worth reading back.
+
+    Returns the address lower case and colon separated, so it compares
+    against a NetBox mac_address directly.
+    """
+    match = mac_from_interface_name.re.match(str(name).lower())
+    if not match:
+        return None
+
+    hexes = match.group('mac')
+
+    return ':'.join(hexes[i:i + 2] for i in range(0, 12, 2))
+mac_from_interface_name.re = re_compile(  # noqa
+    r'^(?:en|wl)x(?P<mac>[0-9a-f]{12})$')
+
+
 def quoted_name(name) -> str:
     """
     Single-quote a name if it needs it, doubling quotes like SQL does
