@@ -2,7 +2,7 @@ import pytest
 
 from nbtools.command import ProcessMode
 from nbtools.exceptions import (
-    TargetCountMismatch,
+    TargetCountMismatch, TargetIsSubinterface,
     UnrecognisedItemOnSource, UnrecognisedItemOnTarget)
 from nbtools.synccmd.migr_gw import MigrateGatewayCommand
 from nbtools.types import DevIface, Hostname
@@ -306,6 +306,37 @@ def test_no_target_at_all_is_an_error():
 
     with pytest.raises(TargetCountMismatch):
         plan_for(nb)
+
+
+def test_a_target_that_is_a_subinterface_is_an_error():
+    "Naming leaf3:swp8.1234 would have made swp8.1234.1234"
+    nb = a_netbox_with_one_gateway()
+    leaf3 = nb.dcim.devices.get(name='leaf3')
+    nb.add_interface(leaf3, 'swp8.1234', parent=nb.swp8, vrf=nb.red)
+
+    with pytest.raises(TargetIsSubinterface, match='swp8.1234.1234'):
+        plan_for(nb, 'leaf3:swp8.1234')
+
+
+def test_a_target_that_is_a_subinterface_is_refused_before_any_lookup():
+    "It is the argument that is wrong, whatever NetBox holds"
+    nb = a_netbox_with_one_gateway()
+
+    with pytest.raises(TargetIsSubinterface):
+        plan_for(nb, 'leaf3:swp99.1')
+
+
+def test_a_target_named_with_a_dot_is_not_a_subinterface():
+    "Only a numeric suffix is one; 'swp8.foo' is a port with a dot"
+    nb = a_netbox_with_one_gateway()
+    leaf3 = nb.dcim.devices.get(name='leaf3')
+    nb.add_interface(leaf3, 'swp8.foo')
+
+    assert plan_for(nb, 'leaf3:swp8.foo') == [
+        'leaf3 add int swp8.foo.1234 vrf vrf-red',
+        'leaf1:swp34.1234 del ip 10.0.0.0/31',
+        'leaf3:swp8.foo.1234 add ip 10.0.0.0/31',
+    ]
 
 
 def test_two_vms_on_one_port_move_together():

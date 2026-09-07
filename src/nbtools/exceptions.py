@@ -88,3 +88,10 @@ class UnrecognisedItemOnTarget(StateError):
 class TargetCountMismatch(StateError):
     description = 'There is not one target for every source'
     hint = 'Pass one --target for each switch port the gateways sit on.'
+
+
+class TargetIsSubinterface(StateError):
+    description = 'A target names a subinterface, not a port'
+    hint = (
+        'The subinterface suffix is copied from the source interface, '
+        'so naming a subinterface would nest a second suffix under it.')

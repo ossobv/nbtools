@@ -2,14 +2,14 @@ from collections import namedtuple
 
 from ..command import SyncCommand
 from ..exceptions import (
-    TargetCountMismatch,
+    TargetCountMismatch, TargetIsSubinterface,
     UnrecognisedItemOnSource, UnrecognisedItemOnTarget)
 from ..netbox import (
     get_interface_by_id, get_interface_tree, get_ip_addresses,
     get_ip_addresses_by_address, get_vm, get_vm_interfaces,
     get_vm_ip_addresses)
 from ..types import DevIface, Hostname
-from ..util import natsort_key, peer_address
+from ..util import natsort_key, peer_address, split_subinterface
 from ..work import (
     CreateInterface, DeleteInterface,
     DummyUnassignIPAddress, ReassignIPAddress,
@@ -29,19 +29,20 @@ class MigrateGatewayCommand(SyncCommand):
         'Migrate a VM by moving the connected gateway IPs. This is a rather '
         'custom situation where: the VM move itself is not handled here, but '
         'its gateways (/31) are moved from one switch subinterface to '
-        'another. Specify one or more target L3 switches using -t. '
-        'Then specify one or more VMs of which the gateways should move. '
-        'The sync command ensures the VRF moves along onto the new '
-        'interface.')
+        'another. Specify one or more target L3 switch ports using -t '
+        '(not the subinterfaces!). Then specify one or more VMs of which the '
+        'gateways should move. The sync command ensures the VRF moves along '
+        'onto the new interface.')
 
     @classmethod
     def add_arguments(cls, parser):
         parser.add_argument('-t', '--target', action='append', type=DevIface,
-            metavar='DEV:IFACE', help=(
-                'Target device and interface (e.g. leaf1:swp8). Repeat it '
-                'once for every switch port the gateways sit on now: the '
-                'Nth --target takes the Nth of those ports, sorted by '
-                'device and interface name'))
+            metavar='DEV:PORT', help=(
+                'Target device and port (e.g. leaf1:swp8). The parent '
+                'port, not a subinterface: the gateway keeps the subinterface '
+                'suffix it has now. Repeat it once for every switch port '
+                'the gateways sit on now: the Nth --target takes the Nth '
+                'of those ports, sorted by device and interface name'))
         parser.add_argument('--delete-empty', action='store_true', help=(
             'Delete a source subinterface that this run leaves without IPs'))
         parser.add_argument('vm', type=Hostname, nargs='+', help=(
@@ -63,6 +64,23 @@ class MigrateGatewayCommand(SyncCommand):
         self._delete_empty = False
 
     def set_target_interfaces(self, targets: list):
+        """
+        The ports the gateways move to, one per source port
+
+        If the source interface/port is on a subinterface, the subinterface '
+        on the target will be automatically selected. Do not provide it.
+        """
+        for target in targets:
+            split = split_subinterface(target.interface)
+            if not split:
+                continue
+
+            parent, number = split
+            raise TargetIsSubinterface(
+                f'target {target} is subinterface .{number} of '
+                f'{target.device}:{parent}; pass that port instead, or '
+                f'the gateway would land on {target.interface}.{number}')
+
         self._targets = list(targets)
 
     def set_vms(self, vms: list):
