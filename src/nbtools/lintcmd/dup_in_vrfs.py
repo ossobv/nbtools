@@ -8,6 +8,7 @@ from .findings import InMultipleVrfsFinding
 # the query, converted to int for the filter.
 FAMILIES = ('4', '6')
 
+
 class BaseInMultipleVrfsCommand(LintCommand):
     """
     Shared by duplicate-prefixes and duplicate-ips.
