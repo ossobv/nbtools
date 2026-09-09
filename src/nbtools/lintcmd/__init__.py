@@ -2,6 +2,7 @@ from .dup_in_vrfs import DuplicateIpsCommand, DuplicatePrefixesCommand
 from .dup_macs import DuplicateMacsCommand
 from .empty_prefixes import EmptyPrefixesCommand
 from .subif_labels import SubinterfaceLabelsCommand
+from .subif_parents import SubinterfaceParentsCommand
 from .unassigned_ips import UnassignedIpsCommand
 from .unparented_ips import UnparentedIpsCommand
 
@@ -15,6 +16,7 @@ COMMANDS = (
     DuplicateIpsCommand,
     UnparentedIpsCommand,
     DuplicateMacsCommand,
+    SubinterfaceParentsCommand,
     SubinterfaceLabelsCommand,
 )
 

@@ -1,6 +1,7 @@
 from ..command import LintCommand
 from ..ipam import address_of, find_in_multiple_vrfs, network_of
 from ..netbox import get_all_ip_addresses, get_all_prefixes
+
 from .findings import InMultipleVrfsFinding
 
 
