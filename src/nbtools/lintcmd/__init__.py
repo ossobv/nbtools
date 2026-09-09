@@ -1,3 +1,4 @@
+from .dev_bmcs import DeviceBmcsCommand
 from .dup_in_vrfs import DuplicateIpsCommand, DuplicatePrefixesCommand
 from .dup_macs import DuplicateMacsCommand
 from .empty_prefixes import EmptyPrefixesCommand
@@ -16,6 +17,7 @@ COMMANDS = (
     DuplicateIpsCommand,
     UnparentedIpsCommand,
     DuplicateMacsCommand,
+    DeviceBmcsCommand,
     SubinterfaceParentsCommand,
     SubinterfaceLabelsCommand,
 )

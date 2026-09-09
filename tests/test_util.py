@@ -3,8 +3,8 @@ from ipaddress import IPv4Interface
 import pytest
 
 from nbtools.util import (
-    mac_from_interface_name, natsort_key, peer_address, quoted_name,
-    split_subinterface)
+    in_chunks, mac_from_interface_name, natsort_key, peer_address,
+    quoted_name, split_subinterface)
 
 
 # A real NetBox device name, shortened.
@@ -132,3 +132,20 @@ def test_mac_from_interface_name_wants_twelve_hex_digits():
 def test_mac_from_interface_name_ignores_case():
     "udev writes lower case, but NetBox stores what it was given"
     assert mac_from_interface_name('ENXBE3AF2B6059F') == 'be:3a:f2:b6:05:9f'
+
+
+def test_in_chunks_splits_at_the_size():
+    assert list(in_chunks([1, 2, 3, 4, 5], size=2)) == [[1, 2], [3, 4], [5]]
+
+
+def test_in_chunks_of_an_exact_fit_has_no_empty_tail():
+    assert list(in_chunks([1, 2, 3, 4], size=2)) == [[1, 2], [3, 4]]
+
+
+def test_in_chunks_of_nothing_yields_nothing():
+    "A filter built from an empty list would read the whole table"
+    assert list(in_chunks([])) == []
+
+
+def test_in_chunks_takes_an_iterator():
+    assert list(in_chunks(iter([1, 2, 3]), size=2)) == [[1, 2], [3]]

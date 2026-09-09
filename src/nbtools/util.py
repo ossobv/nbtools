@@ -104,3 +104,24 @@ def peer_address(address):
     other = (second if ip.ip == first else first)
 
     return ip_interface(f'{other}/{wanted}')
+
+
+# How many ids go into one filtered read. NetBox reads a repeated
+# query parameter as "any of these" -- ?id=1&id=2 -- so a list of ids
+# costs one request rather than one apiece. It is the URL length that
+# limits it, and whatever proxy sits in front of NetBox that decides
+# how long is too long; a hundred numeric ids stays well under 2KB.
+FILTER_CHUNK = 100
+
+
+def in_chunks(values, size=FILTER_CHUNK):
+    """
+    Slice values into lists of at most size, for a filtered read
+
+    Yields nothing at all for an empty input, which is the point of
+    going through here: filter(id=[]) sends no id parameter, and a
+    read with no filter on it asks NetBox for the whole table.
+    """
+    values = list(values)
+    for start in range(0, len(values), size):
+        yield values[start:start + size]

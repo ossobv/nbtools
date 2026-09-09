@@ -28,8 +28,17 @@ def a_populated_netbox():
         leaf1, 'swp1.1234', parent=swp1, vrf=red, label='STAIRS')
     nb.add_ip('10.1.2.7/24', iface=sub, vrf=red)
 
-    bmc = nb.add_interface(leaf1, 'BMC')
+    bmc = nb.add_interface(leaf1, 'BMC', mgmt_only=True)
     nb.add_mac('AA:BB:CC:00:00:01', iface=bmc)
+
+    # leaf2's BMC is the other kind: not named BMC at all, recognised
+    # by being the interface the device's oob_ip sits on. Every device
+    # needs one of the three, since device-bmcs reports a machine with
+    # none of them -- and a BMC named BMC owes mgmt_only on top.
+    nb.add_prefix('10.1.3.0/24')
+    oob = nb.add_interface(leaf2, 'mgmt0')
+    nb.add_mac('AA:BB:CC:00:00:02', iface=oob)
+    nb.set_oob_ip(leaf2, nb.add_ip('10.1.3.7/24', iface=oob))
 
     nb.add_cable(
         nb.add_interface(leaf1, 'swp2', tags=['corelink']),

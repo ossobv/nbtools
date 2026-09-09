@@ -149,7 +149,9 @@ FILTERS = {
     'family': (lambda rec, val: _family(rec) == int(val)),
     'assigned_object_id__empty': (
         lambda rec, val: (rec.assigned_object is None) == bool(val)),
+    'mgmt_only': (lambda rec, val: bool(rec.mgmt_only) == bool(val)),
     'name': (lambda rec, val: rec.name == val),
+    'name__ie': (lambda rec, val: rec.name.lower() == val.lower()),
     'name__isw': (lambda rec, val: rec.name.lower().startswith(val.lower())),
     'address': (lambda rec, val: str(rec.address) == str(val)),
     'device_id': (lambda rec, val: _rel_id(rec, 'device') == val),
@@ -162,6 +164,23 @@ FILTERS = {
         lambda rec, val: _assigned_id(
             rec, 'virtualization.vminterface') == val),
 }
+
+
+def matches(record, key, value):
+    """
+    Whether one filter keyword matches, a list meaning "any of these"
+
+    NetBox reads a repeated query parameter as an OR -- ?id=1&id=2 --
+    and pynetbox spells that as a list. An *empty* list is the trap
+    worth failing on rather than modelling: it sends no parameter at
+    all, so NetBox answers with the whole table, while matching
+    nothing here would quietly look like a filter that worked.
+    """
+    if isinstance(value, (list, tuple, set)):
+        assert value, f'{key}=[] would read the whole table'
+        return any(FILTERS[key](record, one) for one in value)
+
+    return FILTERS[key](record, value)
 
 
 class FakeEndpoint:
@@ -187,7 +206,7 @@ class FakeEndpoint:
         assert not args, f'freeform search not stubbed here: {args}'
         return [
             record for record in self.records
-            if all(FILTERS[key](record, value)
+            if all(matches(record, key, value)
                    for key, value in kwargs.items())]
 
     def get(self, *args, **kwargs):
@@ -283,11 +302,35 @@ class FakeNetbox:
         self.ipam.vrfs.records.append(vrf)
         return vrf
 
-    def add_device(self, name, cluster=None):
+    def add_device(self, name, cluster=None, oob_ip=None, device_bays=0):
+        """
+        A dcim.device, with the two counts its serializer carries
+
+        interface_count keeps itself up to date as interfaces are
+        added. device_bays is the count only -- a chassis is a
+        chassis here whether or not the bays themselves exist,
+        because nothing in the tree reads dcim.device_bays.
+        """
         device = Named(
-            id=self._take_id('devices'), name=name, cluster=cluster)
+            id=self._take_id('devices'), name=name, cluster=cluster,
+            oob_ip=oob_ip, interface_count=0, device_bay_count=device_bays)
         self.dcim.devices.records.append(device)
         return device
+
+    @staticmethod
+    def set_oob_ip(device, ipaddr):
+        """
+        Point a device at its out-of-band address, after the fact
+
+        Which is the order it happens in: the address needs the
+        interface, and the interface needs the device. NetBox nests
+        the brief serializer here -- no assigned_object -- but this
+        hands over the whole record, so a command that reaches for
+        more than id and address passes against the stub and fails
+        against NetBox. Only id and address are safe to use.
+        """
+        device.oob_ip = ipaddr
+        return ipaddr
 
     def add_cluster(self, name):
         cluster = Named(id=self._take_id('clusters'), name=name)
@@ -306,22 +349,29 @@ class FakeNetbox:
     def add_interface(
             self, device, name, parent=None, vrf=None, type_=None,
             label='', tags=(), mode=None, tagged_vlans=(),
-            untagged_vlan=None):
+            untagged_vlan=None, mgmt_only=False):
         "A dcim.interface, with the fields the interface commands copy"
         iface = self.make_interface(
             device, name, parent=parent, vrf=vrf, type_=type_, label=label,
             tags=tags, mode=mode, tagged_vlans=tagged_vlans,
-            untagged_vlan=untagged_vlan)
+            untagged_vlan=untagged_vlan, mgmt_only=mgmt_only)
         self.dcim.interfaces.records.append(iface)
         return iface
 
     def make_interface(
             self, device, name, parent=None, vrf=None, type_=None,
             label='', tags=(), mode=None, tagged_vlans=(),
-            untagged_vlan=None):
+            untagged_vlan=None, mgmt_only=False):
         "Build the record without filing it; create() does the filing"
         if type_ is None:
             type_ = ('virtual' if parent else '1000base-t')
+
+        # NetBox counts these on the device. Every caller of this
+        # files what it builds -- add_interface() straight away, and
+        # _create_interface() through create() -- so the count is
+        # kept here rather than in each of them.
+        if device is not None:
+            device.interface_count += 1
 
         iface = Named(
             id=self._take_id('interfaces'), name=name, device=device,
@@ -331,7 +381,7 @@ class FakeNetbox:
             tags=[a_tag(tag) for tag in tags],
             tagged_vlans=list(tagged_vlans), untagged_vlan=untagged_vlan,
             type=NS(value=type_, label=type_), cable=None,
-            link_peers=[], link_peers_type=None)
+            link_peers=[], link_peers_type=None, mgmt_only=mgmt_only)
         return iface
 
     def add_cable(self, a_end=None, b_end=None, status='connected'):

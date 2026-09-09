@@ -95,3 +95,30 @@ class InterfaceFinding:
         note = (f' {self.note}' if self.note else '')
 
         return f'{self.value} #{self.iface.id}{note}'
+
+
+class DeviceFinding:
+    """
+    One dcim.device worth reporting, named by the device alone.
+
+    For the findings that are about a machine rather than about one of
+    its interfaces -- a device with no BMC on it has no interface to
+    point at. The name is quoted the way InterfaceFinding quotes its
+    device half, for the same reason: a NetBox name holds spaces, and
+    an unquoted one runs into the note.
+    """
+    def __init__(self, device, note=''):
+        self.device = device
+        self.note = note
+
+    @property
+    def value(self):
+        return quoted_name(self.device.name)
+
+    def porcelain(self):
+        return self.value
+
+    def __str__(self):
+        note = (f' {self.note}' if self.note else '')
+
+        return f'{self.value} #{self.device.id}{note}'
