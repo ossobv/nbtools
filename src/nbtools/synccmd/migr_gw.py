@@ -175,6 +175,11 @@ class MigrateGatewayCommand(SyncCommand):
                 try:
                     gwaddr = peer_address(vmip.address)
                 except ValueError as e:
+                    # Very custom: these /24s might be on VPN interface
+                    # an only exist/live there. We can skip them
+                    # altogether.
+                    if vmip.assigned_object.name == 'vpn-server':
+                        continue
                     raise UnrecognisedItemOnSource(f'{where}: {e}') from e
 
                 # Scoped to the VRF the VM's own IP is in, because a
