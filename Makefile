@@ -14,7 +14,6 @@ venv: .venv
 	@echo
 
 .venv:
-	python3 -m venv .venv
+	python3 -m venv .venv --prompt nbtools-dev
 	. .venv/bin/activate && \
-	  sed -i -e "s/PS1='(.venv)/PS1='(nbtools-dev)/" .venv/bin/activate && \
 	  pip install -e '.[dev]'
