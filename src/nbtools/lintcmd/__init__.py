@@ -4,6 +4,7 @@ from .dup_macs import DuplicateMacsCommand
 from .empty_prefixes import EmptyPrefixesCommand
 from .subif_labels import SubinterfaceLabelsCommand
 from .subif_parents import SubinterfaceParentsCommand
+from .tenant_names import TenantNamesCommand
 from .unassigned_ips import UnassignedIpsCommand
 from .unparented_ips import UnparentedIpsCommand
 
@@ -20,6 +21,7 @@ COMMANDS = (
     DeviceBmcsCommand,
     SubinterfaceParentsCommand,
     SubinterfaceLabelsCommand,
+    TenantNamesCommand,
 )
 
 COMMANDS_BY_NAME = {cmdcls.name: cmdcls for cmdcls in COMMANDS}
