@@ -48,7 +48,20 @@ class Command:
     difference between them: see SyncCommand and LintCommand below.
     """
     name = None     # e.g. 'clone-interface'
-    help = None     # subparser help text
+    help = None     # the full description; see summary()
+
+    @classmethod
+    def summary(cls):
+        """
+        The first sentence of 'help', for the tool's list of commands
+
+        The tool's --help lists every command, so a paragraph apiece
+        buries the list; the whole of 'help' goes to the command's own
+        --help instead. So the first sentence should say what the
+        command is for, and stand on its own.
+        """
+        sentence, stop, _rest = cls.help.partition('. ')
+        return sentence + stop.rstrip()
 
     @classmethod
     def add_arguments(cls, parser):

@@ -21,7 +21,9 @@ def main() -> None:
             'clean and 1 when there are findings, so it can be run from '
             'cron. Feed the findings of one COMMAND to nbsync with '
             '--porcelain, e.g. "nblint --porcelain duplicate-macs | xargs '
-            'nbsync unset-interface-mac :".'))
+            'nbsync unset-interface-mac :". Each COMMAND has its own '
+            'options and a fuller description; see "nblint COMMAND '
+            '--help".'))
     parser.add_argument(
         '-c', '--config', metavar='INIFILE',
         help=f'configuration INI location (default: {CONF_FILE})')
@@ -33,8 +35,8 @@ def main() -> None:
 
     command = parser.add_subparsers(dest='command')
     for cmdcls in COMMANDS:
-        cmdcls.add_arguments(
-            command.add_parser(cmdcls.name, help=cmdcls.help))
+        cmdcls.add_arguments(command.add_parser(
+            cmdcls.name, help=cmdcls.summary(), description=cmdcls.help))
 
     args = parser.parse_args()
 

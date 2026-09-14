@@ -38,8 +38,8 @@ def main() -> None:
 
     command = parser.add_subparsers(dest='command')
     for cmdcls in COMMANDS:
-        cmdcls.add_arguments(
-            command.add_parser(cmdcls.name, help=cmdcls.help))
+        cmdcls.add_arguments(command.add_parser(
+            cmdcls.name, help=cmdcls.summary(), description=cmdcls.help))
 
     args = parser.parse_args()
 
