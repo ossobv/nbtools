@@ -4,6 +4,7 @@ from .dup_in_vrfs import DuplicateIpsCommand, DuplicatePrefixesCommand
 from .dup_macs import DuplicateMacsCommand
 from .empty_prefixes import EmptyPrefixesCommand
 from .iface_cables import UnattachedInterfacesCommand
+from .iface_tags import InterfaceTagsCommand
 from .subif_labels import SubinterfaceLabelsCommand
 from .subif_parents import SubinterfaceParentsCommand
 from .tenant_names import TenantNamesCommand
@@ -27,7 +28,8 @@ COMMANDS = (
     SubinterfaceParentsCommand,
     SubinterfaceLabelsCommand,
 
-    # Cables.
+    # Interface configurations: tags and cabling.
+    InterfaceTagsCommand,
     UnattachedCablesCommand,
     UnattachedInterfacesCommand,
 
