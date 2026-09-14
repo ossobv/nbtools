@@ -155,6 +155,10 @@ FILTERS = {
     'name__isw': (lambda rec, val: rec.name.lower().startswith(val.lower())),
     'address': (lambda rec, val: str(rec.address) == str(val)),
     'device_id': (lambda rec, val: _rel_id(rec, 'device') == val),
+    'unterminated': (
+        lambda rec, val: (
+            not rec.a_terminations or not rec.b_terminations)
+        == bool(val)),
     'parent_id': (lambda rec, val: _rel_id(rec, 'parent') == val),
     'virtual_machine_id': (
         lambda rec, val: _rel_id(rec, 'virtual_machine') == val),
