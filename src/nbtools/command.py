@@ -2,7 +2,7 @@ import sys
 
 from enum import Enum
 
-from .exceptions import InvalidInput, StateError
+from .exceptions import InvalidInput, PorcelainNotImplemented, StateError
 
 
 ProcessMode = Enum('ProcessMode', [('INTERACTIVE', -1), ('NO', 0), ('YES', 1)])
@@ -393,3 +393,11 @@ class LintCommand(Command):
         nbsync command would take as an argument.
         """
         raise NotImplementedError
+
+
+class NoPorcelainMixin:
+    """
+    LintCommand mixin for when there is no (sane) porcelain mode yet.
+    """
+    def set_porcelain(self):
+        raise PorcelainNotImplemented

@@ -58,7 +58,8 @@ def main() -> None:
         else:
             config = Config.from_ini(args.config)
     except StartupError as e:
-        parser.error(str(e))
+        print(f'{parser.prog}: {e.description}: {e}', file=sys.stderr)
+        sys.exit(2)
 
     # Connect netbox API.
     nbapi = connect(config, parser.prog)
@@ -69,9 +70,13 @@ def main() -> None:
     else:
         cmds = [COMMANDS_BY_NAME[args.command].from_args(nbapi, args)]
 
-    if args.porcelain:
-        for cmd in cmds:
-            cmd.set_porcelain()
+    try:
+        if args.porcelain:
+            for cmd in cmds:
+                cmd.set_porcelain()
+    except StartupError as e:
+        print(f'{parser.prog}: {e.description}: {e}', file=sys.stderr)
+        sys.exit(2)
 
     # Run commands.
     findings = 0

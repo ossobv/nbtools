@@ -1,8 +1,18 @@
-class StartupError(ValueError):
+class NbtoolsError(Exception):
     pass
 
 
-class StateError(Exception):
+class StartupError(NbtoolsError):
+    description = 'startup error'
+
+
+class PorcelainNotImplemented(StartupError):
+    def __init__(self):
+        super().__init__(
+            '--porcelain is not implemented for this lint command')
+
+
+class StateError(NbtoolsError):
     """
     Base for errors about the state we found in NetBox.
 
