@@ -28,6 +28,10 @@ def a_populated_netbox():
         leaf1, 'swp1.1234', parent=swp1, vrf=red, label='STAIRS')
     nb.add_ip('10.1.2.7/24', iface=sub, vrf=red)
 
+    # A port holding an address, directly or through a subinterface,
+    # is one unattached-interfaces expects a cable in.
+    nb.add_cable(swp1, nb.add_interface(leaf2, 'swp1'))
+
     bmc = nb.add_interface(leaf1, 'BMC', mgmt_only=True)
     nb.add_mac('AA:BB:CC:00:00:01', iface=bmc)
 
@@ -39,6 +43,7 @@ def a_populated_netbox():
     oob = nb.add_interface(leaf2, 'mgmt0')
     nb.add_mac('AA:BB:CC:00:00:02', iface=oob)
     nb.set_oob_ip(leaf2, nb.add_ip('10.1.3.7/24', iface=oob))
+    nb.add_cable(oob, nb.add_interface(leaf1, 'eth0'))
 
     nb.add_cable(
         nb.add_interface(leaf1, 'swp2', tags=['corelink']),

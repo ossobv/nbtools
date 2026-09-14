@@ -10,6 +10,9 @@ bury it.
 from ipaddress import ip_interface, ip_network
 from types import SimpleNamespace as NS
 
+import pynetbox
+import requests
+
 
 def an_iface(name, devname, id_=5319, devid=538):
     return NS(id=id_, name=name, device=NS(id=devid, name=devname))
@@ -82,7 +85,25 @@ FIRST_ID = {
     'clusters': 1100,
     'tenants': 1200,
     'tenant_groups': 1300,
+    'object_types': 1400,
 }
+
+# The object types a FakeNetbox knows about: one per kind of record it
+# can hold, as (app_label, model).
+OBJECT_TYPES = (
+    ('dcim', 'cable'),
+    ('dcim', 'device'),
+    ('dcim', 'interface'),
+    ('dcim', 'macaddress'),
+    ('ipam', 'ipaddress'),
+    ('ipam', 'prefix'),
+    ('ipam', 'vrf'),
+    ('tenancy', 'tenant'),
+    ('tenancy', 'tenantgroup'),
+    ('virtualization', 'cluster'),
+    ('virtualization', 'virtualmachine'),
+    ('virtualization', 'vminterface'),
+)
 
 
 class Named(NS):
@@ -141,6 +162,48 @@ def _slugs(record):
     return [tag.slug for tag in getattr(record, 'tags', [])]
 
 
+def _kind(iface):
+    """
+    'physical', 'virtual' or 'wireless', the way NetBox's kind= says
+
+    NetBox refuses a cable on the latter two; together they are its
+    NONCONNECTABLE_IFACE_TYPES.
+    """
+    type_ = iface.type.value
+    if type_ in ('virtual', 'bridge', 'lag'):
+        return 'virtual'
+    if type_.startswith(('ieee802.11', 'ieee802.15', 'other-wireless')):
+        return 'wireless'
+    return 'physical'
+
+
+def _device_id(record):
+    """
+    The id of the device a record is on, or None
+
+    An interface names its device. An IP or a MAC address is on one
+    through its interface, which is how NetBox's device_id filter
+    reads it for those.
+    """
+    if hasattr(record, 'device'):
+        return _rel_id(record, 'device')
+    if getattr(record, 'assigned_object_type', None) != 'dcim.interface':
+        return None
+    return _rel_id(record.assigned_object, 'device')
+
+
+def _object_type_name(value):
+    """
+    'dcim.interface' for an object type id
+
+    The ids are the ones FakeNetbox hands out to OBJECT_TYPES, in
+    order, which every instance does the same way.
+    """
+    index = int(value) - FIRST_ID['object_types']
+    assert 0 <= index < len(OBJECT_TYPES), f'no object type #{value}'
+    return '.'.join(OBJECT_TYPES[index])
+
+
 FILTERS = {
     'id': (lambda rec, val: rec.id == val),
     'tag': (lambda rec, val: val in _slugs(rec)),
@@ -149,16 +212,27 @@ FILTERS = {
     'family': (lambda rec, val: _family(rec) == int(val)),
     'assigned_object_id__empty': (
         lambda rec, val: (rec.assigned_object is None) == bool(val)),
+    'assigned_object_type': (
+        lambda rec, val: rec.assigned_object_type == _object_type_name(val)),
     'mgmt_only': (lambda rec, val: bool(rec.mgmt_only) == bool(val)),
     'name': (lambda rec, val: rec.name == val),
+    'app_label': (lambda rec, val: rec.app_label == val),
+    'model': (lambda rec, val: rec.model == val),
     'name__ie': (lambda rec, val: rec.name.lower() == val.lower()),
     'name__isw': (lambda rec, val: rec.name.lower().startswith(val.lower())),
     'address': (lambda rec, val: str(rec.address) == str(val)),
-    'device_id': (lambda rec, val: _rel_id(rec, 'device') == val),
+    'device_id': (lambda rec, val: _device_id(rec) == val),
     'unterminated': (
         lambda rec, val: (
             not rec.a_terminations or not rec.b_terminations)
         == bool(val)),
+    'cabled': (lambda rec, val: (rec.cable is not None) == bool(val)),
+    'enabled': (lambda rec, val: bool(rec.enabled) == bool(val)),
+    'mark_connected': (
+        lambda rec, val: bool(rec.mark_connected) == bool(val)),
+    'kind': (lambda rec, val: _kind(rec) == val),
+    'type': (lambda rec, val: rec.type.value == val),
+    'lag_id': (lambda rec, val: _rel_id(rec, 'lag') == val),
     'parent_id': (lambda rec, val: _rel_id(rec, 'parent') == val),
     'virtual_machine_id': (
         lambda rec, val: _rel_id(rec, 'virtual_machine') == val),
@@ -247,6 +321,33 @@ class FakeEndpoint:
             self.deleted.append(id_)
 
 
+def a_404(path):
+    "The response NetBox gives for an API path it has no route for"
+    response = requests.Response()
+    response.status_code = 404
+    response.reason = 'Not Found'
+    response.url = f'https://netbox.invalid/api/{path}/'
+    response.request = requests.Request('GET', response.url).prepare()
+    response._content = b'{"detail": "Not found."}'
+    return response
+
+
+class GoneEndpoint:
+    """
+    An endpoint this NetBox version does not have
+
+    Every call on it raises the pynetbox RequestError a 404 gets, so
+    a command falling back to the older endpoint can be tested.
+    """
+    def __init__(self, path):
+        self.path = path
+
+    def __getattr__(self, name):
+        def not_found(*args, **kwargs):
+            raise pynetbox.RequestError(a_404(self.path))
+        return not_found
+
+
 class FakeNetbox:
     """
     A small NetBox held in memory: VRFs, devices, interfaces, VMs, IPs
@@ -264,9 +365,25 @@ class FakeNetbox:
         leaf1 = nb.add_device('leaf1')
         swp34 = nb.add_interface(leaf1, 'swp34')
         sub = nb.add_interface(leaf1, 'swp34.1234', parent=swp34, vrf=red)
+
+    The object types live at core.object_types from NetBox 4.5 on,
+    and at extras.object_types before that. Pass version=(4, 4) for
+    the older one; the endpoint the version lacks answers with a 404.
     """
-    def __init__(self):
+    def __init__(self, version=(4, 5)):
         self._next_id = dict(FIRST_ID)
+
+        object_types = FakeEndpoint(
+            NS(id=self._take_id('object_types'), app_label=app_label,
+               model=model)
+            for app_label, model in OBJECT_TYPES)
+        if version >= (4, 5):
+            self.core = NS(object_types=object_types)
+            self.extras = NS(
+                object_types=GoneEndpoint('extras/object-types'))
+        else:
+            self.core = NS(object_types=GoneEndpoint('core/object-types'))
+            self.extras = NS(object_types=object_types)
 
         self.ipam = NS(
             prefixes=FakeEndpoint(),
@@ -353,19 +470,22 @@ class FakeNetbox:
     def add_interface(
             self, device, name, parent=None, vrf=None, type_=None,
             label='', tags=(), mode=None, tagged_vlans=(),
-            untagged_vlan=None, mgmt_only=False):
+            untagged_vlan=None, mgmt_only=False, enabled=True,
+            mark_connected=False, lag=None):
         "A dcim.interface, with the fields the interface commands copy"
         iface = self.make_interface(
             device, name, parent=parent, vrf=vrf, type_=type_, label=label,
             tags=tags, mode=mode, tagged_vlans=tagged_vlans,
-            untagged_vlan=untagged_vlan, mgmt_only=mgmt_only)
+            untagged_vlan=untagged_vlan, mgmt_only=mgmt_only,
+            enabled=enabled, mark_connected=mark_connected, lag=lag)
         self.dcim.interfaces.records.append(iface)
         return iface
 
     def make_interface(
             self, device, name, parent=None, vrf=None, type_=None,
             label='', tags=(), mode=None, tagged_vlans=(),
-            untagged_vlan=None, mgmt_only=False):
+            untagged_vlan=None, mgmt_only=False, enabled=True,
+            mark_connected=False, lag=None):
         "Build the record without filing it; create() does the filing"
         if type_ is None:
             type_ = ('virtual' if parent else '1000base-t')
@@ -379,8 +499,8 @@ class FakeNetbox:
 
         iface = Named(
             id=self._take_id('interfaces'), name=name, device=device,
-            parent=parent, vrf=vrf, description='', enabled=True,
-            label=label,
+            parent=parent, vrf=vrf, description='', enabled=enabled,
+            mark_connected=mark_connected, lag=lag, label=label,
             mode=(NS(value=mode, label=mode.title()) if mode else None),
             tags=[a_tag(tag) for tag in tags],
             tagged_vlans=list(tagged_vlans), untagged_vlan=untagged_vlan,

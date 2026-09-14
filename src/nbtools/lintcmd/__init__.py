@@ -3,6 +3,7 @@ from .dev_bmcs import DeviceBmcsCommand
 from .dup_in_vrfs import DuplicateIpsCommand, DuplicatePrefixesCommand
 from .dup_macs import DuplicateMacsCommand
 from .empty_prefixes import EmptyPrefixesCommand
+from .iface_cables import UnattachedInterfacesCommand
 from .subif_labels import SubinterfaceLabelsCommand
 from .subif_parents import SubinterfaceParentsCommand
 from .tenant_names import TenantNamesCommand
@@ -28,6 +29,7 @@ COMMANDS = (
 
     # Cables.
     UnattachedCablesCommand,
+    UnattachedInterfacesCommand,
 
     # Naming/grouping.
     TenantNamesCommand,
