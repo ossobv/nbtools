@@ -1,5 +1,6 @@
 from .cables import UnattachedCablesCommand
 from .dev_bmcs import DeviceBmcsCommand
+from .discovered import DiscoveredItemsCommand
 from .dup_in_vrfs import DuplicateIpsCommand, DuplicatePrefixesCommand
 from .dup_macs import DuplicateMacsCommand
 from .empty_prefixes import EmptyPrefixesCommand
@@ -36,6 +37,7 @@ COMMANDS = (
     UnattachedInterfacesCommand,
 
     # Naming/grouping.
+    DiscoveredItemsCommand,
     TenantNamesCommand,
 )
 

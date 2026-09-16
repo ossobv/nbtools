@@ -56,11 +56,14 @@ def a_populated_netbox():
         leaf1, 'swp3', tags=['closso_roth'], mode='access',
         untagged_vlan=nb.add_vlan(100))
 
-    # The cluster but nothing in it. discovered-items is a listing
-    # rather than a fault check, so anything filed under Discovery is
-    # a finding by design -- which is the point of the note in this
-    # command's --help, and why a tidy NetBox has the cluster empty.
+    # The cluster, site and manufacturer but nothing in them.
+    # discovered-items is a listing rather than a fault check, so
+    # anything filed under Discovery is a finding by design -- which is
+    # the point of the note in this command's --help, and why a tidy
+    # NetBox has them empty.
     nb.add_cluster('Discovery')
+    nb.add_site('Discovery')
+    nb.add_manufacturer('Discovery')
     nb.add_tenant('acme-bv', description='ACME B.V.')
     nb.add_tenant('resellers', group=True)
 
