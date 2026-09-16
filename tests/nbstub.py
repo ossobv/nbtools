@@ -86,6 +86,8 @@ FIRST_ID = {
     'tenants': 1200,
     'tenant_groups': 1300,
     'object_types': 1400,
+    'sites': 1500,
+    'manufacturers': 1600,
 }
 
 # The object types a FakeNetbox knows about: one per kind of record it
@@ -177,6 +179,12 @@ def _kind(iface):
     return 'physical'
 
 
+def _manufacturer_id(record):
+    "The id of the maker of a device's type, or None"
+    device_type = getattr(record, 'device_type', None)
+    return (_rel_id(device_type, 'manufacturer') if device_type else None)
+
+
 def _device_id(record):
     """
     The id of the device a record is on, or None
@@ -208,6 +216,8 @@ FILTERS = {
     'id': (lambda rec, val: rec.id == val),
     'tag': (lambda rec, val: val in _slugs(rec)),
     'cluster_id': (lambda rec, val: _rel_id(rec, 'cluster') == val),
+    'site_id': (lambda rec, val: _rel_id(rec, 'site') == val),
+    'manufacturer_id': (lambda rec, val: _manufacturer_id(rec) == val),
     'q': (lambda rec, val: val.lower() in str(rec.name).lower()),
     'family': (lambda rec, val: _family(rec) == int(val)),
     'assigned_object_id__empty': (
@@ -397,6 +407,7 @@ class FakeNetbox:
                 on_create=self._create_interface,
                 on_update=self._update_interface),
             mac_addresses=FakeEndpoint(),
+            manufacturers=FakeEndpoint(),
             sites=FakeEndpoint())
         self.virtualization = NS(
             clusters=FakeEndpoint(),
@@ -427,9 +438,14 @@ class FakeNetbox:
         self.ipam.vrfs.records.append(vrf)
         return vrf
 
-    def add_device(self, name, cluster=None, oob_ip=None, device_bays=0):
+    def add_device(
+            self, name, cluster=None, oob_ip=None, device_bays=0,
+            site=None, manufacturer=None):
         """
         A dcim.device, with the two counts its serializer carries
+
+        manufacturer is the maker of the device's type, which is the
+        only place a device has one; the type itself is not modelled.
 
         interface_count keeps itself up to date as interfaces are
         added. device_bays is the count only -- a chassis is a
@@ -438,6 +454,7 @@ class FakeNetbox:
         """
         device = Named(
             id=self._take_id('devices'), name=name, cluster=cluster,
+            site=site, device_type=NS(manufacturer=manufacturer),
             oob_ip=oob_ip, interface_count=0, device_bay_count=device_bays)
         self.dcim.devices.records.append(device)
         return device
@@ -461,6 +478,16 @@ class FakeNetbox:
         cluster = Named(id=self._take_id('clusters'), name=name)
         self.virtualization.clusters.records.append(cluster)
         return cluster
+
+    def add_site(self, name):
+        site = Named(id=self._take_id('sites'), name=name, slug=name)
+        self.dcim.sites.records.append(site)
+        return site
+
+    def add_manufacturer(self, name):
+        maker = Named(id=self._take_id('manufacturers'), name=name, slug=name)
+        self.dcim.manufacturers.records.append(maker)
+        return maker
 
     def add_tenant(self, name, description='', group=False):
         "A tenancy.tenant, or a tenancy.tenant_group when group is set"
