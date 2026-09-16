@@ -35,6 +35,17 @@ def stdin_or(type_func):
     return parse
 
 
+def one_value(value):
+    """
+    The row type for set_input_values(): the value, as it came
+
+    A row of one field is that field, so a command taking a list of
+    values sees the value itself in plan_one() rather than a tuple
+    holding it.
+    """
+    return value
+
+
 class Command:
     """
     Base for the subcommands of both nbsync and nblint.
@@ -101,7 +112,13 @@ class SyncCommand(Command):
     confirmation and the execution, so no subcommand repeats it.
 
     A command that works through a list of input values takes them
-    through set_input() and implements plan_one() instead of plan().
+    through:
+
+    - set_input() -- simple assignment
+    - set_input_rows() + set_input_values() -- data via stdin
+
+    If set_input_rows() is used, plan_one() is used to process the data
+    while streaming.
     """
     def __init__(self, nbapi):
         super().__init__(nbapi)
@@ -111,6 +128,11 @@ class SyncCommand(Command):
         # too when they are coming off stdin -- _run_streaming() then
         # reads them a line at a time and this never holds them all.
         self._input = None
+
+        # The values typed beside a '-', which are items of their own
+        # and go first; only set_input_values() has any, a fixed
+        # row's other slots being constants rather than items.
+        self._head = ()
 
         # How a line of stdin becomes a row: (row_type, slots,
         # dashes), set by set_input_rows() when an argument was '-'.
@@ -184,12 +206,43 @@ class SyncCommand(Command):
         self._stdin_is_input = True
         self._row_slots = (row_type, slots, dashes)
 
+    def set_input_values(self, values, type_func):
+        """
+        Take the input as a list of values, a '-' among them off stdin
+
+        The other input shape next to set_input_rows() fixed row: a
+        command taking any number of values of one kind,
+
+            parser.add_argument(
+                'prefix', type=stdin_or(VrfPrefix), nargs='+', ...)
+
+        and fed one value -- the whole line, spaces and all -- per
+        line:
+
+            nblint --porcelain empty-prefixes |
+                nbsync --batch delete-prefix -
+
+        Where a row's non-dash slots are constants repeated on every
+        line, a list's are items in their own right: they are planned
+        and done first, in the order they were typed, and the stream
+        follows. A second '-' stands for nothing, the first one having
+        taken stdin.
+        """
+        typed = [value for value in values if value != STDIN_ARG]
+
+        if len(typed) == len(values):
+            self.set_input(typed)
+            return
+
+        self._stdin_is_input = True
+        self._head = typed
+        self._row_slots = (one_value, [(STDIN_ARG, type_func)], [0])
+
     @staticmethod
     def _stdin_lines():
         "The lines of stdin, stripped, as they arrive"
         for line in sys.stdin:
-            line = line.strip()
-            yield line
+            yield line.strip()
 
     def _parse_row(self, line):
         """
@@ -251,11 +304,8 @@ class SyncCommand(Command):
         set_keep_going() said to carry on past them.
 
         The trade-off the caller chose by piping: an error partway
-        along leaves the earlier items done, where the batch path
-        above plans everything first and so fails having changed
-        nothing. Under --keep-going that goes for the failed item
-        too: it is reported where it stopped, and what it had already
-        written stays written.
+        along leaves the earlier items done. And when --keep-going is
+        supplied, a failed plan_one() run also keeps going.
         """
         # No listing to confirm yet -- and none is coming, since
         # streaming requires --batch. This is only the guard.
@@ -264,26 +314,40 @@ class SyncCommand(Command):
 
         seen = failed = 0
 
+        # Whatever was typed beside the '-'; see set_input_values().
+        for value in self._head:
+            seen += 1
+            failed += self._do_item(str(value), value)
+
         # Stream over stdin, one line at a time.
         for line in self._stdin_lines():
             seen += 1
-            try:
-                for work in self.plan_one(self._parse_row(line)):
-                    # Make sure we flush, so log readers pick this up
-                    # immediately.
-                    self.print('-', work, flush=True)
-                    work.do(self.nbapi)
-            except StateError as e:
-                if not self._keep_going:
-                    raise
-
-                failed += 1
-                print(f'{line}: {e.description}: {e}', file=sys.stderr)
+            failed += self._do_item(line)
 
         if failed:
             print(f'Failed on {failed} of {seen} items', file=sys.stderr)
 
         return failed
+
+    def _do_item(self, label, value=None):
+        "Plan one item and do it; return 1 if it failed, 0 if not"
+        try:
+            if value is None:
+                value = self._parse_row(label)
+
+            for work in self.plan_one(value):
+                # Make sure we flush, so log readers pick this up
+                # immediately.
+                self.print('-', work, flush=True)
+                work.do(self.nbapi)
+        except StateError as e:
+            if not self._keep_going:
+                raise
+
+            print(f'{label}: {e.description}: {e}', file=sys.stderr)
+            return 1
+
+        return 0
 
     def confirm_or_die(self):
         "Depending on the process_mode, continue, ask or die"
