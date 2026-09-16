@@ -232,6 +232,7 @@ FILTERS = {
         lambda rec, val: bool(rec.mark_connected) == bool(val)),
     'kind': (lambda rec, val: _kind(rec) == val),
     'type': (lambda rec, val: rec.type.value == val),
+    'type__n': (lambda rec, val: rec.type.value != val),
     'lag_id': (lambda rec, val: _rel_id(rec, 'lag') == val),
     'parent_id': (lambda rec, val: _rel_id(rec, 'parent') == val),
     'virtual_machine_id': (

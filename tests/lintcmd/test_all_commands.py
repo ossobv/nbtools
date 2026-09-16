@@ -49,6 +49,9 @@ def a_populated_netbox():
         nb.add_interface(leaf1, 'swp2', tags=['corelink']),
         nb.add_interface(leaf2, 'swp2', tags=['corelink']))
 
+    # A Proxmox bridge, typed as one.
+    nb.add_interface(leaf1, 'vmbr0', type_='bridge')
+
     nb.add_interface(
         leaf1, 'swp3', tags=['closso_roth'], mode='access',
         untagged_vlan=nb.add_vlan(100))

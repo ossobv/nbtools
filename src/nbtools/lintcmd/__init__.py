@@ -5,6 +5,7 @@ from .dup_macs import DuplicateMacsCommand
 from .empty_prefixes import EmptyPrefixesCommand
 from .iface_cables import UnattachedInterfacesCommand
 from .iface_tags import InterfaceTagsCommand
+from .iface_types import InterfaceTypesCommand
 from .subif_labels import SubinterfaceLabelsCommand
 from .subif_parents import SubinterfaceParentsCommand
 from .tenant_names import TenantNamesCommand
@@ -28,7 +29,8 @@ COMMANDS = (
     SubinterfaceParentsCommand,
     SubinterfaceLabelsCommand,
 
-    # Interface configurations: tags and cabling.
+    # Interface configurations: types, tags, vlans and cabling.
+    InterfaceTypesCommand,
     InterfaceTagsCommand,
     UnattachedCablesCommand,
     UnattachedInterfacesCommand,
