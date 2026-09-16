@@ -1,6 +1,13 @@
+import io
+import sys
+
+from argparse import ArgumentParser
+
 import pytest
 
-from nbtools.exceptions import UnrecognisedItem, UnrecognisedItemOnTarget
+from nbtools.command import ProcessMode, STDIN_ARG
+from nbtools.exceptions import (
+    InvalidInput, UnrecognisedItem, UnrecognisedItemOnTarget)
 from nbtools.synccmd.unset_if_mac import UnsetInterfaceMacCommand
 from nbtools.types import DevIface, MacAddr
 
@@ -129,3 +136,85 @@ def test_executing_the_plan_deletes_by_id():
         work.do(nbapi)
 
     assert nbapi.deleted == [[2]]
+
+
+# -- stdin --
+
+OTHER = 'AA:BB:CC:00:00:09'
+
+
+def parse_args(argv):
+    parser = ArgumentParser()
+    UnsetInterfaceMacCommand.add_arguments(parser)
+    return parser.parse_args(argv)
+
+
+def a_streaming_command(nbapi, monkeypatch, argv, stdin):
+    monkeypatch.setattr(sys, 'stdin', io.StringIO(stdin))
+    return UnsetInterfaceMacCommand.from_args(nbapi, parse_args(argv))
+
+
+def test_a_dash_gets_past_argparse():
+    "'-' is not a DEV:IFACE and not a MAC, so stdin_or() lets it by"
+    args = parse_args([STDIN_ARG, STDIN_ARG])
+
+    assert (args.target, args.mac) == (STDIN_ARG, [STDIN_ARG])
+
+
+def test_the_macs_come_off_stdin_for_the_one_target(monkeypatch, capsys):
+    "nblint --porcelain duplicate-macs | nbsync unset-interface-mac : -"
+    nbapi = an_nbapi(
+        a_mac(1, MAC, BMC), a_mac(2, MAC), a_mac(3, OTHER), iface=BMC)
+    cmd = a_streaming_command(
+        nbapi, monkeypatch, [':', STDIN_ARG], f'{MAC}\n{OTHER}\n')
+
+    assert cmd.run(ProcessMode.YES) == 0
+    assert capsys.readouterr().out == (
+        '- : del mac aa:bb:cc:00:00:01\n'
+        '- : del mac aa:bb:cc:00:00:09\n')
+    assert nbapi.deleted == [[2], [3]]
+
+
+def test_a_typed_mac_goes_before_the_stream(monkeypatch, capsys):
+    nbapi = an_nbapi(a_mac(2, MAC), a_mac(3, OTHER))
+    cmd = a_streaming_command(
+        nbapi, monkeypatch, [':', OTHER, STDIN_ARG], f'{MAC}\n')
+
+    assert cmd.run(ProcessMode.YES) == 0
+    assert nbapi.deleted == [[3], [2]]
+
+
+def test_a_line_holds_the_target_then_the_mac(monkeypatch, capsys):
+    nbapi = an_nbapi(a_mac(1, MAC, BMC), a_mac(2, OTHER), iface=BMC)
+    cmd = a_streaming_command(
+        nbapi, monkeypatch, [STDIN_ARG, STDIN_ARG],
+        f'node1.example.com:BMC {MAC}\n: {OTHER}\n')
+
+    assert cmd.run(ProcessMode.YES) == 0
+    assert capsys.readouterr().out == (
+        '- node1.example.com:BMC del mac aa:bb:cc:00:00:01\n'
+        '- : del mac aa:bb:cc:00:00:09\n')
+    assert nbapi.deleted == [[1], [2]]
+
+
+def test_a_typed_mac_is_taken_off_every_target_read(monkeypatch):
+    nbapi = an_nbapi(a_mac(1, MAC, BMC), a_mac(2, MAC), iface=BMC)
+    cmd = a_streaming_command(
+        nbapi, monkeypatch, [STDIN_ARG, MAC], 'node1.example.com:BMC\n:\n')
+
+    assert cmd.run(ProcessMode.YES) == 0
+    assert nbapi.deleted == [[1], [2]]
+
+
+def test_several_macs_beside_a_target_on_stdin_are_refused():
+    with pytest.raises(InvalidInput, match='one MAC'):
+        UnsetInterfaceMacCommand.from_args(
+            an_nbapi(), parse_args([STDIN_ARG, MAC, OTHER]))
+
+
+def test_stdin_input_needs_batch(monkeypatch):
+    cmd = a_streaming_command(
+        an_nbapi(a_mac(2, MAC)), monkeypatch, [':', STDIN_ARG], f'{MAC}\n')
+
+    with pytest.raises(SystemExit):
+        cmd.run(ProcessMode.INTERACTIVE)

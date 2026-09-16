@@ -1,18 +1,35 @@
-from ..command import SyncCommand
-from ..exceptions import UnrecognisedItem, UnrecognisedItemOnTarget
+from collections import namedtuple
+
+from ..command import STDIN_ARG, SyncCommand, stdin_or
+from ..exceptions import (
+    InvalidInput, UnrecognisedItem, UnrecognisedItemOnTarget)
 from ..netbox import get_interface_tree, get_mac_addresses
 from ..types import DevIface, MacAddr
 from ..work import DeleteMacAddress, named_id
+
+
+# One item of work when the target comes off stdin too: a
+# "TARGET MAC" line apiece.
+TargetMac = namedtuple('TargetMac', 'target mac')
 
 
 class UnsetInterfaceMacCommand(SyncCommand):
     """
     Take MAC addresses off an interface.
 
-    Removing the record is the whole of it, the way set-interface-ip
-    deletes the IPs it finds in excess: a MAC address in NetBox exists
-    to say which interface it is on, so a MAC that is on no interface
-    is not worth keeping.
+    Under the hood, this simply deletes the MAC address record in NetBox.
+    MACs attached to nothing are not worth keeping.
+
+    The MACs can arrive on stdin, one per line, for the one target:
+
+        # The ':' means the-unassigned-interface.
+        nblint --porcelain duplicate-macs |
+            nbsync --batch unset-interface-mac : -
+
+    Or one can supply TARGET and MAC:
+
+        echo 'dev:iface 11:22:33:44:55:66' |
+            nbsync --batch unset-interface-mac - -
     """
     name = 'unset-interface-mac'
     help = (
@@ -21,32 +38,64 @@ class UnsetInterfaceMacCommand(SyncCommand):
 
     @classmethod
     def add_arguments(cls, parser):
-        parser.add_argument('target', type=DevIface, help=(
+        parser.add_argument('target', type=stdin_or(DevIface), help=(
             'Target device and interface (e.g. mynode.example:BMC), or '
-            '":" for the records that are not assigned to any interface'))
-        parser.add_argument('mac', type=MacAddr, nargs='+', help=(
-            'MAC addresses to remove (e.g. 11:22:33:44:55:66)'))
+            '":" for the records that are not assigned to any interface. '
+            f'Give "{STDIN_ARG}" for this and the MAC both to read '
+            '"TARGET MAC" lines from stdin'))
+        parser.add_argument(
+            'mac', type=stdin_or(MacAddr), nargs='+', help=(
+                'MAC addresses to remove (e.g. 11:22:33:44:55:66). Give '
+                f'"{STDIN_ARG}" to read them from stdin instead, one per '
+                'line. That mode requires --batch'))
 
     @classmethod
     def from_args(cls, nbapi, args):
         cmd = cls(nbapi)
-        cmd.set_target_interface(args.target)
-        cmd.set_mac_addresses(args.mac)
+        if args.target == STDIN_ARG:
+            cmd.set_target_rows(args.mac)
+        else:
+            cmd.set_target_interface(args.target)
+            cmd.set_mac_addresses(args.mac)
         return cmd
+
+    def __init__(self, nbapi):
+        super().__init__(nbapi)
+        # The one target for every MAC, or None when each line names
+        # its own; see set_target_rows().
+        self._target = None
+        self._iface = None
 
     def set_target_interface(self, target: DevIface):
         self._target = target
 
     def set_mac_addresses(self, macs):
-        self._macs = macs
+        "The MACs to take off the one target, a '-' among them off stdin"
+        self.set_input_values(macs, MacAddr)
 
-    def _get_target_interface(self):
+    def set_target_rows(self, macs):
+        """
+        Take the target off stdin, a line apiece, with the MAC or not
+
+        '- -' reads "TARGET MAC" lines; '- MAC' reads targets and takes
+        that MAC off each. More than one MAC has no row to go in.
+        """
+        if len(macs) != 1:
+            raise InvalidInput(
+                f'with the target on stdin, give one MAC or '
+                f'"{STDIN_ARG}", not {len(macs)}')
+
+        self._target = None
+        self.set_input_rows(TargetMac, [
+            (STDIN_ARG, DevIface), (macs[0], MacAddr)])
+
+    def _get_target_interface(self, target):
         "The interface to clear, or None for the unassigned records"
-        if self._target == DevIface.NONE:
+        if target == DevIface.NONE:
             return None
 
         return get_interface_tree(
-            self.nbapi, self._target, with_subinterfaces=False,
+            self.nbapi, target, with_subinterfaces=False,
             raise_as=UnrecognisedItemOnTarget).if_parent
 
     @staticmethod
@@ -80,22 +129,25 @@ class UnsetInterfaceMacCommand(SyncCommand):
             and assigned.id == iface.id
             and record.assigned_object_type == 'dcim.interface')
 
-    def plan(self):
-        iface = self._get_target_interface()
+    def prepare(self):
+        "Look the one target up once, when there is one"
+        if self._target is not None:
+            self._iface = self._get_target_interface(self._target)
+
+    def plan_one(self, value):
+        if isinstance(value, TargetMac):
+            iface = self._get_target_interface(value.target)
+            mac = value.mac
+        else:
+            iface = self._iface
+            mac = value
+
         nd_iface = self._named_interface(iface)
 
-        work_to_do = []
+        records = get_mac_addresses(self.nbapi, mac)
+        if not records:
+            raise UnrecognisedItem(mac)
 
-        for mac in self._macs:
-            records = get_mac_addresses(self.nbapi, mac)
-            if not records:
-                raise UnrecognisedItem(mac)
-
-            for record in records:
-                if not self._sits_on(record, iface):
-                    continue
-
-                work_to_do.append(DeleteMacAddress(
-                    named_id(str(mac), record.id, parent=nd_iface)))
-
-        return work_to_do
+        return [
+            DeleteMacAddress(named_id(str(mac), record.id, parent=nd_iface))
+            for record in records if self._sits_on(record, iface)]
