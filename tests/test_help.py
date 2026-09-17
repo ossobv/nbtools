@@ -140,7 +140,7 @@ def test_the_examples_are_found(monkeypatch, capsys):
     ids=(lambda argv: ' '.join(argv)))
 def test_the_examples_name_real_commands(monkeypatch, capsys, argv):
     known = {
-        prog: {cmdcls.name for cmdcls in commands}
+        prog: {cmdcls.name for cmdcls in commands} | {'completion'}
         for prog, _main, commands in TOOLS}
     main = {prog: main for prog, main, _commands in TOOLS}[argv[0]]
 
