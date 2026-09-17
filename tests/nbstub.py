@@ -393,8 +393,11 @@ class FakeNetbox:
         self.dcim = NS(
             cables=FakeEndpoint(),
             devices=FakeEndpoint(),
-            interfaces=FakeEndpoint(on_create=self._create_interface),
-            mac_addresses=FakeEndpoint())
+            interfaces=FakeEndpoint(
+                on_create=self._create_interface,
+                on_update=self._update_interface),
+            mac_addresses=FakeEndpoint(),
+            sites=FakeEndpoint())
         self.virtualization = NS(
             clusters=FakeEndpoint(),
             virtual_machines=FakeEndpoint(),
@@ -596,6 +599,12 @@ class FakeNetbox:
                 self.ipam.vrfs.get(values['vrf'])
                 if values.get('vrf') else None),
             type_=values.get('type'))
+
+    @staticmethod
+    def _update_interface(record, values):
+        "Only the type so far, which is a choice on the record"
+        assert set(values) == {'type'}, values
+        record.type = NS(value=values['type'], label=values['type'])
 
     def _update_ip(self, record, values):
         for key, value in values.items():
