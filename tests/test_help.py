@@ -59,6 +59,17 @@ def test_a_dot_inside_a_word_does_not_end_the_sentence():
             'Find swp1.1234 on leaf1.example.')
 
 
+def test_the_summary_ends_at_the_paragraph():
+    assert a_command(
+        'Find things\n\nThey are wrong.').summary() == 'Find things'
+
+
+def test_an_abbreviation_does_not_end_the_sentence():
+    assert a_command(
+        'Set a type, e.g. bridge. And so on.').summary() == (
+            'Set a type, e.g. bridge.')
+
+
 @pytest.mark.parametrize(('prog', 'main', 'commands'), TOOLS,
                          ids=[prog for prog, _main, _cmds in TOOLS])
 def test_the_tool_help_lists_the_summaries(
@@ -68,7 +79,7 @@ def test_the_tool_help_lists_the_summaries(
     for cmdcls in commands:
         assert f'{cmdcls.name} {cmdcls.summary()}' in out
         if cmdcls.summary() != cmdcls.help:
-            assert cmdcls.help not in out
+            assert ' '.join(cmdcls.help.split()) not in out
 
 
 @pytest.mark.parametrize(('prog', 'main', 'cmdcls'), EVERY_COMMAND)
@@ -77,4 +88,4 @@ def test_the_command_help_holds_the_whole_description(
     out = help_of(monkeypatch, capsys, main, [prog, cmdcls.name, '--help'])
 
     assert out.startswith(f'usage: {prog} {cmdcls.name} ')
-    assert cmdcls.help in out
+    assert ' '.join(cmdcls.help.split()) in out

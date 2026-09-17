@@ -12,6 +12,9 @@ ProcessMode = Enum('ProcessMode', [('INTERACTIVE', -1), ('NO', 0), ('YES', 1)])
 # has seen it once knows it everywhere.
 STDIN_ARG = '-'
 
+# The dotted abbreviations a sentence does not end at; see summary().
+ABBREVIATIONS = ('e.g.', 'i.e.')
+
 
 def stdin_or(type_func):
     """
@@ -70,9 +73,21 @@ class Command:
         buries the list; the whole of 'help' goes to the command's own
         --help instead. So the first sentence should say what the
         command is for, and stand on its own.
+
+        'help' is paragraphs (see ParagraphHelpFormatter), so the
+        sentence ends at the paragraph at the latest. A dot ends it
+        when a space follows, unless it is the last one of an 'e.g.'.
         """
-        sentence, stop, _rest = cls.help.partition('. ')
-        return sentence + stop.rstrip()
+        text = ' '.join(cls.help.split('\n\n', 1)[0].split())
+
+        start = 0
+        while True:
+            stop = text.find('. ', start) + 1
+            if not stop:
+                return text
+            if not text[:stop].endswith(ABBREVIATIONS):
+                return text[:stop]
+            start = stop
 
     @classmethod
     def add_arguments(cls, parser):

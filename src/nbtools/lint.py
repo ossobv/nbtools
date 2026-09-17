@@ -3,6 +3,7 @@ from argparse import ArgumentParser
 import logging
 import sys
 
+from .cli import ParagraphHelpFormatter, add_commands
 from .config import CONF_FILE, Config
 from .exceptions import StartupError, StateError
 from .lintcmd import COMMANDS, COMMANDS_BY_NAME
@@ -19,11 +20,16 @@ def main() -> None:
         epilog=(
             'Without a COMMAND it runs them all. Exits 0 when everything is '
             'clean and 1 when there are findings, so it can be run from '
-            'cron. Feed the findings of one COMMAND to nbsync with '
-            '--porcelain, e.g. "nblint --porcelain duplicate-macs | xargs '
-            'nbsync unset-interface-mac :". Each COMMAND has its own '
-            'options and a fuller description; see "nblint COMMAND '
-            '--help".'))
+            'cron; 2 is a usage error and 3 a NetBox failure.\n'
+            '\n'
+            'Feed the findings of one COMMAND to nbsync with --porcelain:\n'
+            '\n'
+            '  nblint --porcelain duplicate-macs --limit=unassigned |\n'
+            '    nbsync --batch unset-interface-mac : -\n'
+            '\n'
+            'Each COMMAND has its own options and a fuller description; '
+            'see "nblint COMMAND --help".'),
+        formatter_class=ParagraphHelpFormatter)
     parser.add_argument(
         '-c', '--config', metavar='INIFILE',
         help=f'configuration INI location (default: {CONF_FILE})')
@@ -38,10 +44,8 @@ def main() -> None:
         'Print one value per line and no banners, for feeding into '
         'nbsync. Needs a COMMAND: see the example below.'))
 
-    command = parser.add_subparsers(dest='command')
-    for cmdcls in COMMANDS:
-        cmdcls.add_arguments(command.add_parser(
-            cmdcls.name, help=cmdcls.summary(), description=cmdcls.help))
+    add_commands(
+        parser, COMMANDS, help='the lint to run; all of them when left out')
 
     args = parser.parse_args()
 

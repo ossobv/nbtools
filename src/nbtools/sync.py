@@ -3,12 +3,13 @@ from argparse import ArgumentParser
 import logging
 import sys
 
-from .synccmd import COMMANDS, COMMANDS_BY_NAME
+from .cli import ParagraphHelpFormatter, add_commands
 from .command import ProcessMode
 from .config import CONF_FILE, Config
 from .exceptions import StartupError, StateError
 from .netbox import connect, translated_errors
 from .recorder import NetboxRecorder
+from .synccmd import COMMANDS, COMMANDS_BY_NAME
 
 
 def main() -> None:
@@ -19,8 +20,18 @@ def main() -> None:
             'like moving cables between devices/interfaces, duplicating '
             'interfaces, updating IPs.'),
         epilog=(
-            'Each subcommand has its own options; '
-            'see "nbsync SUBCOMMAND --help".'))
+            'Lists the work it is about to do and asks before doing it; '
+            '--batch does it without asking. An argument given as "-" is '
+            'read from stdin instead, one item per line, each done as it '
+            'arrives -- which needs --batch, stdin being taken. That is '
+            'how the findings of nblint --porcelain get fixed:\n'
+            '\n'
+            '  nblint --porcelain interface-types --limit=bridge |\n'
+            '    nbsync --batch set-interface-type bridge -\n'
+            '\n'
+            'Each COMMAND has its own options and a fuller description; '
+            'see "nbsync COMMAND --help".'),
+        formatter_class=ParagraphHelpFormatter)
     parser.add_argument(
         '-c', '--config', metavar='INIFILE',
         help=f'configuration INI location (default: {CONF_FILE})')
@@ -41,10 +52,7 @@ def main() -> None:
     parser.add_argument('--record', action='store', help=(
         'Record API calls into specified file.'))
 
-    command = parser.add_subparsers(dest='command')
-    for cmdcls in COMMANDS:
-        cmdcls.add_arguments(command.add_parser(
-            cmdcls.name, help=cmdcls.summary(), description=cmdcls.help))
+    add_commands(parser, COMMANDS, help='the change to make')
 
     args = parser.parse_args()
 
