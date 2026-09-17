@@ -352,12 +352,13 @@ class SyncCommand(Command):
     def confirm_or_die(self):
         "Depending on the process_mode, continue, ask or die"
         if self.process_mode == ProcessMode.INTERACTIVE:
-            # An answer read off stdin would just be an input line.
+            # An answer read off stdin would just be an input line. The
+            # invocation asks for the impossible: a usage error, so 2.
             if self._stdin_is_input:
                 print(
                     'stdin holds the input, so the answer cannot come '
                     'from there: use --batch', file=sys.stderr)
-                sys.exit(3)
+                sys.exit(2)
 
             while True:
                 print("Type 'yes' to continue: ", end='', file=sys.stderr)
