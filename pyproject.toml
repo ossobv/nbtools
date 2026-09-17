@@ -27,6 +27,7 @@ dependencies = [
 
 [project.optional-dependencies]
 dev = [
+  "flake8",
   "pytest",
   "responses",
 ]
