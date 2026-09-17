@@ -47,10 +47,11 @@ class DiscoveredItemsCommand(LintCommand):
     name = 'discovered-items'
     help = (
         'List the devices and virtual machines that auto-discovery filed '
-        f'under "{DISCOVERY_NAME}". They could be files by Cluster (for '
-        'virtual machines) or Site or Manufacturert (for devices). '
-        'Items found here are not broken, but simply not placed by hand yet. '
-        'That makes them worth a periodic look.')
+        f'under "{DISCOVERY_NAME}".\n'
+        '\n'
+        'A virtual machine is filed by its cluster, a device by its site '
+        'or its manufacturer. Items found here are not broken, but simply '
+        'not placed by hand yet. That makes them worth a periodic look.')
 
     @classmethod
     def add_arguments(cls, parser):

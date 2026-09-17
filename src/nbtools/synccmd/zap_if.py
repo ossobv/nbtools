@@ -50,11 +50,15 @@ class ZapInterfaceCommand(SyncCommand):
     """
     name = 'zap-interface'
     help = (
-        'Zap (clean/wipe) properties from an interface. '
+        'Zap (clean/wipe) properties from an interface.\n'
+        '\n'
         'Keeps the interface, its type, cable and MACs, but deletes its '
         'subinterfaces and the IPs on them and on it, and clears its '
-        'description, label, mode, VLANs, tags and VRF. '
-        'Useful to wipe target before calling migrate-interface.')
+        'description, label, mode, VLANs, tags and VRF. Useful to wipe '
+        'the target before calling migrate-interface:\n'
+        '\n'
+        '  nbsync zap-interface leaf2:swp8\n'
+        '  nbsync migrate-interface leaf1:swp19 leaf2:swp8')
 
     @classmethod
     def add_arguments(cls, parser):

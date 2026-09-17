@@ -265,12 +265,18 @@ class UnattachedInterfacesCommand(LintCommand):
     name = 'unattached-interfaces'
     help = (
         'Find interfaces that no cable is plugged into; the other half of '
-        'unattached-cables. Only ports that look in use are reported. '
-        'Disabled, marked-connected, virtual, LAG, bridge and wireless '
-        'interfaces are left alone, and so are subinterfaces, lo and the '
-        'names given to --exclude. So is an interface with no IP address, '
-        'unless --no-require-ip. An address on its subinterfaces or its '
-        'LAG counts.')
+        'unattached-cables.\n'
+        '\n'
+        'Only ports that look in use are reported. Disabled, '
+        'marked-connected, virtual, LAG, bridge and wireless interfaces '
+        'are left alone, and so are subinterfaces, lo and the names given '
+        'to --exclude. So is an interface with no IP address, unless '
+        '--no-require-ip. An address on its subinterfaces or its LAG '
+        'counts.\n'
+        '\n'
+        'Example, leaving the USB network adapters out:\n'
+        '\n'
+        "  nblint unattached-interfaces --exclude='enx*'")
 
     @classmethod
     def add_arguments(cls, parser):

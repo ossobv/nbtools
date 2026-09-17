@@ -19,13 +19,18 @@ NO_CLONE_TAGS = frozenset({'CLOSSO_ROTH'})
 class CloneInterfaceCommand(SyncCommand):
     name = 'clone-interface'
     help = (
-        'Clone interface with subinterfaces from source to target. '
+        'Clone interface with subinterfaces from source to target.\n'
+        '\n'
         'Useful when having a machine connected to multiple interfaces. '
-        'It will duplicate the virtual child interfaces. '
-        'It will copy the IPv4 addresses to the appropriate child (vlan) '
-        'interfaces. '
-        'It sets role=anycast on the IPs so they can be assigned to multiple '
-        'interfaces.')
+        'It will duplicate the virtual child interfaces, and copy the IPv4 '
+        'addresses to the appropriate child (VLAN) interfaces. It sets '
+        'role=anycast on the IPs so they can be assigned to multiple '
+        'interfaces.\n'
+        '\n'
+        'Example, giving the machine on leaf1:swp19 the same setup on its '
+        'second uplink:\n'
+        '\n'
+        '  nbsync clone-interface leaf1:swp19 leaf2:swp19')
 
     @classmethod
     def add_arguments(cls, parser):

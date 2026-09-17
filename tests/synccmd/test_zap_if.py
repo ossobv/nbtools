@@ -26,7 +26,7 @@ def a_netbox():
     leaf2 = nb.add_device('leaf2')
 
     nb.swp8 = nb.add_interface(
-        leaf2, 'swp8', vrf=red, label='STAIRS', tags=['corelink'],
+        leaf2, 'swp8', vrf=red, label='DEV', tags=['corelink'],
         mode='tagged', tagged_vlans=[nb.add_vlan(100)],
         untagged_vlan=nb.add_vlan(1))
     nb.swp8.description = 'to leaf1'
@@ -90,7 +90,7 @@ def test_a_bare_interface_is_no_work():
 
 def test_only_the_fields_that_are_set_get_cleared():
     nb = a_netbox()
-    nb.swp9.label = 'STAIRS'
+    nb.swp9.label = 'DEV'
 
     cmd = a_command(nb, DevIface('leaf2:swp9'))
 

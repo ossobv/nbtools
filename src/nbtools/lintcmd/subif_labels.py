@@ -21,7 +21,7 @@ def wrong_label(iface):
     Why this subinterface's label is wrong, or None when it is right
 
     The rule is that the label spells out the VRF: swp1.1234 in VRF
-    STAIRS is labelled STAIRS. This is purely convention and easy
+    DEV is labelled DEV. This is purely convention and easy
     on the eyes in NetBox.
 
     A subinterface with no VRF at all is not this check's business,
@@ -60,9 +60,11 @@ class SubinterfaceLabelsCommand(LintCommand):
     name = 'subinterface-labels'
     help = (
         'Find numeric subinterfaces whose label does not spell out their '
-        'VRF. swp1.1234 in VRF STAIRS should be labelled STAIRS: '
-        'the number on its own does not tell a reader which '
-        'VRF 1234 is. Non-numeric suffixes are left alone.')
+        'VRF.\n'
+        '\n'
+        'swp1.1234 in VRF DEV should be labelled DEV: the number on '
+        'its own does not tell a reader which VRF 1234 is. Non-numeric '
+        'suffixes are left alone.')
 
     def find(self):
         return [

@@ -13,10 +13,15 @@ from ..work import (
 class MigrateInterfaceCommand(SyncCommand):
     name = 'migrate-interface'
     help = (
-        'Migrate properties of an interface -- subinterfaces, IPs and cables '
-        '-- from source to target. '
-        'Target should start out empty. Source will be zapped. '
-        'Useful when moving a cable from one switch to another.')
+        'Migrate properties of an interface -- subinterfaces, IPs and '
+        'cables -- from source to target.\n'
+        '\n'
+        'Target should start out empty, and the subinterfaces of the '
+        'source are deleted once moved. Useful when moving a cable from '
+        'one switch to another. Example, wiping the target first:\n'
+        '\n'
+        '  nbsync zap-interface leaf2:swp8\n'
+        '  nbsync migrate-interface leaf1:swp19 leaf2:swp8')
 
     @classmethod
     def add_arguments(cls, parser):

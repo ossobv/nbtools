@@ -26,13 +26,19 @@ Gateway = namedtuple('Gateway', 'ipaddr iface parent_name suffix')
 class MigrateGatewayCommand(SyncCommand):
     name = 'migrate-gateway'
     help = (
-        'Migrate a VM by moving the connected gateway IPs. This is a rather '
-        'custom situation where: the VM move itself is not handled here, but '
-        'its gateways (/31) are moved from one switch subinterface to '
-        'another. Specify one or more target L3 switch ports using -t '
-        '(not the subinterfaces!). Then specify one or more VMs of which the '
-        'gateways should move. The sync command ensures the VRF moves along '
-        'onto the new interface.')
+        'Migrate a VM by moving the connected gateway IPs.\n'
+        '\n'
+        'This is a rather custom situation: the VM move itself is not '
+        'handled here, but its gateways (/31) are moved from one switch '
+        'subinterface to another. Specify one or more target L3 switch '
+        'ports using -t (not the subinterfaces!), then one or more VMs '
+        'whose gateways should move. The VRF moves along onto the new '
+        'interface.\n'
+        '\n'
+        'Example, two VMs whose gateways all sit on one switch port now, '
+        'moving to swp8 on leaf2:\n'
+        '\n'
+        '  nbsync migrate-gateway -t leaf2:swp8 vm1.example vm2.example')
 
     @classmethod
     def add_arguments(cls, parser):

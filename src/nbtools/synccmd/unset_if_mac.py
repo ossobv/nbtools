@@ -33,8 +33,19 @@ class UnsetInterfaceMacCommand(SyncCommand):
     """
     name = 'unset-interface-mac'
     help = (
-        'Remove MAC addresses from an interface. Give ":" as the target '
-        'to work on the records that are on no interface at all.')
+        'Remove MAC addresses from an interface.\n'
+        '\n'
+        'Give ":" as the target to work on the records that are on no '
+        'interface at all. That is how the loose copies nblint '
+        'duplicate-macs finds are dropped:\n'
+        '\n'
+        '  nblint --porcelain duplicate-macs --limit=unassigned |\n'
+        '    nbsync --batch unset-interface-mac : -\n'
+        '\n'
+        'With "-" for the target as well, each line names both:\n'
+        '\n'
+        "  echo 'mynode.example:BMC 11:22:33:44:55:66' |\n"
+        '    nbsync --batch unset-interface-mac - -')
 
     @classmethod
     def add_arguments(cls, parser):

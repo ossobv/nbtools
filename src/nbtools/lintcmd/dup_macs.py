@@ -298,13 +298,23 @@ class DuplicateMacFinding:
 class DuplicateMacsCommand(LintCommand):
     name = 'duplicate-macs'
     help = (
-        'Find MAC addresses that exist more than once. Could be someone '
-        'who created the MAC twice and assigned only the second one. Or '
-        'the device was renamed and then rediscovered. Generally you '
-        'expect only unique MAC addresses in your entire NetBox. '
-        'NOTE: Some devices have a enxbe3af2b6059f device which is '
-        'non-unique. We ignore the enx<MAC> devices, unless --all '
-        'is specified.')
+        'Find MAC addresses that exist more than once.\n'
+        '\n'
+        'Could be someone who created the MAC twice and assigned only the '
+        'second one, or a device that was renamed and then rediscovered. '
+        'Generally you expect only unique MAC addresses in your entire '
+        'NetBox.\n'
+        '\n'
+        'Some devices have an interface named after a MAC, such as '
+        'enxbe3af2b6059f, which is not unique. Those enx<MAC> interfaces '
+        'are ignored unless --all is given.\n'
+        '\n'
+        'A copy on no interface is usually the one to drop. To delete '
+        'those, leaving the assigned copies alone -- where no copy is '
+        'assigned, that drops the MAC from NetBox altogether:\n'
+        '\n'
+        '  nblint --porcelain duplicate-macs --limit=unassigned |\n'
+        '    nbsync --batch unset-interface-mac : -')
 
     @classmethod
     def add_arguments(cls, parser):

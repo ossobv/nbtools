@@ -11,8 +11,11 @@ from ..work import (
 class SwapCableCommand(SyncCommand):
     name = 'swap-cables'
     help = (
-        'Swap two connected cables. Changes A1<->B1 and A2<->B2 to '
-        'A1<->B2 and A2<->B1.')
+        'Swap two connected cables.\n'
+        '\n'
+        'Changes A1<->B1 and A2<->B2 to A1<->B2 and A2<->B1. Example:\n'
+        '\n'
+        '  nbsync swap-cables pve1:enmlx0 pve1:enmlx1')
 
     @classmethod
     def add_arguments(cls, parser):
