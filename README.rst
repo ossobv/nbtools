@@ -1,32 +1,123 @@
 nbtools
 =======
 
-Collection of ``nblint`` and ``nbsync`` tools to operate on *NetBox* --
+Collection of ``nblint`` and ``nbsync`` tools to operate on *NetBox* —
 the networking source of truth.
 
-This project is very alpha.
+``nblint`` has these *linting* commands:
+
+=======================  ===================================================================================
+Check                    Description
+=======================  ===================================================================================
+unassigned-ips           Find IP addresses that sit on no interface.
+empty-prefixes           Find prefixes that hold nothing: no address and no smaller prefix inside them.
+duplicate-prefixes       Find prefixes that exist in more than one VRF.
+duplicate-ips            Find IP addresses that exist in more than one VRF.
+unparented-ips           Find IP addresses that no prefix of a sensible size covers.
+duplicate-macs           Find MAC addresses that exist more than once.
+device-bmcs              Find machines whose management controller cannot be reached.
+subinterface-parents     Find numeric subinterfaces whose parent is not the interface their name names.
+subinterface-labels      Find numeric subinterfaces whose label does not spell out their VRF.
+interface-types          Find interfaces whose name says what type they are, but whose type does not.
+unpaired-interface-tags  Find interfaces carrying a link tag that the far end of their cable does not.
+interface-vlans          Find tagged interfaces whose 802.1Q mode and VLANs do not agree.
+unattached-cables        Find physical cables that do not have both ends attached.
+unattached-interfaces    Find interfaces that no cable is plugged into; the other half of unattached-cables.
+discovered-items         List the devices and virtual machines that auto-discovery filed under "Discovery".
+tenant-names             Find tenants and tenant-groups whose name is not slug-style.
+=======================  ===================================================================================
+
+*If you run nblint without a command, it will run all of them.*
+
+``nbsync`` has these *update* commands:
+
+=======================  =========================================================
+Command                  Description
+=======================  =========================================================
+clone-interface          Clone interface with subinterfaces from source to target.
+migrate-gateway          Migrate a VM by moving the connected gateway IPs.
+migrate-interface        Migrate properties of an interface from source to target.
+set-interface-ip         Set IP on an interface.
+set-interface-ip-by-mac  Set IP on the interface holding a MAC address.
+set-interface-type       Set the type of interfaces, e.g. to bridge.
+unset-interface-mac      Remove MAC addresses from an interface.
+zap-interface            Zap (clean/wipe) properties from an interface.
+swap-cables              Swap two connected cables.
+=======================  =========================================================
+
+*Running an nbsync WITHOUT --batch is safe: it does nothing until you
+accept the change.*
+
+Exit codes: 0 clean, 1 nblint finding, 2 startup/usage error, 3 NetBox/state error.
 
 
------------------
-Setup and example
------------------
+--------
+Examples
+--------
+
+For example, you can find empty prefixes in NetBox using ``nblint``:
 
 .. code-block:: console
 
-    $ make setup
+    $ nblint empty-prefixes
+    --------------
+    empty-prefixes
+    --------------
+    - 10.7.7.0/24 #133 status=active vrf=DOSTNO_DAN
+    - 10.103.0.0/24 #1 status=active vrf=MGMT
 
-    $ . .venv/bin/activate
+Or cables that are only partially attached:
 
-    $ nbsync
-    usage: nbsync [-h] [-c INIFILE] [--debug] [--record RECORD] {...}
+.. code-block:: console
 
-    $ nbsync swap-cables switch1:swp4 switch2:swp4
-    (should unplug the cable from switch1 swp4 and plug it into switch2 swp4)
+    $ nblint unattached-cables
+    -----------------
+    unattached-cables
+    -----------------
+    - cable #227 status=connected a=<none> b=switch2:swp54s2
+
+And you use one of the ``nbsync`` commands to perform actions that
+require lots of manual clicking in the *NetBox* web interface.
+
+For instance, if you've noticed you got two cables mixed up:
+
+.. code-block:: console
+
+    $ nbsync -C dostno swap-cables pve3:enmlx0 pve3:enmlx1
+    -----------
+    swap-cables
+    -----------
+    - pve3:enmlx0 cable #187 set b_terminations=[]
+    - pve3:enmlx1 cable #182 set b_terminations=[{'object_type': 'dcim.interface', 'object_id': 177}]
+    - pve3:enmlx0 cable #187 set b_terminations=[{'object_type': 'dcim.interface', 'object_id': 178}]
+    Type 'yes' to continue: yes
 
 
-----------------
-nblint vs nbsync
-----------------
+-------
+Install
+-------
+
+.. code-block:: console
+
+    $ pipx install git+https://github.com/ossobv/nbtools.git@main
+
+    $ cat >~/.config/nbtools.ini <<EOF
+    [mynetbox]
+    api_url = https://netbox.example.com/api
+    api_token = 17801aeb9ce93006bea477e41e70ad5d53219919
+    EOF
+
+    $ source <(nblint completion bash)
+
+    $ source <(nbsync completion bash)
+
+    $ nblint --help
+    ...
+
+
+-----------------
+nblint vs nbsync?
+-----------------
 
 The nbtools suite contains two commands: nblint and nbsync. *nblint*
 should be able to work with readonly tokens and is focused on *finding*
@@ -70,9 +161,16 @@ That way, we only need to start nbsync once. The drawback of
 issues with the input or NetBox, but sometimes that isn't a problem.
 
 
---------
-Examples
---------
+-----------
+Development
+-----------
+
+See the ``Makefile`` for basic dev setup.
+
+
+------------
+DHCP example
+------------
 
 **Automatic updates from ISC dhcpd to NetBox:**
 
