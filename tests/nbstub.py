@@ -630,11 +630,20 @@ class FakeNetbox:
                 if values.get('vrf') else None),
             type_=values.get('type'))
 
-    @staticmethod
-    def _update_interface(record, values):
-        "Only the type so far, which is a choice on the record"
-        assert set(values) == {'type'}, values
-        record.type = NS(value=values['type'], label=values['type'])
+    def _update_interface(self, record, values):
+        "The PATCH body back onto the record, choices and ids resolved"
+        for key, value in values.items():
+            if key in ('type', 'mode'):
+                value = (NS(value=value, label=value) if value else None)
+            elif key == 'vrf':
+                value = (self.ipam.vrfs.get(value) if value else None)
+            elif key == 'untagged_vlan':
+                assert value is None, 'vlans are not filed; clear only'
+            elif key in ('tags', 'tagged_vlans'):
+                assert value == [], 'tags/vlans by id: clear only'
+            else:
+                assert key in ('description', 'label'), key
+            setattr(record, key, value)
 
     def _update_ip(self, record, values):
         for key, value in values.items():
