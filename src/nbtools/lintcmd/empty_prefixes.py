@@ -123,8 +123,8 @@ class EmptyPrefixesCommand(LintCommand):
         'Find prefixes that hold nothing: no address and no smaller '
         'prefix inside them. They should probably not exist. '
         'By default --status=reserved is skipped, as is --role=3rd-party. '
-        'These are assumed to be in-progress or out of our control.'
-        'Use --status=all and role=all to see them anyway.')
+        'These are assumed to be in-progress or out of our control. '
+        'Use --status=all and --role=all to see them anyway.')
 
     @classmethod
     def add_arguments(cls, parser):
@@ -135,7 +135,7 @@ class EmptyPrefixesCommand(LintCommand):
             '--role', action='append', type=parse_roles,
             metavar='ROLE', help=(
                 'Report only prefixes with this role, by slug, or leave '
-                'the role out with a leading (shell-quoted0 \'!\'. '
+                'the role out with a leading (shell-quoted) \'!\'. '
                 'Repeatable, or comma separated. Default: '
                 + ','.join(f'!{role}' for role in ROLES_SKIPPED_BY_DEFAULT)
                 + f'; naming any role replaces that. Pass "{ROLE_ALL}" '
