@@ -66,10 +66,12 @@ class InterfaceTagsCommand(LintCommand):
     name = 'unpaired-interface-tags'
     help = (
         'Find interfaces carrying a link tag that the far end of their '
-        'cable does not. corelink, ebgp and fec-off each describe the '
-        'link rather than the port, so having one on a single end is a '
-        'contradiction. Interfaces with no cable are left alone. Cables '
-        'that land on a patch panel are undefined for now.')
+        'cable does not.\n'
+        '\n'
+        'corelink, ebgp and fec-off each describe the link rather than the '
+        'port, so having one on a single end is a contradiction. '
+        'Interfaces with no cable are left alone. Cables that land on a '
+        'patch panel are undefined for now.')
 
     @classmethod
     def add_arguments(cls, parser):

@@ -7,22 +7,22 @@ def a_netbox():
     """
     One subinterface labelled right, and the three ways to get it wrong.
 
-    swp1.1234 carries STAIRS and says so. swp1.2222 says nothing,
+    swp1.1234 carries DEV and says so. swp1.2222 says nothing,
     swp1.1111 says the wrong thing, and swp1.321 kept a label after
     its VRF went away.
     """
     nb = FakeNetbox()
-    backup = nb.add_vrf('STAIRS')
-    main = nb.add_vrf('FLATVRF')
+    backup = nb.add_vrf('BACKUP')
+    main = nb.add_vrf('WAN')
     leaf1 = nb.add_device('leaf1')
     swp1 = nb.add_interface(leaf1, 'swp1')
 
     nb.add_interface(
-        leaf1, 'swp1.1234', parent=swp1, vrf=backup, label='STAIRS')
+        leaf1, 'swp1.1234', parent=swp1, vrf=backup, label='BACKUP')
     nb.add_interface(leaf1, 'swp1.2222', parent=swp1, vrf=backup)
     nb.add_interface(
-        leaf1, 'swp1.1111', parent=swp1, vrf=main, label='STAIRS')
-    nb.add_interface(leaf1, 'swp1.321', parent=swp1, label='FLATVRF')
+        leaf1, 'swp1.1111', parent=swp1, vrf=main, label='BACKUP')
+    nb.add_interface(leaf1, 'swp1.321', parent=swp1, label='WAN')
 
     return nb
 
@@ -38,21 +38,21 @@ def test_an_empty_label_is_reported():
     findings = SubinterfaceLabelsCommand(a_netbox()).find()
 
     assert str(findings[0]) == (
-        "leaf1:swp1.2222 #502 label '' should be 'STAIRS'")
+        "leaf1:swp1.2222 #502 label '' should be 'BACKUP'")
 
 
 def test_a_label_naming_the_wrong_vrf_is_reported():
     findings = SubinterfaceLabelsCommand(a_netbox()).find()
 
     assert str(findings[1]) == (
-        "leaf1:swp1.1111 #503 label 'STAIRS' should be 'FLATVRF'")
+        "leaf1:swp1.1111 #503 label 'BACKUP' should be 'WAN'")
 
 
 def test_a_label_left_behind_by_a_vrf_that_moved_is_reported():
     findings = SubinterfaceLabelsCommand(a_netbox()).find()
 
     assert str(findings[2]) == (
-        "leaf1:swp1.321 #504 label 'FLATVRF' but no vrf")
+        "leaf1:swp1.321 #504 label 'WAN' but no vrf")
 
 
 def test_a_subinterface_with_neither_vrf_nor_label_is_left_alone():
@@ -104,9 +104,9 @@ def test_command_reports_and_counts(capsys):
         '-------------------\n'
         'subinterface-labels\n'
         '-------------------\n'
-        "- leaf1:swp1.2222 #502 label '' should be 'STAIRS'\n"
-        "- leaf1:swp1.1111 #503 label 'STAIRS' should be 'FLATVRF'\n"
-        "- leaf1:swp1.321 #504 label 'FLATVRF' but no vrf\n")
+        "- leaf1:swp1.2222 #502 label '' should be 'BACKUP'\n"
+        "- leaf1:swp1.1111 #503 label 'BACKUP' should be 'WAN'\n"
+        "- leaf1:swp1.321 #504 label 'WAN' but no vrf\n")
 
 
 def test_command_porcelain_prints_dev_iface_pairs(capsys):

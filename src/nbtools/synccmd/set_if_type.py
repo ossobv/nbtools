@@ -20,9 +20,14 @@ class SetInterfaceTypeCommand(SyncCommand):
     """
     name = 'set-interface-type'
     help = (
-        'Set the type of interfaces, e.g. to bridge. Takes the '
-        'output of "nblint --porcelain interface-types --limit=TYPE" '
-        'on stdin.')
+        'Set the type of interfaces, e.g. to bridge.\n'
+        '\n'
+        'An interface that already has the type is left alone. It is the '
+        'other half of nblint interface-types, whose findings it takes on '
+        'stdin:\n'
+        '\n'
+        '  nblint --porcelain interface-types --limit=bridge |\n'
+        '    nbsync --batch set-interface-type bridge -')
 
     @classmethod
     def add_arguments(cls, parser):

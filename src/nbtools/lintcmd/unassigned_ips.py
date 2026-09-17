@@ -25,12 +25,14 @@ STATUS = StatusArgument(
 class UnassignedIpsCommand(LintCommand):
     name = 'unassigned-ips'
     help = (
-        'Find IP addresses that sit on no interface. An address nothing '
-        'holds is either a leftover from a machine that went away or a '
-        'reservation nobody wrote down, and either way it is what the '
-        'periodic IPAM sweep is looking for. Reserved addresses are '
-        'skipped -- those are held on purpose with nothing on them. '
-        'Pass --status=all to see them anyway.')
+        'Find IP addresses that sit on no interface.\n'
+        '\n'
+        'An address nothing holds is either a leftover from a machine that '
+        'went away or a reservation nobody wrote down, and either way it '
+        'is what the periodic IPAM sweep is looking for.\n'
+        '\n'
+        'Reserved addresses are skipped -- those are held on purpose with '
+        'nothing on them. Pass --status=all to see them anyway.')
 
     @classmethod
     def add_arguments(cls, parser):

@@ -79,11 +79,13 @@ class SubinterfaceParentsCommand(LintCommand):
     name = 'subinterface-parents'
     help = (
         'Find numeric subinterfaces whose parent is not the interface '
-        'their name names. swp3.1234 belongs to swp3 on the same device; '
-        'this reports the ones with no parent set, the ones pointing '
-        'somewhere else, and the ones whose name implies a parent that '
-        'does not exist. Nothing in NetBox enforces this, and the '
-        'interface commands here go by the name because of it.')
+        'their name names.\n'
+        '\n'
+        'swp3.1234 belongs to swp3 on the same device; this reports the '
+        'ones with no parent set, the ones pointing somewhere else, and '
+        'the ones whose name implies a parent that does not exist. Nothing '
+        'in NetBox enforces this, and the interface commands here go by '
+        'the name because of it.')
 
     def find(self):
         return [

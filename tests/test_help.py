@@ -89,3 +89,60 @@ def test_the_command_help_holds_the_whole_description(
 
     assert out.startswith(f'usage: {prog} {cmdcls.name} ')
     assert ' '.join(cmdcls.help.split()) in out
+
+
+@pytest.mark.parametrize(('prog', 'main', 'commands'), TOOLS,
+                         ids=[prog for prog, _main, _cmds in TOOLS])
+def test_no_two_commands_share_a_summary(prog, main, commands):
+    summaries = [cmdcls.summary() for cmdcls in commands]
+
+    assert len(set(summaries)) == len(summaries)
+
+
+@pytest.mark.parametrize(('prog', 'main', 'cmdcls'), EVERY_COMMAND)
+def test_the_description_fits_79_columns(prog, main, cmdcls):
+    # Wrapped paragraphs fit whatever the terminal; an example is
+    # printed as written, so it has to fit to begin with.
+    for line in cmdcls.help.split('\n'):
+        if line.startswith(' '):
+            assert len(line) <= 79, line
+
+
+def examples_in(monkeypatch, capsys, main, argv):
+    "The (tool, COMMAND) of every example command line in the help"
+    monkeypatch.setenv('COLUMNS', '80')
+    monkeypatch.setattr(sys, 'argv', argv)
+
+    with pytest.raises(SystemExit):
+        main()
+
+    names = {prog for prog, _main, _commands in TOOLS}
+    for line in capsys.readouterr().out.split('\n'):
+        words = line.split()
+        if not line.startswith(' ') or not words or words[0] not in names:
+            continue
+
+        command = next(word for word in words[1:] if word[0] != '-')
+        yield words[0], command
+
+
+def test_the_examples_are_found(monkeypatch, capsys):
+    assert list(examples_in(
+        monkeypatch, capsys, lint.main,
+        ['nblint', 'duplicate-macs', '--help'])) == [
+            ('nblint', 'duplicate-macs'), ('nbsync', 'unset-interface-mac')]
+
+
+@pytest.mark.parametrize('argv', [
+    [prog, *name] for prog, _main, commands in TOOLS
+    for name in [('--help',)] + [(cmdcls.name, '--help')
+                                 for cmdcls in commands]],
+    ids=(lambda argv: ' '.join(argv)))
+def test_the_examples_name_real_commands(monkeypatch, capsys, argv):
+    known = {
+        prog: {cmdcls.name for cmdcls in commands}
+        for prog, _main, commands in TOOLS}
+    main = {prog: main for prog, main, _commands in TOOLS}[argv[0]]
+
+    for prog, command in examples_in(monkeypatch, capsys, main, argv):
+        assert command in known[prog], (prog, command)

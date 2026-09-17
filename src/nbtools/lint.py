@@ -27,8 +27,9 @@ def main() -> None:
             '  nblint --porcelain duplicate-macs --limit=unassigned |\n'
             '    nbsync --batch unset-interface-mac : -\n'
             '\n'
-            'Each COMMAND has its own options and a fuller description; '
-            'see "nblint COMMAND --help".'),
+            'Each COMMAND has its own options, a fuller description and, '
+            'where nbsync has a fix for its findings, an example: see '
+            '"nblint COMMAND --help".'),
         formatter_class=ParagraphHelpFormatter)
     parser.add_argument(
         '-c', '--config', metavar='INIFILE',

@@ -18,14 +18,14 @@ def a_populated_netbox():
     "A small NetBox with one of everything the commands read"
     nb = FakeNetbox()
 
-    red = nb.add_vrf('STAIRS')
+    red = nb.add_vrf('DEV')
     nb.add_prefix('10.1.2.0/24', vrf=red)
 
     leaf1 = nb.add_device('leaf1')
     leaf2 = nb.add_device('leaf2')
     swp1 = nb.add_interface(leaf1, 'swp1')
     sub = nb.add_interface(
-        leaf1, 'swp1.1234', parent=swp1, vrf=red, label='STAIRS')
+        leaf1, 'swp1.1234', parent=swp1, vrf=red, label='DEV')
     nb.add_ip('10.1.2.7/24', iface=sub, vrf=red)
 
     # A port holding an address, directly or through a subinterface,

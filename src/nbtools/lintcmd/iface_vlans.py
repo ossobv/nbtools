@@ -84,7 +84,9 @@ def find_wrong_vlans(ifaces):
 class InterfaceVlansCommand(LintCommand):
     name = 'interface-vlans'
     help = (
-        'Find tagged interfaces whose 802.1Q mode and VLANs do not agree. '
+        'Find tagged interfaces whose 802.1Q mode and VLANs do not '
+        'agree.\n'
+        '\n'
         'An interface tagged closso_roth should be in Tagged mode with one '
         'or more tagged VLANs, or in Access mode with exactly one untagged '
         'VLAN. Anything else -- no mode, Tagged-all, a mode with no VLANs '

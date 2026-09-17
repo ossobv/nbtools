@@ -121,10 +121,16 @@ class EmptyPrefixesCommand(LintCommand):
     name = 'empty-prefixes'
     help = (
         'Find prefixes that hold nothing: no address and no smaller '
-        'prefix inside them. They should probably not exist. '
+        'prefix inside them. They should probably not exist.\n'
+        '\n'
         'By default --status=reserved is skipped, as is --role=3rd-party. '
         'These are assumed to be in-progress or out of our control. '
-        'Use --status=all and --role=all to see them anyway.')
+        'Use --status=all and --role=all to see them anyway.\n'
+        '\n'
+        'Example, the empty IPv4 prefixes of any status that have no '
+        'role:\n'
+        '\n'
+        "  nblint empty-prefixes --family=4 --status=all --role=''")
 
     @classmethod
     def add_arguments(cls, parser):

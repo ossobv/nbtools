@@ -265,12 +265,14 @@ def no_bmc_note(device):
 class DeviceBmcsCommand(LintCommand):
     name = 'device-bmcs'
     help = (
-        'Find machines whose management controller cannot be reached. A '
-        'BMC is reached by its MAC before it is reached by anything '
+        'Find machines whose management controller cannot be reached.\n'
+        '\n'
+        'A BMC is reached by its MAC before it is reached by anything '
         'else, so a BMC interface with no MAC on it cannot be found. One '
-        'with two means nothing can tell which of them to use. '
+        'with two means nothing can tell which of them to use.\n'
+        '\n'
         'A BMC here is an interface named BMC, one flagged mgmt_only, '
-        'or the one the device oob_ip sits on; a device with none of '
+        'or the one the device oob_ip sits on. A device with none of '
         'those is reported too, as is an interface named BMC that is '
         'not flagged mgmt_only.')
 

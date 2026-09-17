@@ -26,8 +26,13 @@ class InterfaceTypesCommand(LintCommand):
     name = 'interface-types'
     help = (
         'Find interfaces whose name says what type they are, but whose '
-        'type does not. For now that is the Proxmox bridges: an '
-        'interface named vmbr* should be type=bridge.')
+        'type does not.\n'
+        '\n'
+        'For now that is the Proxmox bridges: an interface named vmbr* '
+        'should be type=bridge. To set the type they should have:\n'
+        '\n'
+        '  nblint --porcelain interface-types --limit=bridge |\n'
+        '    nbsync --batch set-interface-type bridge -')
 
     @classmethod
     def add_arguments(cls, parser):

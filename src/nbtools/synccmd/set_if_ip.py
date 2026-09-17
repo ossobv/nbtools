@@ -38,8 +38,6 @@ class BaseSetInterfaceIpCommand(SyncCommand):
     the lease lands. The options are the same for every line; only
     the pair varies, so only the pair comes in on one.
     """
-    help = 'Set IP on an interface.'
-
     # The type that reads this command's kind of target, and what to
     # tell the reader it looks like.
     target_type = None
@@ -251,6 +249,15 @@ class BaseSetInterfaceIpCommand(SyncCommand):
 
 class SetInterfaceIpCommand(BaseSetInterfaceIpCommand):
     name = 'set-interface-ip'
+    help = (
+        'Set IP on an interface.\n'
+        '\n'
+        'Example, then the same for a file of "TARGET IP" lines such as '
+        '"mynode.example:BMC 10.20.30.4/24":\n'
+        '\n'
+        '  nbsync set-interface-ip --vrf=MGMT mynode.example:BMC '
+        '10.20.30.4/24\n'
+        '  nbsync --batch set-interface-ip --vrf=MGMT - - < pairs.txt')
 
     target_type = DevIface
     target_help = 'Target device and interface (e.g. mynode.example:BMC)'
@@ -268,6 +275,15 @@ class SetInterfaceIpCommand(BaseSetInterfaceIpCommand):
 
 class SetInterfaceIpByMacCommand(BaseSetInterfaceIpCommand):
     name = 'set-interface-ip-by-mac'
+    help = (
+        'Set IP on the interface holding a MAC address.\n'
+        '\n'
+        'A MAC that NetBox holds more than once is refused: see nblint '
+        'duplicate-macs. Fed "MAC IP" lines, such as the leases a DHCP '
+        'server hands out, it sets each IP as its line arrives:\n'
+        '\n'
+        '  nbsync --batch --keep-going set-interface-ip-by-mac \\\n'
+        '    --vrf=MGMT --status=dhcp --single --force - - < leases.txt')
 
     target_type = MacAddr
     target_help = 'Target MAC address (e.g. 11:22:33:44:55:66)'

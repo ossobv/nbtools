@@ -29,8 +29,8 @@ def main() -> None:
             '  nblint --porcelain interface-types --limit=bridge |\n'
             '    nbsync --batch set-interface-type bridge -\n'
             '\n'
-            'Each COMMAND has its own options and a fuller description; '
-            'see "nbsync COMMAND --help".'),
+            'Each COMMAND has its own options, a fuller description and '
+            'examples: see "nbsync COMMAND --help".'),
         formatter_class=ParagraphHelpFormatter)
     parser.add_argument(
         '-c', '--config', metavar='INIFILE',
