@@ -27,6 +27,11 @@ def main() -> None:
     parser.add_argument(
         '-c', '--config', metavar='INIFILE',
         help=f'configuration INI location (default: {CONF_FILE})')
+    parser.add_argument(
+        '-C', '--context', metavar='NAME',
+        help=(
+            'the INI [section] to use; needed when the file has more '
+            'than one'))
     parser.add_argument('--debug', action='store_true', help=(
         'Enable debug output.'))
     parser.add_argument('--porcelain', action='store_true', help=(
@@ -56,9 +61,9 @@ def main() -> None:
     # Load config for API URL/tokens.
     try:
         if args.config is None:
-            config = Config.from_defaults()
+            config = Config.from_defaults(args.context)
         else:
-            config = Config.from_ini(args.config)
+            config = Config.from_ini(args.config, args.context)
     except StartupError as e:
         print(f'{parser.prog}: {e.description}: {e}', file=sys.stderr)
         sys.exit(2)

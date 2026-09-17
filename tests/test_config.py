@@ -1,13 +1,17 @@
 """
-The INI, and the two optional keys the 408 work added to it.
+The INI, the two optional keys the 408 work added to it, and picking a
+context out of it.
 
 api_retries and api_timeout describe the install rather than the
 invocation, so they live here rather than on the command line. Both
 are optional: the file that exists today, with only a URL and a token
 in it, has to keep working and get the defaults.
 """
+import sys
+
 import pytest
 
+from nbtools import lint, sync
 from nbtools.config import Config
 from nbtools.exceptions import StartupError
 from nbtools.netbox import DEFAULT_RETRIES, DEFAULT_TIMEOUT
@@ -17,6 +21,15 @@ MINIMAL = """\
 [netbox.example.com]
 api_url = https://netbox.example.com/api
 api_token = mytoken
+"""
+
+
+TWO_CONTEXTS = MINIMAL + """\
+api_retries = 1
+
+[netbox.test]
+api_url = https://netbox.test/api
+api_token = testtoken
 """
 
 
@@ -92,3 +105,89 @@ def test_the_defaults_are_a_pair_of_seconds():
     connect, read = DEFAULT_TIMEOUT
 
     assert 0 < connect < read
+
+
+def test_the_one_context_needs_no_naming(tmp_path):
+    config = Config.from_ini(an_ini(tmp_path, MINIMAL))
+
+    assert config.api_token == 'mytoken'
+
+
+def test_the_one_context_can_still_be_named(tmp_path):
+    config = Config.from_ini(
+        an_ini(tmp_path, MINIMAL), 'netbox.example.com')
+
+    assert config.api_token == 'mytoken'
+
+
+@pytest.mark.parametrize('context,token,retries', (
+    ('netbox.example.com', 'mytoken', 1),
+    ('netbox.test', 'testtoken', DEFAULT_RETRIES),
+))
+def test_a_context_is_picked_by_name(tmp_path, context, token, retries):
+    "And only its own keys come along"
+    config = Config.from_ini(an_ini(tmp_path, TWO_CONTEXTS), context)
+
+    assert config.api_token == token
+    assert config.api_retries == retries
+
+
+def test_several_contexts_are_not_guessed_between(tmp_path):
+    "The error names the choices"
+    with pytest.raises(StartupError, match=(
+            r'--context: netbox\.example\.com, netbox\.test$')):
+        Config.from_ini(an_ini(tmp_path, TWO_CONTEXTS))
+
+
+@pytest.mark.parametrize('text', (MINIMAL, TWO_CONTEXTS))
+def test_a_context_that_is_not_there(tmp_path, text):
+    with pytest.raises(StartupError, match="context 'netbox.prod'"):
+        Config.from_ini(an_ini(tmp_path, text), 'netbox.prod')
+
+
+def test_a_file_that_is_not_there(tmp_path):
+    with pytest.raises(StartupError, match='cannot read'):
+        Config.from_ini(str(tmp_path / 'nonexistent.ini'))
+
+
+def test_a_file_without_contexts(tmp_path):
+    with pytest.raises(StartupError, match='no context'):
+        Config.from_ini(an_ini(tmp_path, ''))
+
+
+class Connected(Exception):
+    "Raised in place of connecting, carrying the config it was given"
+
+
+@pytest.mark.parametrize('main,command', (
+    (lint.main, []),
+    # nbsync wants a command before it connects; it never gets to run.
+    (sync.main, ['zap-interface', 'leaf1:swp1']),
+))
+@pytest.mark.parametrize('option', ('-C', '--context'))
+def test_the_tools_pass_the_context_on(
+        tmp_path, monkeypatch, main, command, option):
+    def connect(config, tool):
+        raise Connected(config)
+
+    monkeypatch.setattr(sys.modules[main.__module__], 'connect', connect)
+    monkeypatch.setattr(sys, 'argv', [
+        'nbtool', '-c', an_ini(tmp_path, TWO_CONTEXTS),
+        option, 'netbox.test', *command])
+
+    with pytest.raises(Connected) as exc:
+        main()
+
+    assert exc.value.args[0].api_token == 'testtoken'
+
+
+@pytest.mark.parametrize('main', (lint.main, sync.main))
+def test_the_tools_refuse_to_guess(tmp_path, monkeypatch, capsys, main):
+    monkeypatch.setattr(sys, 'argv', [
+        'nbtool', '-c', an_ini(tmp_path, TWO_CONTEXTS)])
+
+    with pytest.raises(SystemExit) as exc:
+        main()
+
+    assert exc.value.code == 2
+    assert 'pick one with --context' in capsys.readouterr().err
