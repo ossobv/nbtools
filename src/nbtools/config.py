@@ -24,25 +24,28 @@ class Config(namedtuple(
         api_token = mytoken
         api_retries = 3        ; optional, 0 turns retrying off
         api_timeout = 5,60     ; optional, (connect, read) seconds
+
+    Each section is a context: one NetBox to talk to. A file with a
+    single section needs no naming it. A file with several has to be
+    told which one, and does not guess: nbsync writes, and a guess
+    that picks the wrong NetBox writes to the wrong NetBox.
     """
     @classmethod
-    def from_defaults(cls):
-        return cls.from_ini(path.expanduser(CONF_FILE))
+    def from_defaults(cls, context=None):
+        return cls.from_ini(path.expanduser(CONF_FILE), context)
 
     @classmethod
-    def from_ini(cls, filename):
+    def from_ini(cls, filename, context=None):
         ini = ConfigParser(
             delimiters=('=',), allow_no_value=True,
             inline_comment_prefixes=('#', ';'))
         try:
-            ini.read(filename)
+            if not ini.read(filename):
+                raise StartupError(f'cannot read {filename}')
         except MissingSectionHeaderError as e:
-            raise StartupError(f'{e} in in {filename}') from e
+            raise StartupError(f'{e} in {filename}') from e
 
-        if len(ini.sections()) != 1:
-            raise StartupError(f'expected exactly one section in {filename}')
-
-        the_section = ini.sections()[0]
+        the_section = _pick_section(ini.sections(), context, filename)
         data = dict(ini.items(the_section))
         try:
             # api_url, with "/api": "https://netbox.example.com/api"
@@ -57,7 +60,30 @@ class Config(namedtuple(
                     data.get('api_timeout'), filename))
         except KeyError as e:
             raise StartupError(
-                f'api_url or api_token not found in {filename}') from e
+                f'api_url or api_token not found in [{the_section}] '
+                f'in {filename}') from e
+
+
+def _pick_section(sections, context, filename):
+    """
+    The section named by context, or the only one if there is no context
+    """
+    if not sections:
+        raise StartupError(f'no context sections in {filename}')
+
+    if context is not None:
+        if context not in sections:
+            raise StartupError(
+                f'context {context!r} not found in {filename}, '
+                f'choose from: {", ".join(sections)}')
+        return context
+
+    if len(sections) != 1:
+        raise StartupError(
+            f'several contexts in {filename}, pick one with --context: '
+            f'{", ".join(sections)}')
+
+    return sections[0]
 
 
 def _parse_retries(text, filename):
