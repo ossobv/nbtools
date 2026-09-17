@@ -511,7 +511,7 @@ def test_a_command_whose_input_is_stdin_refuses_to_ask(monkeypatch, capsys):
     with pytest.raises(SystemExit) as caught:
         cmd.run(ProcessMode.INTERACTIVE)
 
-    assert caught.value.code == 3
+    assert caught.value.code == 2
     assert '--batch' in capsys.readouterr().err
 
 
