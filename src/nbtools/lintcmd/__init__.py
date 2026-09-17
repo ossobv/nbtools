@@ -7,6 +7,7 @@ from .empty_prefixes import EmptyPrefixesCommand
 from .iface_cables import UnattachedInterfacesCommand
 from .iface_tags import InterfaceTagsCommand
 from .iface_types import InterfaceTypesCommand
+from .iface_vlans import InterfaceVlansCommand
 from .subif_labels import SubinterfaceLabelsCommand
 from .subif_parents import SubinterfaceParentsCommand
 from .tenant_names import TenantNamesCommand
@@ -33,6 +34,7 @@ COMMANDS = (
     # Interface configurations: types, tags, vlans and cabling.
     InterfaceTypesCommand,
     InterfaceTagsCommand,
+    InterfaceVlansCommand,
     UnattachedCablesCommand,
     UnattachedInterfacesCommand,
 
