@@ -424,10 +424,13 @@ class FakeNetbox:
 
     # -- reading side: build the world --
 
-    def add_prefix(self, prefix, vrf=None, status='active'):
+    def add_prefix(self, prefix, vrf=None, status='active', role=None):
         "An ipam.prefix, in a VRF or in the global table"
+        if isinstance(role, str):
+            role = Named(id=None, name=role, slug=role)
+
         record = Named(
-            id=self._take_id('prefixes'), prefix=prefix, vrf=vrf,
+            id=self._take_id('prefixes'), prefix=prefix, vrf=vrf, role=role,
             name=prefix, description='', tags=[], tenant=None,
             status=NS(value=status, label=status.title()))
         self.ipam.prefixes.records.append(record)
