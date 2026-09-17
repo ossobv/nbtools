@@ -31,6 +31,7 @@ class DevIface(namedtuple('DevIface', 'device interface')):
     def __str__(self):
         return f'{self.device}:{self.interface}'
 
+
 DevIface.NONE = DevIface(':')
 
 
