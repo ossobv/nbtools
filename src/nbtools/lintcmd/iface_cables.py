@@ -25,7 +25,6 @@ from fnmatch import fnmatchcase
 from pynetbox import RequestError
 
 from ..command import LintCommand
-from ..exceptions import ApiError
 from ..util import in_chunks, split_subinterface
 
 from .findings import InterfaceFinding

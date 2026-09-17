@@ -36,7 +36,8 @@ class MigrateGatewayCommand(SyncCommand):
 
     @classmethod
     def add_arguments(cls, parser):
-        parser.add_argument('-t', '--target', action='append', type=DevIface,
+        parser.add_argument(
+            '-t', '--target', action='append', type=DevIface,
             metavar='DEV:PORT', help=(
                 'Target device and port (e.g. leaf1:swp8). The parent '
                 'port, not a subinterface: the gateway keeps the subinterface '
