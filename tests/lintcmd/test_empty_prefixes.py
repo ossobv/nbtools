@@ -1,3 +1,5 @@
+from argparse import ArgumentParser
+
 from nbtools.lintcmd.empty_prefixes import EmptyPrefixesCommand
 
 from ..nbstub import FakeNetbox
@@ -222,3 +224,125 @@ def test_command_reports_and_counts(capsys):
         '--------------\n'
         '- 10.1.3.0/24 #202 status=active vrf=global\n'
         '- 2001:db8::/64 #203 status=active vrf=global\n')
+
+
+# -- the --role flag --
+
+def parse_roles(*argv):
+    "The role words this command line asks for, flattened"
+    parser = ArgumentParser(prog='empty-prefixes')
+    EmptyPrefixesCommand.add_arguments(parser)
+
+    return [word for value in (parser.parse_args(argv).role or ())
+            for word in value]
+
+
+def a_role_netbox():
+    "One prefix per kind of role, none of them holding anything"
+    nb = FakeNetbox()
+    nb.add_prefix('10.1.1.0/24')
+    nb.add_prefix('10.1.2.0/24', role='3rd-party')
+    nb.add_prefix('10.1.3.0/24', role='mgmt')
+    nb.add_prefix('10.1.4.0/24', role='customer')
+
+    return nb
+
+
+def roles_reported(roles):
+    cmd = EmptyPrefixesCommand(a_role_netbox())
+    cmd.set_roles(roles)
+
+    return [finding.porcelain() for finding in cmd.find()]
+
+
+def test_a_3rd_party_prefix_is_skipped_without_being_asked():
+    assert [finding.porcelain() for finding in
+            EmptyPrefixesCommand(a_role_netbox()).find()] == [
+        '10.1.1.0/24', '10.1.3.0/24', '10.1.4.0/24']
+
+
+def test_no_role_leaves_the_default_in_place():
+    for roles in (None, []):
+        assert roles_reported(roles) == [
+            '10.1.1.0/24', '10.1.3.0/24', '10.1.4.0/24']
+
+
+def test_role_reports_only_the_roles_named():
+    "A prefix without a role is not included unless '' is named"
+    assert roles_reported(['mgmt', '3rd-party']) == [
+        '10.1.2.0/24', '10.1.3.0/24']
+
+
+def test_the_empty_role_reports_only_the_prefixes_without_one():
+    assert roles_reported(['']) == ['10.1.1.0/24']
+
+
+def test_the_empty_role_includes_alongside_named_roles():
+    assert roles_reported(['', 'mgmt']) == ['10.1.1.0/24', '10.1.3.0/24']
+
+
+def test_a_bare_bang_leaves_the_prefixes_without_a_role_out():
+    assert roles_reported(['!']) == [
+        '10.1.2.0/24', '10.1.3.0/24', '10.1.4.0/24']
+
+
+def test_a_bang_role_leaves_that_one_out_and_replaces_the_default():
+    assert roles_reported(['!mgmt']) == [
+        '10.1.1.0/24', '10.1.2.0/24', '10.1.4.0/24']
+
+
+def test_several_bang_roles_are_left_out_together():
+    assert roles_reported(['!mgmt', '!3rd-party']) == [
+        '10.1.1.0/24', '10.1.4.0/24']
+
+
+def test_role_all_reports_every_role():
+    assert roles_reported(['all']) == [
+        '10.1.1.0/24', '10.1.2.0/24', '10.1.3.0/24', '10.1.4.0/24']
+
+
+def test_roles_and_statuses_both_apply():
+    nb = a_role_netbox()
+    nb.add_prefix('10.1.5.0/24', role='mgmt', status='reserved')
+
+    cmd = EmptyPrefixesCommand(nb)
+    cmd.set_roles(['mgmt'])
+
+    assert [finding.porcelain() for finding in cmd.find()] == [
+        '10.1.3.0/24']
+
+
+def test_the_role_flag_is_repeatable_and_comma_separated():
+    assert parse_roles('--role=mgmt, !3rd-party', '--role', 'all') == [
+        'mgmt', '!3rd-party', 'all']
+
+
+def test_no_role_flag_is_an_empty_list():
+    assert parse_roles() == []
+
+
+def test_the_empty_role_passes_the_flag():
+    assert parse_roles('--role=', '--role=!', '--role=mgmt, ') == [
+        '', '!', 'mgmt', '']
+
+
+def test_from_args_carries_the_empty_role_through():
+    parser = ArgumentParser(prog='empty-prefixes')
+    EmptyPrefixesCommand.add_arguments(parser)
+    args = parser.parse_args(['--role=!', '--role=!3rd-party'])
+
+    cmd = EmptyPrefixesCommand.from_args(a_role_netbox(), args)
+
+    assert [finding.porcelain() for finding in cmd.find()] == [
+        '10.1.3.0/24', '10.1.4.0/24']
+
+
+def test_from_args_carries_the_roles_through():
+    parser = ArgumentParser(prog='empty-prefixes')
+    EmptyPrefixesCommand.add_arguments(parser)
+    args = parser.parse_args(['--role=!customer'])
+
+    cmd = EmptyPrefixesCommand.from_args(a_role_netbox(), args)
+
+    assert [finding.porcelain() for finding in cmd.find()] == [
+        '10.1.1.0/24', '10.1.2.0/24', '10.1.3.0/24']
