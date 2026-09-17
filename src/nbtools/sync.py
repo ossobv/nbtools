@@ -3,7 +3,8 @@ from argparse import ArgumentParser
 import logging
 import sys
 
-from .cli import ParagraphHelpFormatter, add_commands
+from .cli import (
+    COMPLETION, ParagraphHelpFormatter, add_commands, completion_script)
 from .command import ProcessMode
 from .config import CONF_FILE, Config
 from .exceptions import StartupError, StateError
@@ -30,7 +31,8 @@ def main() -> None:
             '    nbsync --batch set-interface-type bridge -\n'
             '\n'
             'Each COMMAND has its own options, a fuller description and '
-            'examples: see "nbsync COMMAND --help".'),
+            'examples: see "nbsync COMMAND --help". For tab completion in '
+            'bash, "source <(nbsync completion bash)".'),
         formatter_class=ParagraphHelpFormatter)
     parser.add_argument(
         '-c', '--config', metavar='INIFILE',
@@ -55,6 +57,10 @@ def main() -> None:
     add_commands(parser, COMMANDS, help='the change to make')
 
     args = parser.parse_args()
+
+    if args.command == COMPLETION:
+        print(completion_script(parser, args.shell), end='')
+        sys.exit(0)
 
     # Setup logging.
     logging.basicConfig(

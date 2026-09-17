@@ -3,7 +3,8 @@ from argparse import ArgumentParser
 import logging
 import sys
 
-from .cli import ParagraphHelpFormatter, add_commands
+from .cli import (
+    COMPLETION, ParagraphHelpFormatter, add_commands, completion_script)
 from .config import CONF_FILE, Config
 from .exceptions import StartupError, StateError
 from .lintcmd import COMMANDS, COMMANDS_BY_NAME
@@ -29,7 +30,8 @@ def main() -> None:
             '\n'
             'Each COMMAND has its own options, a fuller description and, '
             'where nbsync has a fix for its findings, an example: see '
-            '"nblint COMMAND --help".'),
+            '"nblint COMMAND --help". For tab completion in bash, '
+            '"source <(nblint completion bash)".'),
         formatter_class=ParagraphHelpFormatter)
     parser.add_argument(
         '-c', '--config', metavar='INIFILE',
@@ -49,6 +51,10 @@ def main() -> None:
         parser, COMMANDS, help='the lint to run; all of them when left out')
 
     args = parser.parse_args()
+
+    if args.command == COMPLETION:
+        print(completion_script(parser, args.shell), end='')
+        sys.exit(0)
 
     # Each command emits its own kind of value, so a --porcelain run of
     # all of them would be a stream of things the reader cannot tell
