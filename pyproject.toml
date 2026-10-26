@@ -6,12 +6,14 @@ requires = [
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "nbtools"
+#name = "nbtools"  # alas, nbtools/nblint/nbsync all taken on PyPI
+name = "netbox-tools"
 dynamic = ["version"]
 description = "Tooling for netbox, think lint/sync/dig"
 readme = "README.rst"
-requires-python = ">=3.8"       # XXX
-license = { text = "GPL3+" }    # XXX
+requires-python = ">=3.8"
+license = "GPL-3.0-or-later"
+license-files = ["LICENSE"]
 authors = [
   { name = "Walter Doekes", email = "wjdoekes+nbtools@osso.nl" },
 ]
