@@ -152,29 +152,34 @@ def addresses_by_holder(nbapi):
     is read, so there is no device list to narrow it by, and nearly
     every device holds an address anyway.
     """
-    # Fetch the ContentType object for 'dcim.interface'
-    try:
-        # NetBox 4.5+
-        # BUG/TODO: We're retrying this automatically before failing.
-        ct = nbapi.core.object_types.get(app_label='dcim', model='interface')
-    except RequestError:
-        # NetBox 4.0 - 4.4
-        ct = nbapi.extras.object_types.get(app_label='dcim', model='interface')
-
     by_holder = {}
 
     # We cannot do interface__empty=False or vminterface__empty=True here,
     # so we need the assigned_object_type (content type).
-    for ipaddr in nbapi.ipam.ip_addresses.filter(assigned_object_type=ct.id):
-        assert ipaddr.assigned_object is not None, (
-            ipaddr, ipaddr.assigned_object, ipaddr)
-        assert ipaddr.assigned_object_type == 'dcim.interface', (
-            ipaddr, ipaddr.assigned_object_type, ipaddr)
-
+    for ipaddr in nbapi.ipam.ip_addresses.filter(
+            assigned_object_type='dcim.interface'):
         iface = ipaddr.assigned_object
         assert iface and iface.device, (ipaddr, iface)
-
         by_holder.setdefault(holder_key(iface), []).append(ipaddr)
+
+    if not by_holder:
+        # Maybe older NetBox?
+        #
+        # Fetch the ContentType object for 'dcim.interface'
+        # NetBox <4.4
+        ct = nbapi.extras.object_types.get(app_label='dcim', model='interface')
+
+        for ipaddr in nbapi.ipam.ip_addresses.filter(
+                assigned_object_type=ct.id):
+            assert ipaddr.assigned_object is not None, (
+                ipaddr, ipaddr.assigned_object, ipaddr)
+            assert ipaddr.assigned_object_type == 'dcim.interface', (
+                ipaddr, ipaddr.assigned_object_type, ipaddr)
+
+            iface = ipaddr.assigned_object
+            assert iface and iface.device, (ipaddr, iface)
+
+            by_holder.setdefault(holder_key(iface), []).append(ipaddr)
 
     return by_holder
 
