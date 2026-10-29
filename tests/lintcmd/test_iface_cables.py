@@ -324,3 +324,23 @@ def test_porcelain_prints_what_the_nbsync_interface_commands_take(capsys):
 def test_a_clean_netbox_is_silent(capsys):
     assert UnattachedInterfacesCommand(FakeNetbox()).run() == 0
     assert capsys.readouterr().out == ''
+
+
+def test_an_older_netbox_is_asked_by_object_type_id():
+    "Before 4.4 the type name finds nothing, so the id is looked up"
+    nb = FakeNetbox()
+    leaf1 = nb.add_device('leaf1')
+    nb.add_ip('10.0.0.3/31', iface=nb.add_interface(leaf1, 'swp2'))
+    asked = []
+    filter_ = nb.ipam.ip_addresses.filter
+
+    def by_id_only(**kwargs):
+        asked.append(kwargs['assigned_object_type'])
+        if not str(kwargs['assigned_object_type']).isdigit():
+            return []
+        return filter_(**kwargs)
+    nb.ipam.ip_addresses.filter = by_id_only
+
+    assert reported(nb) == ['leaf1:swp2']
+    assert asked == ['dcim.interface', nb.extras.object_types.get(
+        app_label='dcim', model='interface').id]

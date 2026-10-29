@@ -202,11 +202,16 @@ def _device_id(record):
 
 def _object_type_name(value):
     """
-    'dcim.interface' for an object type id
+    'dcim.interface' for an object type id, or for that name itself
 
     The ids are the ones FakeNetbox hands out to OBJECT_TYPES, in
-    order, which every instance does the same way.
+    order, which every instance does the same way. NetBox 4.4 and up
+    take the name as well.
     """
+    if isinstance(value, str) and not value.isdigit():
+        assert tuple(value.split('.')) in OBJECT_TYPES, (
+            f'no object type {value}')
+        return value
     index = int(value) - FIRST_ID['object_types']
     assert 0 <= index < len(OBJECT_TYPES), f'no object type #{value}'
     return '.'.join(OBJECT_TYPES[index])
@@ -377,9 +382,9 @@ class FakeNetbox:
         swp34 = nb.add_interface(leaf1, 'swp34')
         sub = nb.add_interface(leaf1, 'swp34.1234', parent=swp34, vrf=red)
 
-    The object types live at core.object_types from NetBox 4.5 on,
-    and at extras.object_types before that. Pass version=(4, 4) for
-    the older one; the endpoint the version lacks answers with a 404.
+    The object types live at core.object_types from NetBox 4.6 on,
+    and at extras.object_types before that. Pass version=(4, 6) for
+    the newer one; the endpoint the version lacks answers with a 404.
     """
     def __init__(self, version=(4, 5)):
         self._next_id = dict(FIRST_ID)
@@ -388,7 +393,7 @@ class FakeNetbox:
             NS(id=self._take_id('object_types'), app_label=app_label,
                model=model)
             for app_label, model in OBJECT_TYPES)
-        if version >= (4, 5):
+        if version >= (4, 6):
             self.core = NS(object_types=object_types)
             self.extras = NS(
                 object_types=GoneEndpoint('extras/object-types'))
