@@ -22,8 +22,6 @@ use. Left alone are:
 from argparse import ArgumentTypeError
 from fnmatch import fnmatchcase
 
-from pynetbox import RequestError
-
 from ..command import LintCommand
 from ..util import in_chunks, split_subinterface
 

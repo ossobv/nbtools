@@ -8,8 +8,9 @@ test: setup
 
 fmt: setup
 	. .venv/bin/activate && flake8
-	! LC_ALL=C grep -rnP --exclude='*.pyc' --exclude='*.swp' '[^\x00-\x7F]' \
-	  src tests contrib
+	! LC_ALL=C grep -rnP --exclude='*.pyc' \
+	  --exclude='*.swp' --exclude PKG-INFO \
+	  '[^\x00-\x7F]' src tests contrib
 
 setup: venv
 
